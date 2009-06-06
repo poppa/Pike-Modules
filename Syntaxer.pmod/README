@@ -1,0 +1,158 @@
+================================================================================
+
+  Syntaxer.pmod
+  Copyright © 2008 Pontus Östlund <pontus@poppa.se>
+
+================================================================================
+
+  DESCRIPTION
+--------------------------------------------------------------------------------
+
+Syntaxer.pmod is a Pike module that does generic syntax highlighting. Virtually
+any language is supported as long as there is a "syntax map" that describes how
+to highlight the language. These "syntax maps" can be generated from the syntax
+files of the simple, but useful, text editor Edit+ - http://editplus.com. There
+are Edit+ files for probably any language out there and since there's a script
+provided in Syntaxer.pmod (stxparser) to generate a Pike representation of the 
+syntax map you can easily create support for any language you like.
+
+Each supported language is represented by a corresponding Pike class - we have
+for instance Pike.pike, Python.pike, Java.pike and so on - that inherits the
+main class Hilite in module.pike. Worth noticing is that tag based languages
+like XML, XSL, RXML and so on is inheriting the class HTML in Markup.pike 
+(which it self inherits Hilite).
+
+================================================================================
+
+  EXTEND
+--------------------------------------------------------------------------------
+
+If you want to implement support for your own language do the following 
+(I pretend to create support for Ada):
+
+  1. Go to http://editplus.com/files.html and see if you can find a syntax
+     file for your language (I would be surprised if you don't!) to download.
+     They'r called "{language-mostly}.stx".
+
+  2. Use "stxparser" to generate a Pike representation of the ada.stx file.
+     I have "cd":ed to Syntaxer.pmod
+
+	 my-computer:~$ ./stxparser ~/Desktop/ada.stx -o Ada.pike
+
+     Now I have Ada.pike in Syntaxer.pmod
+
+  3. Open up Ada.pike in your prefered editor and make sure that the "title"
+     variable looks OK. Some authors of *.stx files write essays in this 
+     keyword!
+
+     Also you might want to check that the colors in the "_colors" mapping
+     looks pleasant.
+
+     If you have generated a syntax file for a language that supports
+     preprocessing macros check out the variables just above the constructor.
+     You will need to remove the comments there if you want macros to be 
+     highlighted.
+
+  4. Almost done! Open up module.pike and scroll down to the bottom of the
+     file. There in Syntaxer.get_parser() you need to add a "case" statement
+     for your language.
+
+       switch(lower_case(type)) {
+	 ...
+  
+	 case "ada":
+	   o = .Ada();
+	   break;
+       }
+
+     Now your done and can use the module to syntax highlight source code!
+
+To try if it works you can generate a HTML file from a source code file by using
+"codify" that is located in Syntaxer.pmod. I continue to use Ada as an example
+and I'm still "cd":ed into Syntaxer.pmod:
+
+  my-computer:~$ ./codify ~/Desktop/source.ada -o ~/Desktop
+
+This will create a HTML file named "source.ada.html" in my desktop directory.
+
+If you wan't to use the module code-wise you use it like this (assuming you
+have put Syntaxer.pmod in your PIKE_MODULE_PATH)
+
+  // Retrieve a parser object. If no one is found a "generic" parser will be
+  // returned wich pretty much does nothing.
+  Syntaxer.Hilite stx = Syntaxer.get_parser("ada");
+
+  // You can set the tabsize if you wish. Default is 4, but can also be
+  // overridden in easch sub class.
+  stx->tabsize = 2;
+
+  // Languages like PHP are HTML embedded and the highlighting won't start
+  // until a preprocessor instruction (<?php) is found. But if you only want
+  // to highlight a code snippet where there is no HTML code involved you can
+  // override this setting as well
+  stx->html_embedded = 0;
+
+  // Per default each line is wrapped inside a pair of <li></li> tags (so 
+  // that we can get line numbering). This can also be changed if you instead
+  // wish to wrap the code in a pair of <pre></pre>.
+  // The below will add a newline to the end of every line.
+  stx->line_wrap = ({ "", "\n" });
+  
+  string file = "/path/to/source.ada";
+  
+  // Lets parse the damn thing!
+  string hicode = stx->parse(Stdio.read_file(file);
+  
+  // Write the result to a file
+  Stdio.write_file("source.ada.html", sprintf(#"
+    <html>
+      <head><title>Source code of %<s</title></head>
+      <body>
+	<h1>%<s</h1>
+	<p><strong>%s</strong> lines of <strong>%s</strong> code</p>
+	<pre>%s</pre>
+      </body>
+    </html>",
+    basename(file),
+    stx->get_lines(),
+    stx->get_title(),
+    hicode)
+  );
+
+And that's that! Not too difficult!
+
+================================================================================
+
+  ROXEN MODULE/ROXEN TAG
+--------------------------------------------------------------------------------
+
+If you want to use Syntaxer.pmod to highlight source code on your Roxen? 
+powered website you can since there's a Roxen module provided. The file is in
+Syntaxer.pmod and is named "codify-tag.pike.roxen". To use it you must of course
+put it in your Roxen module directory and remove the ".roxen" part of the file.
+
+But what's more important is: You have to put Syntaxer.pmod in a Pike module
+location that Roxen is aware of. You can probably drop it into
+"$ROXEN_INSTALL_DIR/local/pike-modules" unless you are running a Windows server
+since this directory isn't indexed on that crappy platform (this particular
+behaviour I can't blame Microsoft for, it's a Roxen bug ;)! What you can do if
+Roxen doesn't find your modules in "$ROXEN_INSTALL_DIR/local/pike-modules" is 
+setting the environment variable "PIKE_MODULE_PATH" to point to your location of
+choise. If on a *nix platform you can add this by altering Roxens start script.
+Add:
+
+  export PIKE_MODULE_PATH="/path/to/pike-modules/"
+
+just above the line:
+
+  cd "$SERVER_DIR" && exec ./start "$@"
+
+You will have to restart Roxen for the changes to take place!
+
+All that's left to do is to load the "codify-tag.pike"-module in the Roxen 
+Admin Interface and then you'll have the container tag "<codify></codify>"
+available. See the "Documentation" tab in the admin interface for usage.
+
+If you have any questions feel free to ask them by sending me an email!
+
+CHEERS!

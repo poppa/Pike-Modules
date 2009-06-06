@@ -1,0 +1,178 @@
+/*
+ * Codify
+ *
+ * This module provide a tag to syntax highlight source code.
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * Copyright © 2007 Pontus Östlund <pontus@poppa.se>
+ *
+ * The Codify module is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * The Codify module is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+#include <config.h>
+#include <module.h>
+inherit "module";
+
+constant thread_safe = 1;
+constant module_type = MODULE_TAG;
+constant module_name = "TVAB Tags: Codify";
+constant module_doc  = "Tag that syntax highlight source code";
+
+array  line_wrapper;
+string template;
+
+void create(Configuration conf)
+{
+  set_module_creator("Pontus Östlund <pontus@poppa.se>");
+
+  defvar("line_wrap",
+    Variable.StringList(
+      ({ "<li>", "</li>" }), 0, "Line wrapper",
+      "Determines how to wrap each line of source code. NOTE! This list should "
+      "always have two values even if the values are empty. The first value "
+      "will be prepended to each line and the second value will be appended to "
+      "each line"
+    )
+  );
+
+  defvar("template",
+    Variable.Text(
+      "<div class='codify'>\n"
+      "  <div class='header'><em>&_.lines;</em> lines of "
+      "<em>&_.language;</em></div>\n"
+      "  <div class='code'>\n"
+      "    <ol>&_.source:none;</ol>\n"
+      "  </div>\n"
+      "</div>", 0, "Template",
+      "Define the outer HTML code if you wish to make the highlighted code "
+      "more pretty and you don't want to write that code every time"
+    )
+  );
+}
+
+void start(int when, Configuration _conf)
+{
+  line_wrapper = map(query("line_wrap"), lambda(string in) {
+    return replace(in, "\\n","\n");
+  });
+  
+  template = query("template");
+}
+
+class TagCodify
+{
+  inherit RXML.Tag;
+
+  constant name = "codify";
+  mapping(string:RXML.Type) opt_arg_types = ([
+    "language"      : RXML.t_text(RXML.PEnt),
+    "tabsize"       : RXML.t_text(RXML.PEnt),
+    "html-embedded" : RXML.t_text(RXML.PEnt)
+  ]);
+
+  class Frame
+  {
+    inherit RXML.Frame;
+
+    mapping(string:mixed) vars = ([]);
+
+    array do_enter(RequestID id)
+    {
+      Syntaxer.Hilite s = Syntaxer.get_parser(args->language||"");
+
+      if (args->tabsize)
+        s->tabsize = (int)args->tabsize;
+
+      if (line_wrapper)
+        s->line_wrap = line_wrapper;
+
+      if ( string v = args["html-embedded"] ) {
+        if ( !(< "0","1" >)[v] )
+          RXML.parse_error("Illegal value to argument \"html-embedded\". "
+                           "Must be \"0\" or \"1\"");
+        s->html_embedded = (int)v;
+      }
+
+      vars["source"]   = s->parse(String.trim_all_whites(content));
+      vars["lines"]    = s->get_lines();
+      vars["language"] = s->get_title() || "Unknown";
+      content = "";
+    }
+
+    array do_return(RequestID id)
+    {
+      if (template && sizeof(template))
+        result = Roxen.parse_rxml(template, id);
+      else
+        result = vars->source;
+
+      vars = ([]);
+      return 0;
+    }
+  }
+}
+
+TAGDOCUMENTATION;
+#ifdef manual
+constant tagdoc = ([
+"codify" : ({ #"<desc type='cont'><p><short>
+This container tag let you syntax highlight source code. What languages can
+be highlighted is defined in the underlying Pike module and if a language is
+missed it can easily be added. Se the Syntaxer.pmod for further instructions.
+</short></p>
+
+<attr name='language' value='string'><p>
+  The language to treat the content as. For most languages there's aliases
+  but most certainly the general file extension will work just fine. So if
+  you'r highlighting some JavaScript the value here could be <tt>js</tt> or
+  <tt>javascript</tt></p>
+</attr>
+
+<attr name='html-embedded' value='0|1'><p>
+  Some languages, like PHP, is HTML embedded and to determine where the program
+  code starts and ends preprocessor instructions is used 
+  (<tt>&lt;?php source code ?&gt;</tt>). With this attribute you can force the
+  parser to skip looking for preprocessor instructions and treat the entire
+  content like program code</p>
+
+<ex><codify language='php' html-embedded='0'>
+$arr = array('One','Two','Three','Four','Five');
+foreach ($arr as $val)
+  printf(\"%10s\\n\", $val);
+</codify></ex>
+</attr>
+
+<attr name='tabsize' value='int'><p>
+  Specify the indentation width. This will override the default value in the
+  module handling the language.</p>
+</attr>
+
+<p>In the settings tab for this module you'll find a \"Template\" directive
+  where you can specify surrounding HTML layout for the output of this tag.
+  By default each line of code will be wrapped in a pair of <tag>li</tag> 
+  <tag>/li</tag> tags so you'd want an <tag>ol</tag> tag wrapped around the
+  result. It can be tedious writing this every time you use the 
+  <tag>codify</tag> tag so set up a template to handle that.
+</p>
+<p>These entitites can be used in the template:</p>
+", ([
+"&_.source;" : "<desc type='entity'><p>The highlighted source code</p></desc>",
+"&_.language;" : "<desc type='entity'><p>The name of the language</p></desc>",
+"&_.lines;" : "<desc type='entity'><p>Number of lines highlighted</p></desc>"
+])
+})
+]);
+#endif
