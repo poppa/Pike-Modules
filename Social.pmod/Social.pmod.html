@@ -1,0 +1,2432 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>Social.pmod documentation</title>
+    <style type="text/css">
+	  BODY { 
+		  font: 80%/140% arial, sans-serif; 
+		  padding: 0; 
+		  margin: 0; 
+		  background: #212121;
+		  color: #F5F5F5;
+		  }
+	  H1, H2 {
+		  padding: 20px 10px; 
+		  background: #141212; 
+		  font-size: 2.5em;
+		  border-bottom: 5px solid #35353C;
+		  margin: 0;
+		  color: #F1F1F1;
+		  clear: left;
+		  }
+	  H2 { font-size: 2em; }
+	  H1 SMALL,
+	  H2 SMALL { 
+		  font-weight: normal; 
+		  font-variant: small-caps; 
+		  font-family: georgia, serif;
+		  font-style: italic;
+		  }
+	  A { color: orange; }
+	  HR { 
+		  height: 1px; 
+		  background: #333; 
+		  border: none;
+		  margin: 0 0 20px 0;
+		  }
+	  PRE { font-size: 11px; }
+	  DIV.docwrap { 
+		  border-top: 1px solid black;
+		  background: #232323;
+		  }
+	  DIV.docgroup {
+		  border-bottom: 1px solid black;
+		  background: #2A2A29;
+		  clear: left;
+		  }
+	  DIV.docgroup DL {
+		  clear: both;	
+		  }
+	  DIV.docgroup DT {
+		  float: left;
+		  width: 18%;
+		  background: #1a1a1a;
+		  padding: 5px;
+		  clear: left;
+		  }
+	  DIV.docgroup DD {
+		  float: left;
+		  width: 76%;
+		  color: #BBB;
+		  }
+	  DIV.docgroup DD P { margin-top: 5px; }
+	  DIV.docdoc { 
+		  background: #222522; 
+		  padding: 7px; 
+		  padding-bottom: 0;
+		  outline: 1px solid #1e1e1e;
+		  }
+	  DIV.content { padding: 14px; padding-left: 40px; }
+	  DL.method-summary { margin: 0 }
+	  DL.method-summary UL { padding-left: 0; list-style: none; margin: 10px 0 0 0; }
+	  DL.method-summary UL LI { background:#181818; margin-bottom: 1px; padding: 3px}
+	  DL.method-summary UL LI A { color: #66ccff; font-weight: bold; }
+	  DL.method-summary UL LI .params SPAN,
+	  DL.method-summary UL LI .params { color: #555 !important; }
+	  DL.method-summary UL LI UL { margin: 0 0 0 25px;}
+	  .label { font-weight: bold; margin-right: 10px; color: #777; }
+	  .homogen-name { font-size: 1.6em; font-weight: bold; }
+	  .top-level { color: #6cf; }
+	  .modifier { color: #cf5e5e;  }
+	  .homogen-type { color: #909; }
+	  .type-type { color: #b9b91d; }
+	  .type-name, .var-name { color: #A0F0E0; }
+	  .delim { color: #CCC; }
+	  .literal { color: #C00; }
+	  .method { color: #66ccff; }
+	  .ref { 
+		  font-family: 'andale mono', monospace;
+		  background: #212129;
+		  padding: 2px;
+		  font-size: .9em;
+		  color: #f66;
+		  }
+	  .program-name { color: #1379a9; }
+	  DT .param-name { color: #f66; font-size: 1.0em !important; }
+	  P.expanded-member { 
+		  font-size: 1.3em; margin-top: 0;
+		  background: #212129;
+		  padding: 0px 5px 3px 5px;
+		  display: table;
+		  margin-top: 2px;
+		  }
+	  P TT {
+		  background: #212129;
+		  font-size: 1.3em;
+		  padding: 2px;
+		  color: #f0f56b;
+		  }
+	  DIV.code, CODE { color: white; font: 11.5px/120% 'andale mono', monospace !IMPORTANT }
+	  DIV.code {
+		  padding: 1px;
+		  border: 1px solid #000;
+		  background: #333;
+		  }
+	  DIV.code OL {
+		  list-style: none;
+		  padding: 10px;
+		  margin: 0;
+		  background: #212129;
+		  }
+	</style>
+  </head>
+  <body>
+    <div xmlns="" class="module" id="id334726">
+      <h1><small>Module</small> <span class="top-level">Social</span></h1>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Module summary</dt>
+          <dd>
+            <ul>
+              <li>module <a href="#id335881">OAuth</a><ul><li>module <a href="#id339234">Signature</a></li></ul></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Class summary</dt>
+          <dd>
+            <ul>
+              <li>class <a href="#id334731">Twitter</a></li>
+              <li>class <a href="#id340753">Gravatar</a></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id334731">
+      <h2><small>Class</small> <span class="top-level">Social.Twitter</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Twitter client class</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+Twitter.pike is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Twitter.pike is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Twitter.pike. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id335577">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Consumer</em><span class="delim">)</span> <span class="param-name">consumer</span>, <span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <span class="param-name">token</span>, <span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_cache_path</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id335645">clear_cache</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <a href="#id335675">get_request_token</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <a href="#id335706">get_access_token</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id335737">get_auth_url</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id335767">call</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">url</span>, <span class="type-type">void</span>|<span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">args</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">method</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">expires</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Import</span>
+          <span class="homogen-name" id="id335488">Parser.XML.Tree</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Import</span>
+          <span class="homogen-name" id="id335506">.OAuth</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Inherit</span>
+          <span class="homogen-name" id="id335524">Client</span>
+        </div>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p><span class="ref">Social.OAuth.Client</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id335551">Social.Twitter.session</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.Twitter</span>()-&gt;</span><span class="var-name">session</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Session cookie</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id335577">Social.Twitter.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.Twitter</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Consumer</em><span class="delim">)</span> <span class="param-name">consumer</span><span class="delim">, </span><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <span class="param-name">token</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_cache_path</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Twitter</span> instance</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">consumer</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">token</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_cache_path</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id335645">Social.Twitter.clear_cache</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.Twitter</span>()-&gt;</span><span class="method">clear_cache</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Clear the cache</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id335675">Social.Twitter.get_request_token</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.Twitter</span>()-&gt;</span><span class="method">get_request_token</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Fetches a request token</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id335706">Social.Twitter.get_access_token</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.Twitter</span>()-&gt;</span><span class="method">get_access_token</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Fetches an access token</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id335737">Social.Twitter.get_auth_url</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.Twitter</span>()-&gt;</span><span class="method">get_auth_url</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the authorization URL</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id335767">Social.Twitter.call</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.Twitter</span>()-&gt;</span><span class="method">call</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">url</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">args</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">method</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">expires</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Makes a request to <span class="ref">url</span>.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">url</code></dt>
+          <dd><p>The Twitter method to call. A <tt>string</tt> or <span class="ref">Standards.URI</span>.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">args</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">method</code></dt>
+          <dd><p><span class="ref">OAuth.Request.GET</span> or <span class="ref">OAuth.Request.POST</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">expires</code></dt>
+          <dd><p>Number of seconds to keep the cache.
+  If <tt>-1</tt> the request will not be cached at all</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="class" id="id334769">
+        <h2><small>Class</small> <span class="top-level">Social.Twitter.Response</span></h2>
+        <div class="description content">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The response class parses an XML tree returned from a Twitter method
+ and turns it into a mapping.</p>
+<p> <div class="code"><ol>
+<li><span style="color:#b9b91d">string</span> url <span style="color:#82bbfb">=</span> <span style="color:#d4d21f">"http://twitter.com/account/verify_credentials.xml"</span><span style="color:#82bbfb">;</span>  </li>
+<li><span style="color:#b9b91d">string</span> xml <span style="color:#82bbfb">=</span> twitter<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>call<span style="color:#82bbfb">(</span>url<span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li>Twitter<span style="color:#82bbfb">.</span>Response resp <span style="color:#82bbfb">=</span> twitter<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>Response<span style="color:#82bbfb">(</span>xml<span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li><span style="color:#CCC">write</span><span style="color:#82bbfb">(</span><span style="color:#d4d21f">"Hello %s, you said: %s\n"</span><span style="color:#82bbfb">,</span> resp<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>name<span style="color:#82bbfb">,</span> resp<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>status<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>text<span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span> </li>
+</ol></div></p>
+</dd>
+          <dl class="method-summary">
+            <dt class="label">Method summary</dt>
+            <dd>
+              <ul><li><span class="type-type">void</span> <a href="#id334990">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">response_xml</span><span class="delim">)</span></strong></span></li>
+Node
+
+<li><span class="type-type">mixed</span> <a href="#id335097">`[]</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">index</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mixed</span> <a href="#id335137">`-&gt;</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">index</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mixed</span> <a href="#id335175">_indices</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mixed</span> <a href="#id335210">_sizeof</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id335245">_sprintf</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">t</span><span class="delim">)</span></strong></span></li></ul>
+            </dd>
+          </dl>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Variable</span>
+            <span class="homogen-name" id="id334964">Social.Twitter.Response.members</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">mapping</span> <span class="delim"><span class="program-name">Social.Twitter.Response</span>()-&gt;</span><span class="var-name">members</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>The XML tree representation</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id334990">Social.Twitter.Response.create</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.Twitter.Response</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">response_xml</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Creates a new <span class="ref">Response</span> object</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">response_xml</code></dt>
+            <dd><p>The result from e.g <span class="ref">Twitter()-&gt;call()</span></p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id335097">Social.Twitter.Response.`[]</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.Twitter.Response</span>()-&gt;</span><span class="method">`[]</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">index</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Index lookup</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">index</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id335137">Social.Twitter.Response.`-&gt;</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.Twitter.Response</span>()-&gt;</span><span class="method">`-&gt;</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">index</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Arrow lookup</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">index</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id335175">Social.Twitter.Response._indices</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.Twitter.Response</span>()-&gt;</span><span class="method">_indices</span><span class="delim">(</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Returns the indices of the <span class="ref">members</span></p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id335210">Social.Twitter.Response._sizeof</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.Twitter.Response</span>()-&gt;</span><span class="method">_sizeof</span><span class="delim">(</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Returns the size of the <span class="ref">members</span></p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id335245">Social.Twitter.Response._sprintf</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.Twitter.Response</span>()-&gt;</span><span class="method">_sprintf</span><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">t</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>String format</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id340753">
+      <h2><small>Class</small> <span class="top-level">Social.Gravatar</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Gravatar class</b></p>
+<p> This class generates an URL to a Gravatar image.
+ <a href="http://www.gravatar.com">http://www.gravatar.com</a></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+Gravatar.pike is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Gravatar.pike is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Gravatar.pike. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+<p> <b>Example</b></p>
+<p> <div class="code"><ol>
+<li><span style="color:#555568">// Most simple scenario</span> </li>
+<li><span style="color:#7466ff">Social</span><span style="color:#82bbfb">.</span>Gravatar g <span style="color:#82bbfb">=</span> <span style="color:#7466ff">Social</span><span style="color:#82bbfb">.</span>Gravatar<span style="color:#82bbfb">(</span><span style="color:#d4d21f">"me@domain.com"</span><span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li><span style="color:#b9b91d">string</span> url <span style="color:#82bbfb">=</span> <span style="color:#82bbfb">(</span><span style="color:#b9b91d">string</span><span style="color:#82bbfb">)</span>g<span style="color:#82bbfb">;</span> </li>
+</ol></div></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul><li><span class="type-type">void</span> <a href="#id341159">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_email</span>, <span class="type-type">void</span>|<span class="type-type">string</span>|<span class="type-type">int</span> <span class="param-name">_size</span>, <span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_rating</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id341250">get_avatar</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+
+
+<li><span class="type-type">mixed</span> <a href="#id341312">cast</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></strong></span></li></ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id340903">Social.Gravatar.RATING_G</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Social.Gravatar</span>.<span class="type-name">RATING_G</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>G rated gravatar is suitable for display on all websites with any 
+ audience type.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id340927">Social.Gravatar.RATING_PG</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Social.Gravatar</span>.<span class="type-name">RATING_PG</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>PG rated gravatars may contain rude gestures, provocatively dressed 
+ individuals, the lesser swear words, or mild violence.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id340951">Social.Gravatar.RATING_R</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Social.Gravatar</span>.<span class="type-name">RATING_R</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>R rated gravatars may contain such things as harsh profanity, intense 
+ violence, nudity, or hard drug use.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id340975">Social.Gravatar.RATING_X</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Social.Gravatar</span>.<span class="type-name">RATING_X</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>X rated gravatars may contain hardcore sexual imagery or extremely 
+ disturbing violence.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id341056">Social.Gravatar.image</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.Gravatar</span>()-&gt;</span><span class="var-name">image</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Default fallback image.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id341082">Social.Gravatar.email</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.Gravatar</span>()-&gt;</span><span class="var-name">email</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The email the Gravatar account is registered with</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id341107">Social.Gravatar.rating</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.Gravatar</span>()-&gt;</span><span class="var-name">rating</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The Gravatar rating</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id341133">Social.Gravatar.size</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Social.Gravatar</span>()-&gt;</span><span class="var-name">size</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The size of the Gravatar to display</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id341159">Social.Gravatar.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.Gravatar</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_email</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">string</span>|<span class="type-type">int</span> <span class="param-name">_size</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_rating</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Gravatar</span> object</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_email</code></dt>
+          <dd><p>The email the account is registerd with</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_size</code></dt>
+          <dd><p>Sets the size of the image. Default is <tt>80</tt></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_rating</code></dt>
+          <dd><p>The rating the Gravatar is registerd as. Default value is <tt>G</tt></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id341250">Social.Gravatar.get_avatar</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.Gravatar</span>()-&gt;</span><span class="method">get_avatar</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates and returns the URL to the Gravatar</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id341312">Social.Gravatar.cast</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.Gravatar</span>()-&gt;</span><span class="method">cast</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Casting method.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">how</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="module" id="id335881">
+      <h1><small>Module</small> <span class="top-level">OAuth</span></h1>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>OAuth module</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+OAuth.pmod is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+OAuth.pmod is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with OAuth.pmod. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+<p> <b>Example</b></p>
+<p> <div class="code"><ol>
+<li><span style="color:#ff6666">import</span> <span style="color:#7466ff">Social</span><span style="color:#82bbfb">.</span><span style="color:#7466ff">OAuth</span><span style="color:#82bbfb">;</span>  </li>
+<li>  </li>
+<li><span style="color:#b9b91d">string</span> endpoint <span style="color:#82bbfb">=</span> <span style="color:#d4d21f">"http://twitter.com/users/show.xml"</span><span style="color:#82bbfb">;</span>  </li>
+<li>  </li>
+<li>Consumer consumer <span style="color:#82bbfb">=</span> Consumer<span style="color:#82bbfb">(</span>my_consumer_key<span style="color:#82bbfb">,</span> my_consumer_secret<span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li>Token    token    <span style="color:#82bbfb">=</span> Token<span style="color:#82bbfb">(</span>my_access_token_key<span style="color:#82bbfb">,</span> my_access_token_secret<span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li>Params   params   <span style="color:#82bbfb">=</span> Params<span style="color:#82bbfb">(</span>Param<span style="color:#82bbfb">(</span><span style="color:#d4d21f">"user_id"</span><span style="color:#82bbfb">,</span> <span style="color:#c00">12345</span><span style="color:#82bbfb">)</span><span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li>Request  request  <span style="color:#82bbfb">=</span> request<span style="color:#82bbfb">(</span>consumer<span style="color:#82bbfb">,</span> token<span style="color:#82bbfb">,</span> params<span style="color:#82bbfb">,</span> Request<span style="color:#82bbfb">.</span>GET<span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li>  </li>
+<li>request<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>sign_request<span style="color:#82bbfb">(</span>Signature<span style="color:#82bbfb">.</span>HMAC_SHA1<span style="color:#82bbfb">,</span> consumer<span style="color:#82bbfb">,</span> token<span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li><span style="color:#CCC"><b>Protocols</b></span><span style="color:#82bbfb">.</span>HTTP<span style="color:#82bbfb">.</span>Query query <span style="color:#82bbfb">=</span> request<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>submit<span style="color:#82bbfb">(</span><span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li>  </li>
+<li><span style="color:#ff6666">if</span> <span style="color:#82bbfb">(</span>query<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>status <span style="color:#82bbfb">!</span><span style="color:#82bbfb">=</span> <span style="color:#c00">200</span><span style="color:#82bbfb">)</span>  </li>
+<li>  <span style="color:#CCC">error</span><span style="color:#82bbfb">(</span><span style="color:#d4d21f">"Bad response status: %d\n"</span><span style="color:#82bbfb">,</span> query<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>status<span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li>  </li>
+<li><span style="color:#CCC">werror</span><span style="color:#82bbfb">(</span><span style="color:#d4d21f">"Data is: %s\n"</span><span style="color:#82bbfb">,</span> query<span style="color:#82bbfb">-</span><span style="color:#82bbfb">&gt;</span>data<span style="color:#82bbfb">(</span><span style="color:#82bbfb">)</span><span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span> </li>
+</ol></div></p>
+</dd>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Module summary</dt>
+          <dd>
+            <ul>
+              <li>module <a href="#id339234">Signature</a></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Class summary</dt>
+          <dd>
+            <ul>
+              <li>class <a href="#id336400">Consumer</a></li>
+              <li>class <a href="#id336652">Token</a></li>
+              <li>class <a href="#id336746">Param</a></li>
+              <li>class <a href="#id337400">Params</a></li>
+              <li>class <a href="#id337839">Request</a></li>
+              <li>class <a href="#id339807">Client</a><ul><li>class <a href="#id339847">DataCache</a></li></ul></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>Request</em><span class="delim">)</span> <a href="#id338797">request</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Consumer</em><span class="delim">)</span> <span class="param-name">consumer</span>, <span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <span class="param-name">token</span>, <span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">uri</span>, <span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">params</span>, <span class="type-type">int</span> <span class="param-name">http_method</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <a href="#id338920">query_to_params</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span>|<span class="type-type">mapping</span> <span class="param-name">q</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id339150">normalize_uri</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">uri</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id339203">nonce</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docwrap">
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338559">Social.OAuth.VERSION</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">VERSION</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Verion</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338583">Social.OAuth.CONSUMER_KEY_KEY</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">CONSUMER_KEY_KEY</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Query string variable name for the consumer key</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338606">Social.OAuth.CALLBACK_KEY</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">CALLBACK_KEY</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Query string variable name for a callback URL</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338630">Social.OAuth.VERSION_KEY</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">VERSION_KEY</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Query string variable name for the version</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338654">Social.OAuth.SIGNATURE_METHOD_KEY</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">SIGNATURE_METHOD_KEY</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Query string variable name for the signature method</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338678">Social.OAuth.SIGNATURE_KEY</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">SIGNATURE_KEY</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Query string variable name for the signature</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338702">Social.OAuth.TIMESTAMP_KEY</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">TIMESTAMP_KEY</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Query string variable name for the timestamp</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338725">Social.OAuth.NONCE_KEY</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">NONCE_KEY</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Query string variable name for the nonce</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338749">Social.OAuth.TOKEN_KEY</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">TOKEN_KEY</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Query string variable name for the token key</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id338773">Social.OAuth.TOKEN_SECRET_KEY</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth</span>.<span class="type-name">TOKEN_SECRET_KEY</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Query string variable name for the token secret</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id338797">Social.OAuth.request</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">object</span><span class="delim">(</span><em>Request</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth</span>.</span><span class="method">request</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Consumer</em><span class="delim">)</span> <span class="param-name">consumer</span><span class="delim">, </span><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <span class="param-name">token</span><span class="delim">, </span><span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">uri</span><span class="delim">, </span><span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">params</span><span class="delim">, </span><span class="type-type">int</span> <span class="param-name">http_method</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Helper method to create a <span class="ref">Request</span></p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">consumer</code></dt>
+            <dt><span class="label">Parameter</span> <code class="param-name">token</code></dt>
+            <dt><span class="label">Parameter</span> <code class="param-name">uri</code></dt>
+            <dd><p>A <tt>string</tt> or <span class="ref">Standards.URI</span></p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">params</code></dt>
+            <dt><span class="label">Parameter</span> <code class="param-name">http_method</code></dt>
+            <dd><p>Either <span class="ref">Request.GET</span> or <span class="ref">Request.POST</span></p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id338920">Social.OAuth.query_to_params</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth</span>.</span><span class="method">query_to_params</span><span class="delim">(</span><span class="type-type">string</span>|<span class="type-type">mapping</span> <span class="param-name">q</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Converts a query string, or a mapping, into a <span class="ref">Params</span> object.</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">q</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id339150">Social.OAuth.normalize_uri</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth</span>.</span><span class="method">normalize_uri</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">uri</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Normalizes <span class="ref">uri</span></p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">uri</code></dt>
+            <dd><p>A <tt>string</tt> or <span class="ref">Standards.URI</span></p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id339203">Social.OAuth.nonce</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth</span>.</span><span class="method">nonce</span><span class="delim">(</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Generates a <tt>nonce</tt></p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id336400">
+      <h2><small>Class</small> <span class="top-level">Social.OAuth.Consumer</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>An OAuth user</p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id336496">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_key</span>, <span class="type-type">string</span> <span class="param-name">_secret</span>, <span class="type-type">void</span>|<span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">_callback</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">mixed</span> <a href="#id336572">cast</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id336616">_sprintf</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">t</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id336415">Social.Twitter.Consumer.key</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Consumer</span>()-&gt;</span><span class="var-name">key</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Consumer key</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id336440">Social.Twitter.Consumer.secret</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Consumer</span>()-&gt;</span><span class="var-name">secret</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Consumer secret</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id336496">Social.Twitter.Consumer.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Consumer</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_key</span><span class="delim">, </span><span class="type-type">string</span> <span class="param-name">_secret</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">_callback</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Consumer</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_key</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_secret</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_callback</code></dt>
+          <dd><p>Can be a <tt>string</tt> or a <span class="ref">Standards.URI</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id336572">Social.Twitter.Consumer.cast</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Consumer</span>()-&gt;</span><span class="method">cast</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Casting method.
+ Only handle casting to <tt>string</tt> which will turn the object into
+ a query string.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">how</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id336616">Social.Twitter.Consumer._sprintf</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Consumer</span>()-&gt;</span><span class="method">_sprintf</span><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">t</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>String format.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id336652">
+      <h2><small>Class</small> <span class="top-level">Social.OAuth.Token</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>Token class.</p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id336692">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span>, <span class="type-type">string</span> <span class="param-name">secret</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Inherit</span>
+          <span class="homogen-name" id="id336667">Consumer</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id336692">Social.Twitter.Token.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Token</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">, </span><span class="type-type">string</span> <span class="param-name">secret</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Token</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">key</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">secret</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id336746">
+      <h2><small>Class</small> <span class="top-level">Social.OAuth.Param</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>Represents a query string parameter, i.e. <tt>key=value</tt></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul><li><span class="type-type">void</span> <a href="#id336820">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_name</span>, <span class="type-type">mixed</span> <span class="param-name">_value</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id336874">get_name</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id336874">get_value</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <a href="#id336929">`==</a><span class="params"><strong><span class="delim">(</span><span class="type-type">mixed</span> <span class="param-name">other</span><span class="delim">)</span></strong></span></li><li><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <a href="#id336981">`&gt;</a><span class="params"><strong><span class="delim">(</span><span class="type-type">mixed</span> <span class="param-name">other</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id337030">`+</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span> <span class="param-name">other</span><span class="delim">)</span></strong></span></li><li><span class="type-type">object</span> <a href="#id337078">`[]</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id337119">encode</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mapping</span> <a href="#id337161">encode_mapping</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mixed</span> <a href="#id337208">indices</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mixed</span> <a href="#id337243">values</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mixed</span> <a href="#id337278">cast</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id337317">_sprintf</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">t</span><span class="delim">)</span></strong></span></li>
+
+01
+</ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id336820">Social.Twitter.Param.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_name</span><span class="delim">, </span><span class="type-type">mixed</span> <span class="param-name">_value</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Param</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_name</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_value</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member"><span class="label homogen-type">Method</span>s
+		</div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">get_name</span><span class="delim">(</span><span class="delim">)</span></code>
+          <br />
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">get_value</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Getters for the <span class="ref">name</span> and <span class="ref">value</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id336929">Social.Twitter.Param.`==</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">`==</span><span class="delim">(</span><span class="type-type">mixed</span> <span class="param-name">other</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Comparer method. Checks if <span class="ref">other</span> equals this object</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">other</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id336981">Social.Twitter.Param.`&gt;</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">`&gt;</span><span class="delim">(</span><span class="type-type">mixed</span> <span class="param-name">other</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Checks if this object is greater than <span class="ref">other</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">other</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337030">Social.Twitter.Param.`+</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">`+</span><span class="delim">(</span><span class="type-type">object</span> <span class="param-name">other</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Concatenates this obejct with <span class="ref">other</span>. This creates a query string</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">other</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337078">Social.Twitter.Param.`[]</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">`[]</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Index lookup</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">key</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337119">Social.Twitter.Param.encode</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">encode</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a query string variable and url encodes the <span class="ref">name</span> and <span class="ref">value</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337161">Social.Twitter.Param.encode_mapping</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mapping</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">encode_mapping</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Same as <span class="ref">encode()</span> except creates a mapping of the <span class="ref">name</span> and <span class="ref">value</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337208">Social.Twitter.Param.indices</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">indices</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the <span class="ref">name</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337243">Social.Twitter.Param.values</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">values</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the <span class="ref">value</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337278">Social.Twitter.Param.cast</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">cast</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Casting method</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">how</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337317">Social.Twitter.Param._sprintf</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Param</span>()-&gt;</span><span class="method">_sprintf</span><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">t</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>String format</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id337400">
+      <h2><small>Class</small> <span class="top-level">Social.OAuth.Params</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>Collection of <span class="ref">Param</span></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id337459">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span><span class="delim"> ... </span> <span class="param-name">args</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">mixed</span> <a href="#id337505">cast</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span> <a href="#id337544">`+</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span>|<span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">p</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span> <a href="#id337601">`-</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span> <span class="param-name">p</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">mixed</span> <a href="#id337652">`[]</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">mixed</span> <a href="#id337732">_values</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">int</span> <a href="#id337767">_sizeof</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id337803">_sprintf</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">t</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337459">Social.Twitter.Params.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Params</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span><span class="delim"> ... </span> <span class="param-name">args</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Create a new <span class="ref">Params</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337505">Social.Twitter.Params.cast</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Params</span>()-&gt;</span><span class="method">cast</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Casting method</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">how</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337544">Social.Twitter.Params.`+</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span> <span class="delim"><span class="program-name">Social.OAuth.Params</span>()-&gt;</span><span class="method">`+</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span>|<span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">p</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Append <span class="ref">p</span> to the internal array</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">p</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337601">Social.Twitter.Params.`-</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span> <span class="delim"><span class="program-name">Social.OAuth.Params</span>()-&gt;</span><span class="method">`-</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span> <span class="param-name">p</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Removes <span class="ref">p</span> from the internal array</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">p</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337652">Social.Twitter.Params.`[]</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Params</span>()-&gt;</span><span class="method">`[]</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Index lookup</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">key</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <dt>
+            <span class="label">Returns</span>
+          </dt>
+          <dd><p>If no <span class="ref">Param</span> is found returns <tt>0</tt>.
+  If multiple <span class="ref">Param</span>s with name <span class="ref">key</span> is found a new <span class="ref">Params</span> object
+  with the found params will be retured.
+  If only one <span class="ref">Param</span> is found that param will be returned.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337732">Social.Twitter.Params._values</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Params</span>()-&gt;</span><span class="method">_values</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the <span class="ref">params</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337767">Social.Twitter.Params._sizeof</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Social.OAuth.Params</span>()-&gt;</span><span class="method">_sizeof</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the size of the <span class="ref">params</span> array</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id337803">Social.Twitter.Params._sprintf</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Params</span>()-&gt;</span><span class="method">_sprintf</span><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">t</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>String format</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id337839">
+      <h2><small>Class</small> <span class="top-level">Social.OAuth.Request</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>Class for building a signed request and querying the remote service</p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id338070">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">_uri</span>, <span class="type-type">int</span> <span class="param-name">_http_method</span>, <span class="type-type">void</span>|<span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">_params</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span> <a href="#id338168">add_param</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span>|<span class="type-type">string</span> <span class="param-name">name</span>, <span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">value</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id338238">add_params</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">_params</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span> <a href="#id338288">get_param</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">name</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <a href="#id338337">get_params</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id338377">sign_request</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">signature_type</span>, <span class="type-type">object</span><span class="delim">(</span><em>Consumer</em><span class="delim">)</span> <span class="param-name">consumer</span>, <span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <span class="param-name">token</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id338450">get_signature_base</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>Protocols.HTTP.Query</em><span class="delim">)</span> <a href="#id338480">submit</a><span class="params"><strong><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">mapping</span> <span class="param-name">extra_headers</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">mixed</span> <a href="#id338524">cast</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id337854">Social.Twitter.Request.GET</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth.Request</span>.<span class="type-name">GET</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>GET method</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id337878">Social.Twitter.Request.POST</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth.Request</span>.<span class="type-name">POST</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>POST method</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id337901">Social.Twitter.Request.TYPE_MAPPING</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth.Request</span>.<span class="type-name">TYPE_MAPPING</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Method type to string mapping</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id338070">Social.Twitter.Request.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Request</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>STRURI</em><span class="delim">)</span> <span class="param-name">_uri</span><span class="delim">, </span><span class="type-type">int</span> <span class="param-name">_http_method</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">_params</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Request</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_uri</code></dt>
+          <dd><p>A <tt>string</tt> or <span class="ref">Standards.URI</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_http_method</code></dt>
+          <dd><p>The HTTP method to use. Either <span class="ref">Request.GET</span> or <span class="ref">Request.POST</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_params</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id338168">Social.Twitter.Request.add_param</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span> <span class="delim"><span class="program-name">Social.OAuth.Request</span>()-&gt;</span><span class="method">add_param</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span>|<span class="type-type">string</span> <span class="param-name">name</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">value</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Add a param</p>
+<p> add_param(Param parameter)
+ add_param(string name, string value)</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">name</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">value</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <dt>
+            <span class="label">Returns</span>
+          </dt>
+          <dd><p>The instance of self.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id338238">Social.Twitter.Request.add_params</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Request</span>()-&gt;</span><span class="method">add_params</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="param-name">_params</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Add a <span class="ref">Params</span> object.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_params</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id338288">Social.Twitter.Request.get_param</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Param</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth.Request</span>()-&gt;</span><span class="method">get_param</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">name</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Get param with name <span class="ref">name</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">name</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id338337">Social.Twitter.Request.get_params</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Params</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth.Request</span>()-&gt;</span><span class="method">get_params</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the <span class="ref">Params</span> collection</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id338377">Social.Twitter.Request.sign_request</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Request</span>()-&gt;</span><span class="method">sign_request</span><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">signature_type</span><span class="delim">, </span><span class="type-type">object</span><span class="delim">(</span><em>Consumer</em><span class="delim">)</span> <span class="param-name">consumer</span><span class="delim">, </span><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <span class="param-name">token</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Signs the request</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">signature_type</code></dt>
+          <dd><p>One of the types in <span class="ref">Signature</span></p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">consumer</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">token</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id338450">Social.Twitter.Request.get_signature_base</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Request</span>()-&gt;</span><span class="method">get_signature_base</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Generates a signature base</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id338480">Social.Twitter.Request.submit</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Protocols.HTTP.Query</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth.Request</span>()-&gt;</span><span class="method">submit</span><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">mapping</span> <span class="param-name">extra_headers</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Send the request to the remote endpoint</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">extra_headers</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id338524">Social.Twitter.Request.cast</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Request</span>()-&gt;</span><span class="method">cast</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Casting method</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id339807">
+      <h2><small>Class</small> <span class="top-level">Social.OAuth.Client</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>OAuth client class</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of OAuth.pmod
+
+OAuth.pmod is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+OAuth.pmod is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with OAuth.pmod. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+ConsumerToken
+
+<li><span class="type-type">object</span><span class="delim">(</span><em>Consumer</em><span class="delim">)</span> <a href="#id340267">get_consumer</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <a href="#id340303">get_token</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">void</span> <a href="#id340339">set_token</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span>|<span class="type-type">string</span> <span class="param-name">key</span>, <span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">secret</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id340417">get_request_token_url</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id340447">get_access_token_url</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id340477">get_user_auth_url</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id340507">get_cache_key</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mixed</span> <a href="#id340542">get_cache</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></strong></span></li><li><span class="type-type">void</span> <a href="#id340584">set_cache</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span>, <span class="type-type">string</span> <span class="param-name">value</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">maxlife</span><span class="delim">)</span></strong></span></li><li><span class="type-type">void</span> <a href="#id340643">delete_cache</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></strong></span></li><li><span class="type-type">object</span><span class="delim">(</span><em>DataCache</em><span class="delim">)</span> <a href="#id340718">get_cache_obj</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li></ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Import</span>
+          <span class="homogen-name" id="id340015">"."</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340267">Social.Twitter.Client.get_consumer</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Consumer</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">get_consumer</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the <span class="ref">consumer</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340303">Social.Twitter.Client.get_token</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">get_token</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the <span class="ref">token</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340339">Social.Twitter.Client.set_token</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">set_token</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Token</em><span class="delim">)</span>|<span class="type-type">string</span> <span class="param-name">key</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">secret</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the Token</p>
+<p> decl set_token(Token token)
+ decl set_token(string token_key, string token_secret)</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">key</code></dt>
+          <dd><p>Either a <span class="ref">Token()</span> object or a token key</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">secret</code></dt>
+          <dd><p>The token secret if <span class="ref">key</span> is a token key</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340417">Social.Twitter.Client.get_request_token_url</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">get_request_token_url</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the url for requesting a request token</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340447">Social.Twitter.Client.get_access_token_url</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">get_access_token_url</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the url for requesting an access token</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340477">Social.Twitter.Client.get_user_auth_url</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">get_user_auth_url</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the url for authorizing an application</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340507">Social.Twitter.Client.get_cache_key</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">get_cache_key</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Generates a cache key</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340542">Social.Twitter.Client.get_cache</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">get_cache</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Tries to find the entry <span class="ref">key</span> in the cache</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340584">Social.Twitter.Client.set_cache</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">set_cache</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">, </span><span class="type-type">string</span> <span class="param-name">value</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">maxlife</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Add to cache</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">key</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">value</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">maxlife</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340643">Social.Twitter.Client.delete_cache</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">delete_cache</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Delete the entry with key <span class="ref">key</span> from the cache</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id340718">Social.Twitter.Client.get_cache_obj</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>DataCache</em><span class="delim">)</span> <span class="delim"><span class="program-name">Social.OAuth.Client</span>()-&gt;</span><span class="method">get_cache_obj</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the cache object</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="class" id="id339847">
+        <h2><small>Class</small> <span class="top-level">Social.OAuth.Client.DataCache</span></h2>
+        <div class="description content">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Abstract class for cache handling</p>
+</dd>
+          <dl class="method-summary">
+            <dt class="label">Method summary</dt>
+            <dd>
+              <ul>
+                <li><span class="type-type">mixed</span> <a href="#id339862">get</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></strong></span></li>
+                <li><span class="type-type">void</span> <a href="#id339906">set</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span>, <span class="type-type">mixed</span> <span class="param-name">value</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">maxlife</span><span class="delim">)</span></strong></span></li>
+                <li><span class="type-type">void</span> <a href="#id339969">delete</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></strong></span></li>
+              </ul>
+            </dd>
+          </dl>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id339862">Social.Twitter.DataCache.get</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Social.OAuth.Client.DataCache</span>()-&gt;</span><span class="method">get</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Return cache item with key <span class="ref">key</span></p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">key</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id339906">Social.Twitter.DataCache.set</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Client.DataCache</span>()-&gt;</span><span class="method">set</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">, </span><span class="type-type">mixed</span> <span class="param-name">value</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">maxlife</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Set cache.</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">key</code></dt>
+            <dt><span class="label">Parameter</span> <code class="param-name">value</code></dt>
+            <dt><span class="label">Parameter</span> <code class="param-name">maxlife</code></dt>
+            <dd><p>Number of seconds the cache should live</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id339969">Social.Twitter.DataCache.delete</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Social.OAuth.Client.DataCache</span>()-&gt;</span><span class="method">delete</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">key</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Delete item with key <span class="ref">key</span> from the cache</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">key</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="module" id="id339234">
+      <h1><small>Module</small> <span class="top-level">Signature</span></h1>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>OAuth.Signature module</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of OAuth.pmod
+
+OAuth.pmod is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+OAuth.pmod is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with OAuth.pmod. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Class summary</dt>
+          <dd>
+            <ul></ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">object</span> <a href="#id339735">get_object</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">type</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docwrap">
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Import</span>
+            <span class="homogen-name" id="id339595">"."</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id339641">Social.Twitter.Signature.PLAINTEXT</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth.Signature</span>.<span class="type-name">PLAINTEXT</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Signature type for plaintext signing</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id339664">Social.Twitter.Signature.HMAC_SHA1</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth.Signature</span>.<span class="type-name">HMAC_SHA1</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Signature type for hmac sha1 signing</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id339688">Social.Twitter.Signature.RSA_SHA1</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth.Signature</span>.<span class="type-name">RSA_SHA1</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Signature type for rsa sha1 signing</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id339712">Social.Twitter.Signature.SIGTYPE</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Social.OAuth.Signature</span>.<span class="type-name">SIGTYPE</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Signature types to signature key mapping</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id339735">Social.Twitter.Signature.get_object</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">object</span> <span class="delim"><span class="program-name">Social.OAuth.Signature</span>.</span><span class="method">get_object</span><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">type</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Returns a signature class for signing with <span class="ref">type</span></p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">type</code></dt>
+            <dd><p>Either <span class="ref">Signature.PLAINTEXT</span>, <span class="ref">Signature.HMAC_SHA1</span> or
+  <span class="ref">Signature.RSA_SHA1</span>.</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
