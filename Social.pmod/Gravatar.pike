@@ -31,20 +31,20 @@
 //! </code>@}
 //!
 
-//! G rated gravatar is suitable for display on all websites with any 
+//! G rated gravatar is suitable for display on all websites with any
 //! audience type.
 constant RATING_G  = "g";
 
-//! PG rated gravatars may contain rude gestures, provocatively dressed 
-//! individuals, the lesser swear words, or mild violence. 
+//! PG rated gravatars may contain rude gestures, provocatively dressed
+//! individuals, the lesser swear words, or mild violence.
 constant RATING_PG = "pg";
 
-//! R rated gravatars may contain such things as harsh profanity, intense 
+//! R rated gravatars may contain such things as harsh profanity, intense
 //! violence, nudity, or hard drug use.
 constant RATING_R  = "r";
 
-//! X rated gravatars may contain hardcore sexual imagery or extremely 
-//! disturbing violence. 
+//! X rated gravatars may contain hardcore sexual imagery or extremely
+//! disturbing violence.
 constant RATING_X  = "x";
 
 //! Base URI to the gravatar site
@@ -83,11 +83,11 @@ void create(void|string _email, void|string|int _size, void|string _rating)
 //! Creates and returns the URL to the Gravatar
 string get_avatar()
 {
-  if (!email)
+  if (!email || !sizeof(String.trim_all_whites(email)))
     error("Missing requierd \"email\".\n");
 
   if ( !ratings[rating] ) {
-    error("Rating is %O. Must be one of \"%s\".\n", 
+    error("Rating is %O. Must be one of \"%s\".\n",
           rating, String.implode_nicely((array)ratings, "or"));
   }
 
@@ -95,8 +95,16 @@ string get_avatar()
     error("Size must be between 1 and 512.\n");
 
   return gravatar_url +
-  sprintf("gravatar_id=%s&rating=%s&size=%d", encode_id(), rating, size) + 
-  (image && ("default=" + Social.OAuth.uri_encode(image))||"");
+  sprintf("gravatar_id=%s&amp;rating=%s&amp;size=%d",encode_id(),rating,size) +
+  (image && ("&amp;default=" + Social.OAuth.uri_encode(image))||"");
+}
+
+//! Returns the Gravatar as a complete @tt{<img/>@} tag.
+string img(void|string alt_text)
+{
+  alt_text = alt_text||"Gravatar";
+  return sprintf("<img src='%s' height='%d' width='%d' alt='%s' title=''/>", 
+                 get_avatar(), size, size, alt_text);
 }
 
 //! Hashes the email.

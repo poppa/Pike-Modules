@@ -18,6 +18,27 @@
 //! You should have received a copy of the GNU General Public License
 //! along with OAuth.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
 //! @}
+//!
+//! @b{Example@}
+//!
+//! @xml{<code lang="pike" detab="2" tabsize="2">
+//!  import Social.OAuth;
+//!
+//!  string endpoint = "http://twitter.com/users/show.xml";
+//!
+//!  Consumer consumer = Consumer(my_consumer_key, my_consumer_secret);
+//!  Token    token    = Token(my_access_token_key, my_access_token_secret);
+//!  Params   params   = Params(Param("user_id", 12345));
+//!  Request  request  = request(consumer, token, params, Request.GET);
+//!
+//!  request->sign_request(Signature.HMAC_SHA1, consumer, token);
+//!  Protocols.HTTP.Query query = request->submit();
+//!
+//!  if (query->status != 200)
+//!    error("Bad response status: %d\n", query->status);
+//!
+//!  werror("Data is: %s\n", query->data());
+//! </code>@}
 
 //! Verion
 constant VERSION = "1.0";
@@ -460,8 +481,8 @@ class Request
 
   //! Add a param
   //!
-  //! @decl add_param(Param parameter)
-  //! @decl add_param(string name, string value)
+  //! add_param(Param parameter)
+  //! add_param(string name, string value)
   //!
   //! @param name
   //! @param value

@@ -69,8 +69,8 @@ Token get_token()
 
 //! Set the Token
 //!
-//! @decl set_token(Token token)
-//! @decl set_token(string token_key, string token_secret)
+//! decl set_token(Token token)
+//! decl set_token(string token_key, string token_secret)
 //!
 //! @param key
 //!  Either a @[Token()] object or a token key
@@ -78,13 +78,7 @@ Token get_token()
 //!  The token secret if @[key] is a token key
 void set_token(Token|string key, void|string secret)
 {
-  if (stringp(key)) {
-    if (!secret)
-      ARG_ERROR("secret", "Secret must be provided when \"key\" is a string\n");
-
-    token = Token(key, secret);
-  }
-  else token = key;
+  token = stringp(key) ? Token(key, secret) : key;
 }
 
 //! Returns the url for requesting a request token
@@ -146,9 +140,25 @@ DataCache get_cache_obj()
 //! Abstract class for cache handling
 class DataCache
 {
-  protected mixed /* Cache.cache */ cache;
+  protected mixed cache;
+
   protected void create() {}
+  
+  //! Return cache item with key @[key]
+  //!
+  //! @param key
   mixed get(string key);
-  void  set(string key, mixed value, void|int maxlife);
-  void  delete(string key);
+  
+  //! Set cache.
+  //!
+  //! @param key
+  //! @param value
+  //! @param maxlife
+  //!  Number of seconds the cache should live
+  void set(string key, mixed value, void|int maxlife);
+  
+  //! Delete item with key @[key] from the cache
+  //!
+  //! @param key
+  void delete(string key);
 }

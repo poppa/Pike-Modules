@@ -23,6 +23,8 @@
 
 import  Parser.XML.Tree;
 import  .OAuth;
+
+//! @[Social.OAuth.Client]
 inherit Client;
 
 // API members
@@ -35,9 +37,10 @@ protected string user_auth_url     = "http://twitter.com/oauth/authorize";
 // Implementation specific members
 
 protected string cache_path;
-protected string replies_url       = "https://twitter.com/statuses/replies.xml";
-protected string credentials_url   = "https://twitter.com/account/"
-                                     "verify_credentials.xml";
+protected string replies_url     = "https://twitter.com/statuses/replies.xml";
+protected string credentials_url = "https://twitter.com/account/"
+                                   "verify_credentials.xml";
+
 //! Session cookie
 string session;
 
@@ -163,7 +166,14 @@ string call(STRURI url, void|Params args, void|int method,
 }
 
 //! The response class parses an XML tree returned from a Twitter method
-//! and turns it into a mapping
+//! and turns it into a mapping.
+//!
+//! @xml{<code lang="pike" detab="3" tabsize="2">
+//!   string url = "http://twitter.com/account/verify_credentials.xml";
+//!   string xml = twitter->call(url);
+//!   Twitter.Response resp = twitter->Response(xml);
+//!   write("Hello %s, you said: %s\n", resp->name, resp->status->text);
+//! </code>@}
 class Response
 {
   //! The XML tree representation

@@ -1,7 +1,7 @@
 ================================================================================
 
   Syntaxer.pmod
-  Copyright © 2008 Pontus Östlund <pontus@poppa.se>
+  Copyright Â© 2008 Pontus Ã–stlund <pontus@poppa.se>
 
 ================================================================================
 
@@ -138,16 +138,13 @@ since this directory isn't indexed on that crappy platform (this particular
 behaviour I can't blame Microsoft for, it's a Roxen bug ;)! What you can do if
 Roxen doesn't find your modules in "$ROXEN_INSTALL_DIR/local/pike-modules" is 
 setting the environment variable "PIKE_MODULE_PATH" to point to your location of
-choise. If on a *nix platform you can add this by altering Roxens start script.
-Add:
+choise. Or the easiest way is to export the environment variable in Roxen's
+"environment2" file. Do this:
 
-  export PIKE_MODULE_PATH="/path/to/pike-modules/"
-
-just above the line:
-
-  cd "$SERVER_DIR" && exec ./start "$@"
-
-You will have to restart Roxen for the changes to take place!
+  1. Create or open the file "$ROXEN_INSTAL_DIR/local/environment2"
+  2. Add the following line:
+     export PIKE_MODULE_PATH=/path/to/pike-modules
+  3. Restart Roxen for the changes to take place!
 
 All that's left to do is to load the "codify-tag.pike"-module in the Roxen 
 Admin Interface and then you'll have the container tag "<codify></codify>"

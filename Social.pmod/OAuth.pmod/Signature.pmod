@@ -25,13 +25,17 @@
 
 import ".";
 
-//! Signature types
-enum sigtype {
-  NONE,
-  PLAINTEXT,
-  HMAC_SHA1,
-  RSA_SHA1
-};
+//! Signature type for the Base class.
+protected constant NONE = 0;
+
+//! Signature type for plaintext signing
+constant PLAINTEXT = 1;
+
+//! Signature type for hmac sha1 signing
+constant HMAC_SHA1 = 2;
+
+//! Signature type for rsa sha1 signing
+constant RSA_SHA1  = 3;
 
 //! Signature types to signature key mapping
 constant SIGTYPE = ([

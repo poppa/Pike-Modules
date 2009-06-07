@@ -1,3 +1,10 @@
-Various Pike Modules
---------------------
-(http://pike.ida.liu.se)
+
+Various Pike Modules -- http://pike.ida.liu.se
+--------------------------------------------------------------------------------
+
+All modules and classes in *Social.pmod* is licensed under the GNU GPL license
+version 3. The other modules will be gone through and re-licensed under the
+above license. They are now licensed under GPL 2.
+
+The Flickr module will be gone through and moved to Social.pmod, where I will
+put all "social web" related classes.
