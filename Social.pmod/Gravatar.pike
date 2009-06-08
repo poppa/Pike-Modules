@@ -29,7 +29,6 @@
 //!  Social.Gravatar g = Social.Gravatar("me@@domain.com");
 //!  string url = (string)g;
 //! </code>@}
-//!
 
 //! G rated gravatar is suitable for display on all websites with any
 //! audience type.

@@ -3,6 +3,9 @@
 //!
 //! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
 //!
+//! @fixme
+//!  Implement an AsyncTwitter as well.
+//!
 //! @pre{@b{License GNU GPL version 3@}
 //!
 //! Twitter.pike is free software: you can redistribute it and/or modify
@@ -185,7 +188,7 @@ class Response
   //!  The result from e.g @[Twitter()->call()]
   void create(string response_xml)
   {
-    Node root = parse_input(response_xml);
+    Node root = simple_parse_input(response_xml);
     if (root) {
       root = root[1];
       string name = root->get_tag_name();
