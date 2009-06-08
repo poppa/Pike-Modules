@@ -26,7 +26,7 @@
 //!
 //! @xml{<code lang="pike" detab="2" tabsize="2">
 //!  // Most simple scenario
-//!  Social.Bitly bit = Social.Gravatar("username", "R_someApiKey876hd723");
+//!  Social.Bitly bit = Social.Bitly("username", "R_someApiKey876hd723");
 //!  string longurl = "http://some-freaking.long/url/man/that/never/ends/";
 //!  Social.Bitly.Response resp = bit->shorten(longurl);
 //!  werror("%O\n", resp);
