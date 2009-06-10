@@ -578,6 +578,13 @@ class Request
 
     return (http_method == GET ? normalize_uri(uri) + "?" : "")+(string)params;
   }
+  
+  //! String format
+  string _sprintf(int t)
+  {
+    return t == 'O' && sprintf("%s(%O, %O, %O)", CLASS_NAME(this), (string)uri, 
+                               base_string, params);
+  }
 }
 
 //! Normalizes @[uri]

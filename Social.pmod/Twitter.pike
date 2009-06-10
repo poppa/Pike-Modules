@@ -24,6 +24,17 @@
 
 #include "OAuth.pmod/oauth.h"
 
+#ifdef TRACE
+# undef TRACE
+#endif
+
+#ifdef TWITTER_DEBUG
+# define TRACE(X...) \
+  werror("%s:%d: %s", basename(__FILE__), __LINE__, sprintf(X))
+#else
+# define TRACE(X...)
+#endif
+
 import  Parser.XML.Tree;
 import  .OAuth;
 
@@ -84,7 +95,7 @@ void clear_cache()
 //! Fetches a request token
 Token get_request_token()
 {
-  string ctoken = get_cache("request-token");
+  string ctoken;// = get_cache("request-token");
 
   if (!ctoken) {
     ctoken = call(request_token_url);
@@ -103,15 +114,15 @@ Token get_access_token()
   if (!token)
     error("Can't fetch access token when no request token is set!\n");
 
-  string ctoken = get_cache("access-token");
+  string ctoken;// = get_cache("access-token");
 
   if (!ctoken) {
     ctoken = call(access_token_url);
     set_cache("access-token", ctoken);
   }
 
-  mapping m = (mapping)query_to_params(ctoken);
-  token = Token( m[TOKEN_KEY], m[TOKEN_SECRET_KEY] );
+  mapping p = (mapping)query_to_params(ctoken);
+  token = Token( p[TOKEN_KEY], p[TOKEN_SECRET_KEY] );
   return token;
 }
 
@@ -152,12 +163,12 @@ string call(STRURI url, void|Params args, void|int method,
   if (!session)
     session = get_cache("cookie");
 
-  Protocols.HTTP.Query q = r->submit(session && ([ "cookie" : session ]));
+  Protocols.HTTP.Query q = r->submit(session && ([ "Cookie" : session ]));
 
   if (q->status != 200)
     error("Bad status, %d, from HTTP query!\n", q->status);
 
-  if ( q->headers["set-cookie"] && !session) {
+  if ( q->headers["set-cookie"] ) {
     session = q->headers["set-cookie"][0];
     set_cache("cookie", session, 3600);
   }

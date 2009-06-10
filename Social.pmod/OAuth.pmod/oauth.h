@@ -1,7 +1,7 @@
 #ifndef _OAUTH_H
 #define _OAUTH_H
 
-#define OAUTH_DEBUG
+//#define OAUTH_DEBUG
 
 #ifdef OAUTH_DEBUG
 # define TRACE(X...) { werror(">>> OAuth: "); werror(X); }

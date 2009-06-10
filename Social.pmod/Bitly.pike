@@ -119,7 +119,7 @@ void set_version(string _version)
 //! @param _format
 void set_format(string _format)
 {
-  if (lower_case(format) != "xml")
+  if (lower_case(_format) != "xml")
     error("Only XML response format is implemented\n");
   format = _format;
 }
@@ -143,8 +143,9 @@ Response shorten(string|Standards.URI uri)
 //!
 //! @param url_or_hash
 //!  Either the shortened URL or its hash.
-Response expand(string url_or_hash)
+Response expand(string|Standards.URI url_or_hash)
 {
+  url_or_hash = (string)url_or_hash;
   int arg_type = ARG_HASH;
   if (search(url_or_hash, "://") > -1)
     arg_type = ARG_URL;
@@ -159,8 +160,9 @@ Response expand(string url_or_hash)
 //! @param key
 //!  One or more keys to limit the attributes returned about each bitly 
 //!  document, eg: htmlTitle,thumbnail
-Response info(string url_or_hash, void|array keys)
+Response info(string|Standards.URI url_or_hash, void|array keys)
 {
+  url_or_hash = (string)url_or_hash;
   int arg_type = ARG_HASH;
   if (search(url_or_hash, "://") > -1)
     arg_type = ARG_URL;
@@ -174,8 +176,9 @@ Response info(string url_or_hash, void|array keys)
 //!
 //! @param url_or_hash
 //!  Either the shortened URL or its hash.
-Response stats(string url_or_hash)
+Response stats(string|Standards.URI url_or_hash)
 {
+  url_or_hash = (string)url_or_hash;
   int arg_type = ARG_HASH;
   if (search(url_or_hash, "://") > -1)
     arg_type = ARG_URL;
