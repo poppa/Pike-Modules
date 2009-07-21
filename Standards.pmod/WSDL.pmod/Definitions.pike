@@ -203,6 +203,8 @@ protected void low_parse(Node n)
   string tname = n->get_tag_name();
   string fname = n->get_full_name();
 
+  TRACE("Parse %O\n", tname);
+  
   switch (tname)
   {
     case "definitions":

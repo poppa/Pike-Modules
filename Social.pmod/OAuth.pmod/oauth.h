@@ -4,7 +4,7 @@
 //#define OAUTH_DEBUG
 
 #ifdef OAUTH_DEBUG
-# define TRACE(X...) { werror(">>> OAuth: "); werror(X); }
+# define TRACE(X...) werror(">>> OAuth: %s", sprintf(X))
 #else
 # define TRACE(X...)
 #endif
