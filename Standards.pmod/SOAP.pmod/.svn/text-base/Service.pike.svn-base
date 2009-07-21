@@ -1,0 +1,21 @@
+import Standards.XML.Namespace;
+
+string wsdl_location;
+QName service;
+
+//! Creates a new SOAP service
+//!
+//! @param _wsdl_location
+//! @param _service
+//!  The @[Standards.XML.Namespace.QName] should be the @tt{targetNamespace@}
+//!  and the service name.
+void create(string|Standards.URI _wsdl_location, QName _service)
+{
+  wsdl_location = (string)_wsdl_location;
+  service = _service;
+}
+
+mixed get_port(QName port)
+{
+  
+}

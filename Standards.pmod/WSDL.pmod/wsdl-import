@@ -1,0 +1,189 @@
+#!/usr/bin/env pike
+
+#define DIE(X...) { werror(X); exit(1); }
+#define PRINT(X...) { if (verbose) werror(">>> %s", sprintf(X)); }
+import Standards.WSDL;
+
+constant HELP = ([
+  "output"  : "Where to put the generated files",
+  "pmod"    : "Generate the files in a .pmod directory",
+  "nocache" : "Don't use cached WSDL files",
+  "verbose" : "Verbose output during reneration",
+  "help"    : "Shows this message"
+]);
+
+constant ARGS = ({
+  ({ "output",  Getopt.HAS_ARG, ({ "-o", "--output"   }) }),
+  ({ "pmod",    Getopt.NO_ARG,  ({ "-p", "--pmod"     }) }),
+  ({ "nocache", Getopt.NO_ARG,  ({ "-n", "--nocache"  }) }),
+  ({ "verbose", Getopt.NO_ARG,  ({ "-v", "--verbose"  }) }),
+  ({ "help",    Getopt.NO_ARG,  ({ "-h", "--help"     }) })
+});
+
+string outdir;
+int(0..1) pmod = 0;
+int(0..1) nocache = 0;
+int(0..1) verbose = 0;
+
+int main(int argc, array(string) argv)
+{
+  if (mixed e = catch {
+      foreach (Getopt.find_all_options(argv, ARGS, 0, 1), array opt) {
+	if (has_index(opt, 1) && stringp( opt[1] ) && opt[1][0] == '=')
+	  opt[1] = opt[1][1..];
+
+	switch ( opt[0] ) {
+	  case "help":    help();
+	  case "output":  outdir  = opt[1]; break;
+	  case "pmod":    pmod    = 1; break;
+	  case "nocache": nocache = 1; break;
+	  case "verbose": verbose = 1; break;
+	}
+      }
+    }
+  ) DIE("Error: %s\n", describe_error(e));
+
+  argv = argv-({ 0 });
+
+  if (sizeof(argv) < 2) {
+    werror("To few arguments. Missing WSDL url!\n\n");
+    help();
+  }
+  
+  if (!outdir) {
+    werror("Missing required argument \"output\"\n\n");
+    help();
+  }
+
+  WSDLGenerator wgen = WSDLGenerator(argv[1], nocache);
+
+  if (mixed e = catch(wgen->generate(outdir, pmod)))
+    DIE("Error: %s\n", describe_error(e));
+  
+  return 0;
+} 
+
+class WSDLGenerator
+{
+  private string uri;
+  private Definition wsdl;
+  private string basedir;
+  private string localdir;
+  private int(0..1) pmod;
+
+  void create(string url, void|int(0..1) nocache)
+  {
+    if (!nocache)
+      Standards.WSDL.use_disk_cache(1);
+
+    uri = url;
+  }
+
+  void generate(string dir, int(0..1) use_pmod)
+  {
+    pmod = use_pmod;
+    basedir = dir;
+
+    if (!Stdio.exist(basedir))
+      error("Directory %O doesn't exist!", basedir);
+
+    PRINT("Fetching WSDL file %O\n", uri);
+    wsdl = Standards.WSDL.get_url(uri);
+
+    if (wsdl) {
+      string soapns = wsdl->get_wsdl_soap_namespace()->get_local_name();
+
+      foreach (wsdl->get_services(), Service s) {
+	localdir = s->name;
+	if (pmod) localdir += ".pmod";
+	localdir = combine_path(basedir, localdir);
+
+	PRINT("Generating service %O in %O\n", s->name, localdir);
+
+	mapping m = get_binding(s, soapns);
+
+
+	if (!Stdio.exist(localdir))
+	  mkdir(localdir);
+
+	PRINT("Generating \"Ports.pmod\"\n");
+	generate_ports(s->ports);
+
+      }
+    }
+    else error("Failed to parse wsdl file %O", uri);
+  }
+  
+  private void generate_ports(mapping(string:Port) ports)
+  {
+    string port_getter =
+      "Port %s(void|QName location)\n{\n"
+      "  location = location||QName(%O, %O, %O);\n"
+      "  return Port(location);\n"
+      "}\n";
+
+    string head = sprintf(
+      "// Generated %s by wsdl-import\n\n"
+      "// For the Port class\n"
+      "import Standards.SOAP;\n"
+      "// For the QName class\n"
+      "import Standards.XML.Namespace;\n",
+      Calendar.now()->format_ext_time()
+    );
+
+    array(string) out = ({ head });
+
+    foreach (values(ports), Port p) {
+      out += ({ sprintf(port_getter, p->name, p->address->location, p->binding, 
+                        p->binding_prefix) });
+    }
+
+    //out += ({ PORT_CLASS });
+
+    Stdio.write_file(combine_path(localdir, "Ports.pmod"), out*"\n");
+  }
+
+  private mapping get_binding(Service s, void|string nodename)
+  {
+    if (!nodename || !sizeof(nodename))
+      nodename = "soap";
+  
+    mapping(string:mixed) m = ([
+      "port" : 0,
+      "endpoint" : 0,
+      "binding" : 0
+    ]);
+  
+    foreach (values(s->ports), Port p) {
+      if (p->address->get_ns_name() == nodename) {
+	m->port = p;
+	break;
+      }
+    }
+  
+    if (m->port) {
+      m->binding = wsdl->get_binding(m->port->binding);
+      m->endpoint = m->port->address->location;
+    }
+  
+    return m;
+  }
+}
+
+void help()
+{
+  write("Usage: wsdl-import [options] wsdl-url\n");
+  write("Options: \n");
+  
+  foreach (ARGS, array arg) {
+    string m = sprintf(" %s", arg[2]*", ");
+    if (arg[1] == Getopt.HAS_ARG)
+      m += " <value>";
+    else
+      m += sprintf("%-8s", " ");
+
+    write("%-25s %s\n", m, HELP[arg[0]] );
+  }
+  
+  exit(0);
+}
