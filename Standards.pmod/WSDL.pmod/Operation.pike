@@ -1,7 +1,33 @@
+/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+//! @b{Standards.WSDL.Binding@}
+//!
+//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//!
+//! This class represents an operation node of a WSDL document
+//!
+//! @pre{@b{License GNU GPL version 3@}
+//!
+//! Operation.pike is part of WSDL.pmod
+//!
+//! WSDL.pmod is free software: you can redistribute it and/or modify
+//! it under the terms of the GNU General Public License as published by
+//! the Free Software Foundation, either version 3 of the License, or
+//! (at your option) any later version.
+//!
+//! WSDL.pmod is distributed in the hope that it will be useful,
+//! but WITHOUT ANY WARRANTY; without even the implied warranty of
+//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//! GNU General Public License for more details.
+//!
+//! You should have received a copy of the GNU General Public License
+//! along with WSDL.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
+//! @}
+
 import Parser.XML.Tree;
 import Standards.XML.Namespace;
 inherit .BaseObject;
 
+//! Operation types
 enum OperationType {
   NONE,
   WSDL,
@@ -9,18 +35,37 @@ enum OperationType {
   HTTP
 };
 
+//! Type of operation
 int type = NONE;
+
+//! The operation name
 string name;
+
+//! The operation style
 string style;
+
+//! The SOAP action
 string soap_action;
+
+//! The location
 string location;
+
+//! Parameter order
 array parameter_order = ({});
 
+//! The documentation of the operation, if any
 Documentation documentation;
+
+//! The input node of the operation
 Input input;
+
+//! The output node of the operation
 Output output;
+
+//! The fault node of the operation
 Fault fault;
 
+//! Decodes an operation node
 protected void decode(Node n)
 {
   string wsdl, soap, http;
@@ -71,10 +116,12 @@ protected void decode(Node n)
   }
 }
 
+//! Class representing a documentation node
 class Documentation
 {
   inherit .BaseObject;
 
+  //! The documentation text
   string text;
 
   protected void decode(Node n)
@@ -83,11 +130,14 @@ class Documentation
   }
 }
 
+//! Class representing an input node
 class Input
 {
   inherit .BaseObject;
   QName message;
   //string prefix;
+  
+  //! The use attribute
   string use;
   string body_prefix;
   string encoding_style;
@@ -111,16 +161,21 @@ class Input
   }
 }
 
+//! Class representing an output node
 class Output
 {
   inherit Input;
 }
 
+//! Class representing a fault node
 class Fault
 {
   inherit .BaseObject;
 
+  //! The node name attribute
   string name;
+  
+  //! The use attribute
   string use;
   
   protected void decode(Node n)

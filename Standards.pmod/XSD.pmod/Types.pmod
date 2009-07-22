@@ -1,23 +1,30 @@
-/*| Copyright (C) 2009 Pontus Östlund <pontus@poppa.se>
- *|
- *| The NSD module is free software; you can redistribute it and/or
- *| modify it under the terms of the GNU General Public License as published by
- *| the Free Software Foundation; either version 2 of the License, or (at your
- *| option) any later version.
- *|
- *| The NSD module is distributed in the hope that it will be useful,
- *| but WITHOUT ANY WARRANTY; without even the implied warranty of
- *| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- *| Public License for more details.
- *|
- *| You should have received a copy of the GNU General Public License
- *| along with this program; if not, write to the Free Software Foundation,
- *| Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+//! @b{Standards.WSD.Types@}
+//!
+//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//!
+//! @pre{@b{License GNU GPL version 3@}
+//!
+//! Types.pmod is part of XSD.pmod
+//!
+//! XSD.pmod is free software: you can redistribute it and/or modify
+//! it under the terms of the GNU General Public License as published by
+//! the Free Software Foundation, either version 3 of the License, or
+//! (at your option) any later version.
+//!
+//! XSD.pmod is distributed in the hope that it will be useful,
+//! but WITHOUT ANY WARRANTY; without even the implied warranty of
+//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//! GNU General Public License for more details.
+//!
+//! You should have received a copy of the GNU General Public License
+//! along with XSD.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
+//! @}
+
+/* NOTE: Work in progress
  */
 
-#include "xsd.h"
-
-#define NSQN(V) .QName(.NAMESPACE, (V), "xsd")
+#define NSQN(V) Standards.XML.Namespace.QName(.NAMESPACE, (V), "xsd")
 
 //!  XML Schema Namespace datatypes
 //!
@@ -30,11 +37,11 @@ void set_loose_check(int(0..1) v) { LOOSE_CHECK = v; }
 
 class NSDBase
 {
-  .QName    type;
+  Standards.XML.Namespace.QName type;
   mixed     data;
   int(0..1) is_nil;
 
-  protected void init(.QName _type)
+  protected void init(Standards.XML.Namespace.QName _type)
   {
     type = _type;
   }
@@ -66,7 +73,7 @@ class AnySimpleType
     return data;
   }
 
-  .QName get_type()
+  Standards.XML.Namespace.QName get_type()
   {
     return type;
   }
@@ -76,7 +83,7 @@ class AnySimpleType
     return value;
   }
 
-  protected void init(.QName type, mixed value)
+  protected void init(Standards.XML.Namespace.QName type, mixed value)
   {
     ::init(type);
     set(value);
@@ -122,7 +129,7 @@ class String
   {
     s = (string) s;
     if (strict_validation)
-      THROW("Strict validation not implemented yet!");
+      error("Strict validation not implemented yet!");
 
     return s;
   }
@@ -149,7 +156,7 @@ class Boolean
 	value = 0;
       else
 	if (!LOOSE_CHECK)
-	  THROW("%O can not accept \"%s\"!", object_program(this), value);
+	  error("%O can not accept \"%s\"!", object_program(this), value);
     }
 
     return value;
@@ -239,7 +246,7 @@ class Duration
 
   protected Calendar.TimeRange screen_data(mixed value)
   {
-    THROW("%O() not implemented!", object_program(this));
+    error("%O() not implemented!", object_program(this));
   }
 }
 
@@ -280,7 +287,7 @@ class DateTime
 
     if (mixed e = catch(v = Calendar.parse(fmt, value)) || v == 0)
       if (!LOOSE_CHECK)
-	THROW("%O(): Unknown %s: %s", object_program(this), type, value);
+	error("%O(): Unknown %s: %s", object_program(this), type, value);
 
     return v;
   }
@@ -495,7 +502,7 @@ class HexBinary
 
   void screen_data(string value)
   {
-    THROW("%O() not implemented yet!", object_program(this));
+    error("%O() not implemented yet!", object_program(this));
   }
 }
 
@@ -503,17 +510,17 @@ class QName
 {
   inherit AnySimpleType;
 
-  void create(string|.QName value)
+  void create(string|Standards.XML.Namespace.QName value)
   {
     // TODO: QName moved to Standards.XML.Namespace. Reimplement this
     error("QName not fully implemented in %O()\n", object_program(this));
     ::init(NSQN(.QNAME_LITERAL), value);
   }
 
-  protected .QName screen_data(mixed value)
+  protected Standards.XML.Namespace.QName screen_data(mixed value)
   {
     if (stringp(value))
-      value = .QName(value);
+      value = Standards.XML.Namespace.QName(value);
 
     return value;
   }
@@ -539,7 +546,7 @@ class Base64Binary
 
   protected string screen_data(string data)
   {
-    THROW("%O() not implemented yet!", object_program(this));
+    error("%O() not implemented yet!", object_program(this));
   }
 }
 
@@ -557,7 +564,7 @@ class AnyURI
     if (stringp(value)) {
       if (catch(value = Standards.URI(value)))
 	if (!LOOSE_CHECK)
-	  THROW("%O(): can not accept \"%s\"!", object_program(this), value);
+	  error("%O(): can not accept \"%s\"!", object_program(this), value);
     }
 
     return value;
@@ -619,7 +626,7 @@ class Language
     sscanf(value, "%2s-%2s", string ln1, string ln2);
     if (!ln1 && !ln2) {
       if (!LOOSE_CHECK)
-	THROW("%O(): can not accept %O!", object_program(this), value);
+	error("%O(): can not accept %O!", object_program(this), value);
       else ln1 = "";
     }
     value = ln1 + (ln2 ? "-" + ln2 : "");
@@ -678,7 +685,7 @@ class Name
     value = ::screen_data(value);
     if ( (< '0','1','2','3','4','5','6','7','8','9' >)[value[0]] )
       if (!LOOSE_CHECK)
-	THROW("%O(): Value %O can not start with a number!",
+	error("%O(): Value %O can not start with a number!",
 	      object_program(this), value);
 
     return value;
@@ -699,7 +706,7 @@ class NCName
     value = ::screen_data(value);
     if (search(value, ":") > -1)
       if (!LOOSE_CHECK)
-	THROW("%O(%O): Value must not contain colons!",
+	error("%O(%O): Value must not contain colons!",
 	      object_program(this), value);
 
     return value;
@@ -831,7 +838,7 @@ class NonPositiveInteger
   {
     value = ::screen_data(value);
     if (value > 0 && !LOOSE_CHECK)
-      THROW("%O(%d): Value must be less or equal to zero",
+      error("%O(%d): Value must be less or equal to zero",
 	    object_program(this), value);
 
     return value;
@@ -853,7 +860,7 @@ class NegativeInteger
   {
     value = (int)value;
     if (value >= 0 && !LOOSE_CHECK)
-      THROW("%O(%d): Value must be negative", object_program(this), value);
+      error("%O(%d): Value must be negative", object_program(this), value);
     return value;
   }
 }
@@ -911,7 +918,7 @@ class NonNegativeInteger
   {
     value = (int)value;
     if (value < 0 && !LOOSE_CHECK)
-      THROW("%O(%d): Value must be greater or equal to zero", 
+      error("%O(%d): Value must be greater or equal to zero", 
             object_program(this), value);
     return value;
   }
@@ -970,7 +977,7 @@ class PositiveInteger
   {
     value = (int)value;
     if (value <= 0 && !LOOSE_CHECK)
-      THROW("%O(%d): Value must be greater than zero", 
+      error("%O(%d): Value must be greater than zero", 
             object_program(this), value);
     return value;
   }
