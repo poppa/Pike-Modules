@@ -109,9 +109,6 @@ void set_prefix(string _prefix)
 //! Returns the fully qualified name
 string fqn()
 {
-  if (local_name && prefix)
-    return sprintf("%s:%s", prefix, local_name);
-
   return namespace ? sprintf("{%s}%s", namespace, local_name) : local_name;
 }
 

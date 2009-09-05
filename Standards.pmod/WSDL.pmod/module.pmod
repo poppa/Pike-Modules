@@ -80,7 +80,7 @@ void add_cache(string|Standards.URI url, string wsdl_xml)
 //! raw XML of the WSDL file
 //!
 //! @param url
-protected string get_cache(string|Standards.URI url)
+string get_cache(string|Standards.URI url)
 {
   string file, data;
   url = String.trim_all_whites((string)url);
@@ -118,7 +118,7 @@ protected string get_cache(string|Standards.URI url)
 //! Finds the root node of an XML document.
 //!
 //! @param n
-protected Parser.XML.Tree.Node find_root(Parser.XML.Tree.Node n)
+Parser.XML.Tree.Node find_root(Parser.XML.Tree.Node n)
 {
   foreach (n->get_children(), Parser.XML.Tree.Node c)
     if (c->get_node_type() == Parser.XML.Tree.XML_ELEMENT)

@@ -70,7 +70,7 @@ array(object) get_all_elements()
 
 //! Decodes the schema node
 //!
-//! TODO: Handle @tt{<import/>@} nodes.
+//! TODO: Handle @tt{<import/>} nodes.
 protected void decode(Node n)
 {
   mapping a = n->get_attributes();
@@ -101,7 +101,7 @@ protected void decode(Node n)
 	  break;
 
 	default:
-	  TRACE("Unhandled node in schema: %O\n", cn);
+	  TRACE("Unhandled type node: %O\n", cn);
       }
     }
   }

@@ -75,6 +75,7 @@ protected object resolv_class(Parser.XML.Tree.Node n)
     case "complexContent": return ComplexContent;
     case "attribute":      return Attribute;
     case "restriction":    return Restriction;
+    case "simpleType":     return SimpleType;
     default:               return Type;	
   }
 }
@@ -272,6 +273,20 @@ class Element
     set_defaults(a);
     type = a->type && QName("", a->type);
     nillable = a->nillable && a->nillable == "true";
+    
+    if (type) {
+      QName nsq;
+      if ( nsq = ns_cache[type->get_prefix()] )
+	type->set_namespace_uri(nsq->get_namespace_uri());
+      else {
+	nsq = owner_document->get_namespace_from_local_name(type->get_prefix());
+	if (nsq) {
+	  ns_cache[type->get_prefix()] = nsq;
+	  type->set_namespace_uri(nsq->get_namespace_uri());
+	}
+      }
+    }
+    
     set_children(n);
   }
 }

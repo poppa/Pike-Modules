@@ -38,6 +38,9 @@ protected string ns_name;
 //! The local name of the node
 protected string node_name;
 
+//! Documentation if any.
+protected string documentation;
+
 //! Create a new instance
 //!
 //! @param node
@@ -51,6 +54,7 @@ protected void create(void|Parser.XML.Tree.Node node, void|.Definitions parent)
     ns_node_name = node->get_full_name();
     node_name = node->get_tag_name();
     sscanf(ns_node_name, "%[^:]:%*s", ns_name);
+    try_set_documentation(node);
     decode(node);
   }
 }
@@ -96,10 +100,23 @@ string get_ns_name()
   return ns_name;
 }
 
+//! Returns the documentation
+string get_documentation()
+{
+  return documentation;
+}
+
 //! Returns the @[Definitions] object in which this instance recides
 .Definitions get_owner_document()
 {
   return owner_document;
+}
+
+protected void try_set_documentation(Parser.XML.Tree.Node n)
+{
+  foreach (n->get_children(), Parser.XML.Tree.Node cn)
+    if (cn->get_tag_name() == "documentation")
+      documentation = cn->value_of_node();
 }
 
 //! Decode an XML node
@@ -109,3 +126,4 @@ protected void decode(Parser.XML.Tree.Node node)
 {
   error("decode() not implemented in %O\n", object_program(this));
 }
+

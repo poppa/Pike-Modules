@@ -43,4 +43,9 @@ protected void decode(Node n)
   name = a->name;
   element = a->element && QName("", a->element);
   type = a->type && QName("", a->type);
+  if (type) {
+    QName tqn = 
+      owner_document->get_namespace_from_local_name(type->get_prefix());
+    if (tqn) type->set_namespace_uri(tqn->get_namespace_uri());
+  }
 }

@@ -51,9 +51,9 @@ protected string user_auth_url     = "http://twitter.com/oauth/authorize";
 // Implementation specific members
 
 protected string cache_path;
-protected string replies_url     = "https://twitter.com/statuses/replies.xml";
-protected string credentials_url = "https://twitter.com/account/"
-                                   "verify_credentials.xml";
+string replies_url     = "https://twitter.com/statuses/replies.xml";
+string credentials_url = "https://twitter.com/account/"
+                         "verify_credentials.xml";
 
 //! Session cookie
 string session;
@@ -109,7 +109,7 @@ Token get_request_token()
 }
 
 //! Fetches an access token
-Token get_access_token()
+Token get_access_token(void|string oauth_verifier)
 {
   if (!token)
     error("Can't fetch access token when no request token is set!\n");
@@ -117,7 +117,11 @@ Token get_access_token()
   string ctoken;// = get_cache("access-token");
 
   if (!ctoken) {
-    ctoken = call(access_token_url);
+    Params pm;
+    if (oauth_verifier)
+      pm = Params(Param("oauth_verifier", oauth_verifier));
+
+    ctoken = call(access_token_url, pm);
     set_cache("access-token", ctoken);
   }
 
@@ -143,21 +147,21 @@ string get_auth_url()
 //! @param expires
 //!  Number of seconds to keep the cache.
 //!  If @tt{-1@} the request will not be cached at all
-string call(STRURI url, void|Params args, void|int method,
+string call(STRURI url, void|Params args, void|string method,
             void|int expires)
 {
   string data;
 
-  method = method || Request.GET;
-  string ckey = Request.TYPE_MAPPING[method] + " " + url;
-  if (args) ckey += "?" + (string)args;
+  method = upper_case(method || "GET");
+  string ckey = method + " " + url;
+  if (args) ckey += "?" + args->get_signature();
 
   if (expires != -1) {
     if (data = get_cache(ckey))
       return data;
   }
 
-  Request r = request(consumer, token, url, args, method);
+  Request r = request(url, consumer, token, args, method);
   r->sign_request(Signature.HMAC_SHA1, consumer, token);
 
   if (!session)
@@ -174,7 +178,8 @@ string call(STRURI url, void|Params args, void|int method,
   }
 
   data = q->data();
-  if (data && expires != -1) set_cache(ckey, data, expires);
+  if (data && expires != -1) 
+    set_cache(ckey, data, expires);
 
   return data;
 }

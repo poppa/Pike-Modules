@@ -53,9 +53,6 @@ string location;
 //! Parameter order
 array parameter_order = ({});
 
-//! The documentation of the operation, if any
-Documentation documentation;
-
 //! The input node of the operation
 Input input;
 
@@ -89,10 +86,6 @@ protected void decode(Node n)
     if (cn->get_node_type() == XML_ELEMENT) {
       switch (cn->get_tag_name()) 
       {
-	case "documentation":
-	  documentation = Documentation(cn, owner_document);
-	  break;
-
 	case "input":
 	  input = Input(cn, owner_document);
 	  break;
@@ -113,20 +106,6 @@ protected void decode(Node n)
 	  break;
       }
     }
-  }
-}
-
-//! Class representing a documentation node
-class Documentation
-{
-  inherit .BaseObject;
-
-  //! The documentation text
-  string text;
-
-  protected void decode(Node n)
-  {
-    text = n->value_of_node();
   }
 }
 
