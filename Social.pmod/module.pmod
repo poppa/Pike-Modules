@@ -1,8 +1,5 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Bitly class@}
-//!
-//! This class communicates with @url{http://bit.ly@} which is a service to
-//! shorten, track and share links.
+//! @b{Social module@}
 //!
 //! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
 //!

@@ -581,16 +581,16 @@ class Api // {{{
 class Request // {{{
 {
   //! The @[Flickr.Api] used for the request
-  static Api api;
+  protected Api api;
 
   //! The method the request will call
-  static string method;
+  protected string method;
 
   //! The cache key for the method call. Only used if cacheability is on.
-  static string cache_key;
+  protected string cache_key;
 
   //! The parameters to send with the request.
-  static SignedParams params;
+  protected SignedParams params;
 
 
   //! Creates a new @[Flickr.Request] object
@@ -669,10 +669,10 @@ class Request // {{{
 class Response // {{{
 {
   //! The raw XML form a @[Flickr.Request] query.
-  static string xml_data;
+  protected string xml_data;
 
   //! The serialized result of the XML.
-  static Flickr.Item result;
+  protected .Item result;
 
 
   //! Creates a new @[Flickr.Response] object
@@ -735,19 +735,19 @@ class Response // {{{
 class Cache // {{{
 {
   //! The @[Flickr.Api] the cache is valid for
-  static Api api;
+  protected Api api;
 
   //! The path to the cache directory
-  static string dir;
+  protected string dir;
 
   //! The name of the cache file
-  static string file;
+  protected string file;
 
   //! The full path to the cache file.
-  static string path;
+  protected string path;
 
   //! The cache container.
-  static mapping __cache = ([]);
+  protected mapping __cache = ([]);
 
 
   //! Creates a new instance of @[Flickr.Cache].

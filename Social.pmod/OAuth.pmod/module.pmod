@@ -355,6 +355,13 @@ class Token
 
     error("Can't cast %O() to %O\n", object_program(this), how);
   }
+
+  //! String format.
+  string _sprintf(int t)
+  {
+    return t == 'O' && sprintf("%O(%O, %O)", object_program(this),
+                               key, secret);
+  }
 }
 
 //! Represents a query string parameter, i.e. @tt{key=value@}

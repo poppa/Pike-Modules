@@ -51,6 +51,7 @@ protected string user_auth_url     = "http://twitter.com/oauth/authorize";
 // Implementation specific members
 
 protected string cache_path;
+string url             = "http://twitter.com";
 string replies_url     = "https://twitter.com/statuses/replies.xml";
 string credentials_url = "https://twitter.com/account/"
                          "verify_credentials.xml";
@@ -137,6 +138,25 @@ string get_auth_url()
   return sprintf("%s?%s=%s", user_auth_url, TOKEN_KEY, (token&&token->key)||"");
 }
 
+//! Returns the full URL to the method @[method]
+//!
+//! @xml{<code lang="pike" detab="3">
+//!  string enpoint = twitter->get_url("account/verify_credentials");
+//!  // http://twitter.com/account/verify_credentials.xml
+//! </code>@}
+//!
+//! @param method
+string get_url(string method)
+{
+  if (method[0] != '/')
+    method = "/" + method;
+
+  if (!has_suffix(method, ".xml"))
+    method += ".xml";
+
+  return url + method;
+}
+
 //! Makes a request to @[url].
 //!
 //! @param url
@@ -184,6 +204,11 @@ string call(STRURI url, void|Params args, void|string method,
   return data;
 }
 
+class Response
+{
+  inherit Misc.SimpleXML;
+}
+
 //! The response class parses an XML tree returned from a Twitter method
 //! and turns it into a mapping.
 //!
@@ -193,7 +218,7 @@ string call(STRURI url, void|Params args, void|string method,
 //!   Twitter.Response resp = twitter->Response(xml);
 //!   write("Hello %s, you said: %s\n", resp->name, resp->status->text);
 //! </code>@}
-class Response
+class Responseeee
 {
   //! The XML tree representation
   mapping members = ([]);
