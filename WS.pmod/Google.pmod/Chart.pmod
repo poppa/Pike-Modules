@@ -30,7 +30,7 @@
 constant BASE_URL   = "http://chart.apis.google.com/chart";
 
 //! Base class for all types of charts
-protected class Base // {{{
+class Base // {{{
 {
   protected int width   = 400;
   protected int height  = 300;
@@ -116,6 +116,7 @@ protected class Base // {{{
 	}
       );
       i = 0;
+      // FIXME: What about this?
       array label_pos  = axes->get_label_position();
       array axis_range = map(
 	axes->get_range(),
@@ -146,6 +147,9 @@ class BaseSimple // {{{
 
   //! Chart grid
   protected Grid grid;
+  
+  //! Set range in axes from data
+  int(0..1) auto_range = 1;
 
   //! Set a chart grid
   //!
@@ -168,11 +172,59 @@ class BaseSimple // {{{
     grid = Grid(x, y, line_width, space_width);
   }
 
+  //! Set auto range or not.
+  void set_auto_range(int(0..1) value)
+  {
+    auto_range = value;
+  }
+  
   //! Render the chart url
   //!
   //! @param data
   string render_url(Data data)
   {
+    if (auto_range) {
+      data->set_auto_scale();
+    
+      Axis y;
+      foreach (axes, Axis ax) {
+	if (ax->get_type() == "y") {
+	  y = ax;
+	  break;
+	}
+      }
+
+      if (!y) y = Axis("y");
+
+      int min  = data->get_min();
+      int max  = data->get_max();
+      int ival = max - min;
+
+      werror("Round: %O\n", round_to_nearest(max, 25));
+
+      if (ival < 10)
+	ival = 2;
+      else if (ival < 50)
+	ival = 5;
+      else if (ival < 100)
+	ival = 10;
+      else if (ival < 300)
+	ival = 25;
+      else if (ival < 600)
+	ival = 50;
+      else
+	ival = 100;
+
+      y->set_range(0, round_to_nearest(max, 25), ival);
+
+      axes += ({ y });
+
+      if (grid)
+	grid->y_axis_step = 10;
+
+      werror("Grid: %O\n", (((int)(max/ival))*ival)+10);
+    }
+
     string url = ::render_url(data);
     if (grid)
       url += "&amp;" + (string)grid;
@@ -209,7 +261,6 @@ class Line // {{{
   }
 } // }}}
 
-
 //! Class for creating bar charts
 class Bar // {{{
 {
@@ -231,7 +282,7 @@ class Bar // {{{
   int(0..1) auto_size = 1;
 
   //! Style parameters of the bars
-  array bar_params;
+  array(string) bar_params = ({ "r", "r", "r" });
 
   //! Creates a new @[Bar] chart
   //!
@@ -262,6 +313,21 @@ class Bar // {{{
   {
     bar_params = ({ (string)width, (string)bar_space, (string)group_space });
   }
+  
+  void set_bar_space(int|string space)
+  {
+    bar_params[1] = (string)space;
+  }
+  
+  void set_group_space(int|string space)
+  {
+    bar_params[2] = (string)space;
+  }
+
+  void set_bar_width(int|string width)
+  {
+    bar_params[0] = (string)width;
+  }
 
   //! Render the chart url
   //!
@@ -270,7 +336,7 @@ class Bar // {{{
   {
     string url = ::render_url(data);
 
-    if (bar_params)
+    if (sizeof(bar_params - ({ 0 })))
       url += "&amp;chbh=" + bar_params*",";
     else if (auto_size)
       url += "&amp;chbh=a";
@@ -280,7 +346,7 @@ class Bar // {{{
 } // }}}
 
 //! Class for creating pie charts
-class Pie
+class Pie // {{{
 {
   inherit Base;
 
@@ -321,10 +387,10 @@ class Pie
 
     return url;
   }
-}
+} // }}}
 
 //! Class representing a chart legend
-class Legend
+class Legend // {{{
 {
   //! Places the legend horizontally at the bottom
   constant HORIZONTAL_BOTTOM = "b";
@@ -368,7 +434,7 @@ class Legend
       r += "&amp;chldp=" + position;
     return r;
   }
-}
+} // }}}
 
 //! This class represents a chart axis
 class Axis // {{{
@@ -389,7 +455,7 @@ class Axis // {{{
   protected string type;
 
   //! Range
-  protected Range  range;
+  protected Range range;
 
   //! Labels
   protected array(Label) labels = ({});
@@ -410,7 +476,7 @@ class Axis // {{{
   //!  @[add_label()].
   //!
   //! @param _labels
-  void set_labels(array(string) _labels)
+  void set_labels(string ... _labels)
   {
     foreach (_labels, string label)
       add_label(label);
@@ -444,6 +510,7 @@ class Axis // {{{
     return type;
   }
 
+  // Returns label text for URL
   string get_label_text()
   {
     string s = (labels->text)*"|";
@@ -452,40 +519,62 @@ class Axis // {{{
     return "";
   }
 
+  // Returns label positions for URL
   string get_label_position()
   {
     return (labels->position)*"|";
   }
 
+  // Returns range for URL
   string get_range()
   {
     return range && range->get()||"";
   }
 
+  //! Class representing an axis label.
   protected class Label
   {
+    //! Label text
     string text;
+    
+    //! Label position
     string position;
 
+    //! Create a new label
+    //!
+    //! @param _text
+    //! @param _position
     void create(string _text, int|float|string _position)
     {
       text = _text;
       position = (string)_position;
     }
 
+    //! String format
     string _sprintf(int t)
     {
       return t == 'O' && sprintf("%O(%O, %O)", object_program(this),
                                                text, position);
     }
   }
-
+  
+  //! Class representing an axis range
   protected class Range
   {
+    //! Range start index
     int start;
+    
+    //! Range end index
     int end;
+    
+    //! Range interval
     int interval;
 
+    //! Create a new range
+    //!
+    //! @param _start
+    //! @param _end
+    //! @param _interval
     void create(int|float|string _start, int|float|string _end,
                 void|int _interval)
     {
@@ -494,6 +583,7 @@ class Axis // {{{
       interval = (int)_interval;
     }
 
+    //! Returns the range formatted for URL
     string get()
     {
       string s = sprintf("%d,%d", start, end);
@@ -503,9 +593,10 @@ class Axis // {{{
     }
   }
 
+  //! Axis style object
   protected class Style
   {
-
+    
   }
 } // }}}
 
@@ -575,6 +666,16 @@ class Grid // {{{
 
     error("Can't cast Grid to %O!\n", how);
   }
+  
+  string _sprintf(int t)
+  {
+    return t == 'O' && sprintf(
+      "%O(%d, %d, %d, %d, %d, %d)", object_program(this),
+      x_axis_step, y_axis_step, line_length, blank_length,
+      x_offset, y_offset
+    );
+  }
+  
 } // }}}
 
 protected class Param // {{{
@@ -622,23 +723,25 @@ class Data // {{{
   protected array(float) values = ({});
 
   //! Data group
-  protected array(Data)  group  = ({});
+  protected array(Data) group = ({});
 
   //! Minimum value
-  protected int min_value  = 0;
+  protected int min_value = 0;
 
   //! Maximum value
-  protected int max_value  = 100;
+  protected int max_value = 100;
 
   //! Chart color of this data set
-  protected string color   = "FFCC33";
+  protected string color = "FFCC33";
 
   //! Data legend
-  protected Legend legend  = Legend();
+  protected Legend legend = Legend();
 
   //! Data labels
-  protected array labels   = ({});
-
+  protected array labels = ({});
+  
+  //! Data scaling on/off
+  protected int(0..1) scaling = 0;
 
   //! Creates a new @[Data] object.
   //!
@@ -655,16 +758,32 @@ class Data // {{{
   //!  Else @[value] will be appended to the internal data set.
   object `+(int|float|string|object value)
   {
+    object o = object_program(this)(@values);
+    o += value;
+    return o;
+  }
+  
+  object `+=(int|float|string|object value)
+  {
     if (objectp(value)) {
       if (object_program(value) == object_program(this)) {
 	value->set_scale(min_value, max_value);
 	group += ({ value });
       }
+      else werror("Uncompatible data object: %O\n", value);
     }
     else
       values += ({ (float)value });
 
     return this;
+  }
+  
+  //! Set data scaling on/off
+  //!
+  //! @param value
+  void set_scaling(int(0..1) value)
+  {
+    scaling = value;
   }
 
   //! Set the color of the chart items this data set represents (pie slice,
@@ -699,6 +818,25 @@ class Data // {{{
     max_value = _max;
   }
 
+  //! Set scale from actual values
+  void set_auto_scale()
+  {
+    float min = 1000000.0, max = 0.0;
+    
+    foreach (values, float v) {
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+
+    werror("Min: %f, Max: %f\n", min, max);
+
+    min_value = (int)min;
+    max_value = (int)max;
+
+    if (sizeof(group))
+      group->set_scale((int)min, (int)max);
+  }
+  
   //! Returns the minimum value
   int get_min()
   {
@@ -739,7 +877,19 @@ class Data // {{{
   // Simple encode the data.
   string simple_encode()
   {
-    return "s:" + low_simple_encode();
+    if (scaling)
+      return "t:" + low_simple_scaling();
+    else
+      return "s:" + low_simple_encode();
+  }
+
+  string low_simple_scaling()
+  {
+    array v = ({ map(values, lambda(float f) { return (string)f; } )*"," });
+    v += group->low_simple_scaling();
+
+    return v * "|";
+    //return (({ values*"," }) + group->low_simple_scaling())*"|";
   }
 
   string low_simple_encode(void|int _max)
@@ -856,3 +1006,20 @@ class Data // {{{
     return t == 'O' && sprintf("Data(%s)", cast("string"));
   }
 } // }}}
+
+float round_to_nearest(float|int x, float|int base)
+{
+  x = (float)x;
+  base = (float)base;
+
+  if (x > 0.0 && base > 0.0) {
+    float sign = x > 0 ? 1.0 : -1.0;
+    x *= sign;
+    x /= base;
+    int point = (int)floor(x+0.5);
+    x = point*base;
+    x *= sign;
+  }
+  
+  return x;
+}

@@ -12,6 +12,7 @@ string md5(string s)
 
 string download(string url)
 {
+  url = replace(url, "&amp;", "&");
   Protocols.HTTP.Query q = Protocols.HTTP.get_url(url);
   if (q->status != 200)
     error("Bad status \"%d\" in Google.download()\n", q->status);

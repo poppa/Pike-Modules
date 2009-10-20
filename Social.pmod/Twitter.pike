@@ -198,12 +198,16 @@ string call(STRURI url, void|Params args, void|string method,
   }
 
   data = q->data();
-  if (data && expires != -1) 
+  if (data && expires != -1)
     set_cache(ckey, data, expires);
 
   return data;
 }
 
+//! Turns an XML response into an object
+//!
+//! @seealso
+//!  Misc.SimpleXML
 class Response
 {
   inherit Misc.SimpleXML;

@@ -62,11 +62,11 @@ class Api
 {
   //! The API key
   string key;
-  
+
   //! The API secret
   string secret;
-  
-  //! Whether or not to generate a session secret 
+
+  //! Whether or not to generate a session secret
   int(0..1) generate_session_secret;
 
   //! Format to use in requests/responses
@@ -86,7 +86,7 @@ class Api
 
   //! Session expire time. Most likely received from @[auth_get_session()]
   protected int expires;
-  
+
   //! Canvas mode or not
   protected int(0..1) in_canvas = 0;
 
@@ -159,7 +159,7 @@ class Api
   }
 
   //! Sets members from the result of @[auth_get_session()]. This is the same
-  //! as calling @[set_session_key()], @[set_session_secret()], 
+  //! as calling @[set_session_key()], @[set_session_secret()],
   //! @[set_uid()] and @[set_expires()] respectively.
   //!
   //! @param value
@@ -190,7 +190,7 @@ class Api
   {
     return format;
   }
-  
+
   //! Returns the currently logged on user
   string get_user()
   {
@@ -199,7 +199,7 @@ class Api
 
   //! Returns the URL for loggin on to Facebook
   //!
-  //! @param next 
+  //! @param next
   //!  The URL the loginpage at FB should redirect back to
   //! @param canvas
   string get_login_url(void|string next, void|int|string canvas)
@@ -207,7 +207,7 @@ class Api
     string u = get_facebook_url() + "/login.php";
     Params p = Params(Param("api_key", key), Param("v", VERSION));
 
-    if (next)   
+    if (next)
       p += Param("next", next);
 
     if (canvas) {
@@ -223,14 +223,14 @@ class Api
   {
     return call("auth.createToken")->get_result();
   }
-  
+
   //! Requests a session
   //!
   //! @param auth_token
   //!  Either from login callback or @[auth_create_token()]
   mixed auth_get_session(string auth_token, void|int(0..1) gen_sess_secret)
   {
-    return call("auth.getSession", 
+    return call("auth.getSession",
                 Params(Param("auth_token", auth_token),
                        Param("generate_session_secret", gen_sess_secret)))
            ->get_result();
@@ -294,12 +294,12 @@ class Response // {{{
   void create(string response)
   {
     xml = response;
-    
+
     if (!sizeof(xml))
       error("Empty response\n");
-    
+
     TRACE("Parse response data:\n%s\n", xml);
-    
+
     parse();
   }
 
@@ -307,7 +307,7 @@ class Response // {{{
   {
     return res->response;
   }
-  
+
   protected void parse()
   {
     Node root = parse_input(xml);
@@ -358,7 +358,7 @@ class Response // {{{
 	if (cn->count_children() > 1) {
 	  if (!arrayp( p[name] ))
 	    p[name] = ({});
-	  
+
 	  TRACE("Extract to array: %s\n", cn->get_tag_name());
 
 	  p[name] += ({ extract(cn, ([])) });
@@ -434,7 +434,7 @@ class Params
   {
     return params;
   }
-  
+
   //! Turns the parameters into a query string
   string to_query()
   {
@@ -450,7 +450,7 @@ class Params
   {
     return mkmapping(params->get_name(), params->get_value());
   }
-  
+
   //! Add @[p] to the array of @[Param]eters
   //!
   //! @param p
@@ -461,7 +461,7 @@ class Params
 
     return pp;
   }
-  
+
   Params `+=(Param|Params p)
   {
     if (object_program(p) == object_program(this))
@@ -482,10 +482,10 @@ class Param
 {
   //! The name of the parameter
   protected string name;
-  
+
   //! The value of the parameter
   protected string value;
-  
+
   //! Creates a new instance of @[Param]
   //!
   //! @param _name
@@ -495,13 +495,13 @@ class Param
     name = _name;
     value = (string)_value;
   }
-  
+
   //! Getter for the parameter name
   string get_name()
   {
     return name;
   }
-  
+
   //! Setter for the parameter name
   //!
   //! @param _name
@@ -509,15 +509,15 @@ class Param
   {
     name = _name;
   }
-  
+
   //! Getter for the parameter value
   string get_value()
   {
     return value;
   }
-  
+
   //! Setter for the parameter value
-  //! 
+  //!
   //! @param _value
   void set_value(mixed _value)
   {
@@ -529,7 +529,7 @@ class Param
   {
     return name + "=" + value;
   }
-  
+
   //! Comparer method. Checks if @[other] equals this object
   //!
   //! @param other
@@ -553,7 +553,7 @@ class Param
 
     return name > other->get_name();
   }
-  
+
   //! String format method
   //!
   //! @param t

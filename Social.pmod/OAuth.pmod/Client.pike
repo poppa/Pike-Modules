@@ -1,6 +1,10 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! @b{OAuth client class@}
 //!
+//! @note
+//!  This class is of no use by it self. It's intended to be inherited by 
+//!  classes that uses OAuth authorization.
+//!
 //! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
 //!
 //! @pre{@b{License GNU GPL version 3@}

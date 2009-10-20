@@ -82,9 +82,12 @@ class Api
   //!
   //! @param token
   //!  A token key received from @[get_token()]
-  string get_session(string token)
+  //! @param force_new
+  //!  If a session exists but a new one is wanted set this to @tt{1@} to
+  //!  force generation of a new session.
+  string get_session(string token, void|int(0..1) force_new)
   {
-    if (session)
+    if (session && !force_new)
       return session;
 
     Response d = call("auth.getSession", Params(Param("token", token)));
@@ -109,8 +112,9 @@ class Api
   //! @param params
   //!  Method specific parameters. All default parameters will be added
   //!  automatically
-  Response call(string method, void|Params params, 
-                      void|string http_method)
+  //! @param http_method
+  //!  Should be GET or POST. Default is GET.
+  Response call(string method, void|Params params, void|string http_method)
   {
     http_method = upper_case(http_method||"GET");
     Params p = get_default_params(method);
@@ -131,7 +135,7 @@ class Api
     if (q->status != 200)
       error("Bad status (%d) in HTTP call\n", q->status);
 
-    Response r = Misc.SimpleXML(q->data());
+    Response r = Response(q->data());
 
     if (r->get_attributes()["status"] == "failed") {
       string ec = r->error->get_attributes()["code"];

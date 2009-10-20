@@ -85,6 +85,7 @@ protected class Base
   }
 
   //! Builds the signature string
+  //!
   //! @param request
   //! @param cosumer
   //! @param token
