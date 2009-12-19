@@ -4,7 +4,7 @@
 //! This is a helper module for developing desktop/console applications on the
 //! Social.pmod modules
 //!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//! Copyright © 2009, Pontus Östlund - @url{http://www.poppa.se@}
 //!
 //! @pre{@b{License GNU GPL version 3@}
 //!
@@ -30,7 +30,7 @@
 
 #define TRIM(S) String.trim_all_whites(S)
 
-//! Default browser command
+//! Default browser command (@tt{firefox@})
 string default_browser_cmd = "firefox";
 
 //! Set default browser command to use in @[launch_browser()].
@@ -44,11 +44,15 @@ void set_default_browser_cmd(string browser_cmd)
 
 //! Launch a browser and point it to @[url]
 //!
+//! @note
+//!  This won't work on Windows
+//!
+//! @seealso 
+//!  @[set_default_browser_cmd()]
+//!
 //! @param url
 //! @param browser_cmd
-//!  Overrides @[default_browser_cmd]. 
-//!  @seealso 
-//!   @[set_default_browser_cmd()]
+//!  Overrides @[default_browser_cmd].
 int launch_browser(void|string url, void|string browser_cmd)
 {
   return low_launch_browser(browser_cmd, url);
@@ -58,7 +62,7 @@ int launch_browser(void|string url, void|string browser_cmd)
 //! will be promted to write a browser command.
 //!
 //! @param browser
-//! @param @url
+//! @param url
 protected int low_launch_browser(void|string browser, void|string url)
 {
   string bcmd = browser||default_browser_cmd;
@@ -90,7 +94,9 @@ protected int low_launch_browser(void|string browser, void|string url)
 //!  @url{http://roxen.com@}
 class Proc
 {
+  //! The result from the sub process
   string result = "";
+
   protected Process.create_process p;
   protected int           timeout;
   protected int           retval;
@@ -99,6 +105,13 @@ class Proc
 
   private Pike.Backend backends = Thread.Local();
 
+  //! Creates a new @[Proc] class
+  //!
+  //! @param _args
+  //!  Array of arguments. The first index should be the program to run and
+  //!  there after argument to pass to the program. 
+  //! @param _timeout
+  //!  Maximimum number of seconds the process can run. Default is @tt{30@}
   void create(array(string) _args, void|int _timeout)
   {
     args = _args;
@@ -124,6 +137,11 @@ class Proc
     done = 1;
   }
 
+  //! Run the process
+  //!
+  //! @returns
+  //!  The return value of the subprocess. To get the data from the process
+  //!  use @[Proc()->result].
   int run()
   {
     Stdio.File stdout = Stdio.File();

@@ -140,7 +140,7 @@ Params query_to_params(STRURI|mapping q)
 
   int pos = 0, len = sizeof(q);
   if ((pos = search(q, "?")) > -1)
-    q = q[pos+1..];
+    q = ([string]q)[pos+1..];
 
   foreach (q/"&", string p) {
     sscanf(p, "%s=%s", string n, string v);
@@ -493,7 +493,8 @@ class Params
 
   //! Returns the parameters as a mapping with encoded values
   //!
-  //! @seealso get_variables()
+  //! @seealso 
+  //!  @[get_variables()]
   mapping get_encoded_variables()
   {
     mapping m = ([]);

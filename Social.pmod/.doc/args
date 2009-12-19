@@ -1,0 +1,10 @@
+../module.pmod module.xml -t module -n Social
+../Bitly.pike Bitly.xml -t class -n Bitly -p Social
+../Desktop.pmod Desktop.xml -t module -n Desktop -p Social
+../Facebook.pmod/module.pmod Facebook.xml -t module -n Facebook -p Social
+../Gravatar.pike Gravatar.xml -t class -n Gravatar -p Social
+../Twitter.pike Twitter.xml -t class -n Twitter -p Social
+../Lastfm.pmod Lastfm.xml -t module -n Lastfm -p Social
+../OAuth.pmod/module.pmod OAuth.xml -t module -n OAuth -p Social
+../OAuth.pmod/Signature.pmod OAuth_Signature.xml -t module -n Signature -p Social,OAuth
+../OAuth.pmod/Client.pike OAuth_Client.xml -t class -n Client -p Social,OAuth

@@ -1,0 +1,114 @@
+BODY { 
+	font: 80%/140% arial, sans-serif; 
+	padding: 0; 
+	margin: 0; 
+	background: #212121;
+	color: #F5F5F5;
+	}
+H1, H2 {
+	padding: 20px 10px; 
+	background: #141212; 
+	font-size: 2.5em;
+	border-bottom: 5px solid #35353C;
+	margin: 0;
+	color: #F1F1F1;
+	clear: left;
+	}
+H2 { font-size: 2em; }
+H1 SMALL,
+H2 SMALL { 
+	font-weight: normal; 
+	font-variant: small-caps; 
+	font-family: georgia, serif;
+	font-style: italic;
+	}
+A { color: orange; }
+HR { 
+	height: 1px; 
+	background: #333; 
+	border: none;
+	margin: 0 0 20px 0;
+	}
+DIV.docwrap { 
+	border-top: 1px solid black;
+	background: #232323;
+	}
+DIV.docgroup {
+	border-bottom: 1px solid black;
+	background: #2A2A29;
+	clear: left;
+	}
+DIV.docgroup DL {
+	clear: both;	
+	}
+DIV.docgroup DT {
+	float: left;
+	width: 18%;
+	background: #1a1a1a;
+	padding: 5px;
+	clear: left;
+	}
+DIV.docgroup DD {
+	float: left;
+	width: 76%;
+	color: #BBB;
+	}
+DIV.docgroup DD P { margin-top: 5px; }
+DIV.docdoc { 
+	background: #222522; 
+	padding: 7px; 
+	padding-bottom: 0;
+	outline: 1px solid #1e1e1e;
+	}
+DIV.content { padding: 14px; padding-left: 40px; }
+DL.method-summary { margin: 0 }
+DL.method-summary UL { padding-left: 0; list-style: none; margin: 10px 0 0 0; }
+DL.method-summary UL LI { background:#181818; margin-bottom: 1px; padding: 3px}
+DL.method-summary UL LI A { color: #66ccff; font-weight: bold; }
+DL.method-summary UL LI .params SPAN,
+DL.method-summary UL LI .params { color: #555 !important; }
+DL.method-summary UL LI UL { margin: 0 0 0 25px;}
+.label { font-weight: bold; margin-right: 10px; color: #777; }
+.homogen-name { font-size: 1.6em; font-weight: bold; }
+.top-level { color: #6cf; }
+.modifier { color: #cf5e5e;  }
+.homogen-type { color: #909; }
+.type-type { color: #b9b91d; }
+.type-name, .var-name { color: #A0F0E0; }
+.delim { color: #CCC; }
+.literal { color: #C00; }
+.method { color: #66ccff; }
+.ref { 
+	font-family: 'andale mono', monospace;
+	background: #212129;
+	padding: 2px;
+	font-size: .9em;
+	color: #f66;
+	}
+.program-name { color: #1379a9; }
+DT .param-name { color: #f66; font-size: 1.0em !important; }
+P.expanded-member { 
+	font-size: 1.3em; margin-top: 0;
+	background: #212129;
+	padding: 0px 5px 3px 5px;
+	display: table;
+	margin-top: 2px;
+	}
+P TT {
+	background: #212129;
+	font-size: 1.3em;
+	padding: 2px;
+	color: #f0f56b;
+	}
+DIV.code, CODE { color: white; font: 11.5px/120% 'andale mono', monospace !IMPORTANT }
+DIV.code {
+	padding: 1px;
+	border: 1px solid #000;
+	background: #333;
+	}
+DIV.code OL {
+	list-style: none;
+	padding: 10px;
+	margin: 0;
+	background: #212129;
+	}

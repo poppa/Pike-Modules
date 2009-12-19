@@ -1,7 +1,6 @@
 #ifndef _FACEBOOK_H
 #define _FACEBOOK_H
-
-#define FB_DEBUG
+#include "../social.h"
 
 #ifdef FB_DEBUG
 # define TRACE(X...) werror(">>> FB (%s:%d): %s", basename(__FILE__), \
@@ -10,9 +9,9 @@
 # define TRACE(X...)
 #endif
 
-#define EMPTY(STR)	(!STR || !sizeof(STR))
-#define NOT_NULL(STR)	STR = STR||""
-#define ARG_ERROR(ARG, MSG...) \
-  error("Argument exception (%s): %s\n", (ARG), sprintf(MSG))
+#define ASSERT_SESSION(FUNC) \
+	{ if (!session_key) \
+			error("%s needs a session but none is available!", (FUNC)); \
+	}
 
 #endif /* _FACEBOOK_H */

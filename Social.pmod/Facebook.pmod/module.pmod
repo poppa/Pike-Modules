@@ -1,7 +1,7 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! @b{Facebook class@}
 //!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//! Copyright © 2009, Pontus Östlund - @url{http://www.poppa.se@}
 //!
 //! @pre{@b{License GNU GPL version 3@}
 //!
@@ -18,6 +18,7 @@
 //! You should have received a copy of the GNU General Public License
 //! along with Facebook.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
 //! @}
+#define FB_DEBUG
 
 #include "facebook.h"
 import Parser.XML.Tree;
@@ -36,6 +37,32 @@ constant USER_AGENT = "Pike Facebook Client 0.1 (Pike " + __VERSION__ + ")";
 
 //! The URL to the Facebook REST server
 constant REST_URL = "http://api.new.facebook.com/restserver.php";
+
+//! Fields to fetch in @[Api()->get_user_info()] if no fields are given.
+constant DEFAULT_USER_INFO_FIELDS = ({
+  "about_me",
+  "birthday",
+  "birthday_date",
+  "current_location",
+  "email_hashes",
+  "first_name",
+  "is_app_user",
+  "hometown_location",
+  "interests",
+  "is_blocked",
+  "last_name",
+  "locale",
+  "name",
+  "pic",
+  "pic_small",
+  "pic_square",
+  "profile_blurb",
+  "profile_url",
+  "status",
+  "timezone",
+  "username",
+  "website"
+});
 
 //! MD5 routine
 //!
@@ -71,9 +98,6 @@ class Api
 
   //! Format to use in requests/responses
   protected string format = FORMAT_XML;
-
-  //! Logged in user
-  protected string user;
 
   //! Sesssion key. Most likely received from @[auth_get_session()]
   protected string session_key;
@@ -175,7 +199,8 @@ class Api
   //!
   //! @param _format
   //!
-  //! @throws An exception if format is other than XML or JSON
+  //! @throws 
+  //!  An exception if format is other than XML or JSON
   void set_format(string _format)
   {
     if ( !(< FORMAT_XML, FORMAT_JSON >)[_format] )
@@ -189,12 +214,6 @@ class Api
   string get_format()
   {
     return format;
-  }
-
-  //! Returns the currently logged on user
-  string get_user()
-  {
-    return user;
   }
 
   //! Returns the URL for loggin on to Facebook
@@ -219,24 +238,87 @@ class Api
   }
 
   //! Request an auth token
-  string auth_create_token()
+  Response auth_create_token()
   {
-    return call("auth.createToken")->get_result();
+    return call("auth.createToken");
   }
 
   //! Requests a session
   //!
   //! @param auth_token
   //!  Either from login callback or @[auth_create_token()]
-  mixed auth_get_session(string auth_token, void|int(0..1) gen_sess_secret)
+  Response auth_get_session(string auth_token, void|int(0..1) gen_sess_secret)
   {
-    return call("auth.getSession",
-                Params(Param("auth_token", auth_token),
-                       Param("generate_session_secret", gen_sess_secret)))
-           ->get_result();
+    return call("auth.getSession", Params(
+                Param("auth_token", auth_token),
+                Param("generate_session_secret", gen_sess_secret)));
+  }
+
+  //! Invalidates the current session being used, regardless of whether it is 
+  //! temporary or infinite. After successfully calling this function, no 
+  //! further API calls requiring a session will succeed using this session. 
+  //! If the invalidation is successful, this will return true.
+  //! 
+  //! @seealso 
+  //!  http://wiki.developers.facebook.com/index.php/Auth.expireSession
+  Response expire_session()
+  {
+    string sk = session_key;
+    session_key = 0;
+    return call("auth.expireSession", Params(Param("session_key", sk)));
+  }
+
+  //! If this method is called for the logged in user, then no further API calls 
+  //! can be made on that user's behalf until the user decides to authorize the 
+  //! application again.
+  //!
+  //! @seealso 
+  //!  http://wiki.developers.facebook.com/index.php/Auth.revokeAuthorization
+  Response revoke_authorization()
+  {
+    return call("auth.revokeAuthorization");
+  }
+
+  //! Returns a wide array of user-specific information for each user 
+  //! identifier passed, limited by the view of the current user.
+  //!
+  //! @seealso 
+  //!  http://wiki.developers.facebook.com/index.php/Users.getInfo
+  //!
+  //! @throws
+  //!  An error if no session is available and no @[uids] is give
+  //!
+  //! @param uids 
+  //!  List of user IDs. If a @tt{string@} it should be a comma separated
+  //!  list of user IDs.
+  //! @param fields
+  //!  List of desired fields in return. If a @tt{string@} it should be a 
+  //!  comma separated list of fields.
+  Response get_user_info(void|string|array uids, void|string|array fields)
+  {
+    // ASSERT_SESSION("get_user_info()");
+
+    if (!uids && uid)
+      uids = ({ uid });
+    else if (stringp(uids))
+      uids = [array](uids/",");
+
+    if (!uids || !sizeof(uids))
+      error("No UIDs given and no authentication available.");
+
+    if (!fields)
+      fields = DEFAULT_USER_INFO_FIELDS;
+    else if (stringp(fields))
+      fields = [array](fields/",");
+
+    return call("users.getInfo", Params(Param("uids", uids*","), 
+                                        Param("fields", fields*",")));
   }
 
   //! Calls a Facebook method
+  //!
+  //! @throws
+  //!  An error if the response status code isn't @tt{200@}
   //!
   //! @param method
   //! @param params
@@ -266,6 +348,9 @@ class Api
                                                       eheads,
                                                       0,
                                                       post->to_query());
+    if (q->status != 200)
+      error("Bad status code (%d) in HTTP response!\n", q->status);
+
     return Response(q->data());
   }
 
@@ -285,280 +370,79 @@ class Api
   }
 }
 
-class Response // {{{
+//! The @[Response] class turns an XML response from a Facebook API call into
+//! an object. Each XML node will be an instance of @[Response]. A psuedo 
+//! example could be:
+//!
+//! @xml{<codify lang="xml" detab="3">
+//!   <users_getInfo_response>
+//!     <user>
+//!       <name>John Doe</name>
+//!       <status>
+//!         <message>The last status message</message>
+//!         <time>1261168463</time>
+//!         <status_id>210488073921</status_id>
+//!       </status>
+//!     </user>
+//!   </users_getInfo_response>
+//! </codify>@}
+//!
+//! @xml{<codify lang="pike" detab="3">
+//!   array fields = ({ "name", "status" });
+//!   // Fetch the current users info
+//!   Response res = facebook->get_user_info(0, fields);
+//!
+//!   string name = res->user->name->get_value();
+//!   string message = res->user->status->message->get_value();
+//!
+//!   // Or cast
+//!   write("Hello %s\n", (string)res->user->name);
+//!
+//!   // Print all status nodes
+//!   foreach ((array)res->user->status, Response child)
+//!     write("%s: %s\n", child->get_name(), (string)child);
+//! </codify>@}
+class Response
 {
-  protected string xml;
-  protected int(0..1) is_error = 0;
-  protected mapping res = ([]);
+  inherit Misc.SimpleXML;
 
-  void create(string response)
+  //! Creates a new insance of @[SimpleXML]
+  //!
+  //! @throws 
+  //!  An error if @[xml] is a string and XML parsing fails
+  //!
+  //! @param xml
+  void create(string|Parser.XML.Tree.Node xml)
   {
-    xml = response;
-
-    if (!sizeof(xml))
-      error("Empty response\n");
-
-    TRACE("Parse response data:\n%s\n", xml);
-
-    parse();
+    ::create(xml);
   }
-
-  mixed get_result()
-  {
-    return res->response;
-  }
-
-  protected void parse()
-  {
-    Node root = parse_input(xml);
-    root = root && root[1];
-
-    if (!root)
-      error("Unable to find root node of response\n");
-
-    string name = root->get_tag_name();
-
-    if (search(name, "error") > -1) {
-      string code, msg;
-
-      root->iterate_children(
-	lambda(Node n) {
-	  if (n->get_node_type() != XML_ELEMENT)
-	    return;
-
-	  if (n->get_tag_name() == "error_code")
-	    code = n->value_of_node();
-	  else if (n->get_tag_name() == "error_msg")
-	    msg = n->value_of_node();
-	}
-      );
-
-      error("%s (%s)\n", msg, code);
-    }
-
-    extract(root, res);
-    res = ([ "response" : res[indices(res)[0]] ]);
-  }
-
-  protected mapping extract(Node n, mapping p)
-  {
-    string name = n->get_tag_name();
-    p[name] = ([]);
-
-    if (!n->get_first_element()) {
-      p[name] = n->value_of_node();
-      return p;
-    }
-
-    foreach (n->get_children(), Node cn) {
-      if (cn->get_node_type() != XML_ELEMENT)
-	continue;
-
-      if (cn->get_first_element()) {
-	if (cn->count_children() > 1) {
-	  if (!arrayp( p[name] ))
-	    p[name] = ({});
-
-	  TRACE("Extract to array: %s\n", cn->get_tag_name());
-
-	  p[name] += ({ extract(cn, ([])) });
-	}
-	else {
-	  TRACE("Extract to mapping: %s\n", cn->get_tag_name());
-
-	  if (sizeof( p[name] )) {
-	    if (!arrayp( p[name] ))
-	      p[name] = ({ p[name] });
-
-	    p[name] += ({ extract(cn, ([])) });
-	  }
-	  else
-	    p[name] += extract(cn, ([]));
-	}
-      }
-      else {
-	string cname = cn->get_tag_name();
-	if ( p[name][cname] ) {
-	  if (!arrayp( p[name][cname] ))
-	    p[name][cname] = ({ p[name][cname] });
-
-	  p[name][cname] += ({ cn->value_of_node() });
-	}
-	else
-	  p[name][cname] = cn->value_of_node();
-      }
-    }
-
-    return p;
-  }
-} // }}}
+}
 
 //! Parameter collection class
 class Params
 {
-  //! The parameters.
-  protected array(Param) params;
-
+  inherit Social.Params;
+  
   //! Creates a new instance of @[Params]
   //!
   //! @param args
   void create(Param ... args)
   {
-    params = args||({});
-  }
-
-  //! Sign the parameters
-  //!
-  //! @param secret
-  //!  The API secret
-  string sign(string secret)
-  {
-    TRACE("@@@ Sign: %s\n", sort(params)->name_value()*"\n"+"\n"+secret);
-    return md5(sort(params)->name_value()*"" + secret);
-  }
-
-  //! Parameter keys
-  array _indices()
-  {
-    return params->get_name();
-  }
-
-  //! Parameter values
-  array _values()
-  {
-    return params->get_value();
-  }
-
-  //! Returns the array of @[Param]eters
-  array(Param) get_params()
-  {
-    return params;
-  }
-
-  //! Turns the parameters into a query string
-  string to_query()
-  {
-    array o = ({});
-    foreach (params, Param p)
-      o += ({ p->get_name()+"="+Protocols.HTTP.uri_encode(p->get_value()) });
-
-    return o*"&";
-  }
-
-  //! Turns the parameters into a mapping
-  mapping to_mapping()
-  {
-    return mkmapping(params->get_name(), params->get_value());
-  }
-
-  //! Add @[p] to the array of @[Param]eters
-  //!
-  //! @param p
-  Params `+(Param|Params p)
-  {
-    Params pp = Params(@params);
-    pp += p;
-
-    return pp;
-  }
-
-  Params `+=(Param|Params p)
-  {
-    if (object_program(p) == object_program(this))
-      params += p->get_params();
-    else
-      params += ({ p });
-  }
-
-  //! String format method
-  string _sprintf(int t)
-  {
-    return t == 'O' && sprintf("%O(%O)", object_program(this), params);
+    ::create(@args);
   }
 }
 
 //! Representation of a parameter
 class Param
 {
-  //! The name of the parameter
-  protected string name;
-
-  //! The value of the parameter
-  protected string value;
-
+  inherit Social.Param;
+  
   //! Creates a new instance of @[Param]
   //!
-  //! @param _name
-  //! @param _value
-  void create(string _name, mixed _value)
+  //! @param name
+  //! @param value
+  void create(string name, mixed value)
   {
-    name = _name;
-    value = (string)_value;
-  }
-
-  //! Getter for the parameter name
-  string get_name()
-  {
-    return name;
-  }
-
-  //! Setter for the parameter name
-  //!
-  //! @param _name
-  void set_name(string _name)
-  {
-    name = _name;
-  }
-
-  //! Getter for the parameter value
-  string get_value()
-  {
-    return value;
-  }
-
-  //! Setter for the parameter value
-  //!
-  //! @param _value
-  void set_value(mixed _value)
-  {
-    value = (string)_value;
-  }
-
-  //! Returns the name and value as querystring key/value pair
-  string name_value()
-  {
-    return name + "=" + value;
-  }
-
-  //! Comparer method. Checks if @[other] equals this object
-  //!
-  //! @param other
-  int(0..1) `==(mixed other)
-  {
-    if (object_program(other) != Param) return 0;
-    if (name == other->get_name())
-      return value == other->get_value();
-
-    return 0;
-  }
-
-  //! Checks if this object is greater than @[other]
-  //!
-  //! @param other
-  int(0..1) `>(mixed other)
-  {
-    if (object_program(other) != Param) return 0;
-    if (name == other->get_name())
-      return value > other->get_value();
-
-    return name > other->get_name();
-  }
-
-  //! String format method
-  //!
-  //! @param t
-  string _sprintf(int t)
-  {
-    return t == 'O' && sprintf("%O(%O,%O)", object_program(this), name, value);
+    ::create(name, value);
   }
 }

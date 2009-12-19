@@ -172,26 +172,50 @@ class Api
 //! Class that handles and parses XML responses from the @[Api]
 //!
 //! @seealso 
-//!  Misc.SimpleXML
+//!  @[Misc.SimpleXML]
 class Response
 {
   inherit Misc.SimpleXML;
+  
+  void create(string|Node xml)
+  {
+    ::create(xml);
+  }
 }
 
 //! Parameter collection class
 //!
-//! @seealso Social.Params
+//! @seealso 
+//!  @[Social.Params]
 class Params
 {
   inherit Social.Params;
+
+  //! Creates a new instance of @[Params]
+  //!
+  //! @param params
+  void create(Param ... params)
+  {
+    ::create(@params);
+  }
 }
 
 //! Parameter class
 //!
-//! @seealso Social.Param
+//! @seealso 
+//!  @[Social.Param]
 class Param
 {
   inherit Social.Param;
+ 
+  //! Creates a new instance of @[Param]
+  //!
+  //! @param name
+  //! @param value
+  void create(string name, mixed value)
+  {
+    ::create(name, value);
+  }
 
   //! Returns the param name and value concatenated for usage when signing 
   //! the parameters.
@@ -200,3 +224,4 @@ class Param
     return name + value;
   }
 }
+

@@ -1,7 +1,7 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! @b{Social module@}
 //!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//! Copyright © 2009, Pontus Östlund - @url{http://www.poppa.se@}
 //!
 //! @pre{@b{License GNU GPL version 3@}
 //!
@@ -19,11 +19,7 @@
 //! along with Social.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
 //! @}
 
-#include "Facebook.pmod/facebook.h"
-
-#define INSTANCE_OF(A,B) (object_program((A)) == object_program((B)) || \
-                          Program.inherits(object_program((A)),         \
-			                   object_program(B)))
+#include "social.h"
 
 //! MD5 routine
 //!
@@ -57,7 +53,6 @@ class Params
   //!  The API secret
   string sign(string secret)
   {
-    //TRACE("@@@ Sign: %s\n", (sort(params)->name_value()*"")+secret);
     return md5(sort(params)->name_value()*"" + secret);
   }
 
@@ -98,6 +93,9 @@ class Params
   //! Add @[p] to the array of @[Param]eters
   //!
   //! @param p
+  //!
+  //! @returns
+  //!  A new @[Params] object
   Params `+(Param|Params p)
   {
     Params pp = Params(@params);
@@ -106,6 +104,9 @@ class Params
     return pp;
   }
 
+  //! Append @[p] to the @[Param]eters array of the current object
+  //!
+  //! @param p
   Params `+=(Param|Params p)
   {
     if (INSTANCE_OF(p, this))
@@ -113,8 +114,16 @@ class Params
     else
       params += ({ p });
   }
+  
+  //! Clone the current instance
+  Params clone()
+  {
+    return Params(@params);
+  }
 
   //! String format method
+  //!
+  //! @param t
   string _sprintf(int t)
   {
     return t == 'O' && sprintf("%O(%O)", object_program(this), params);

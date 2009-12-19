@@ -1,7 +1,7 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! @b{Misc. modules@}
 //!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//! Copyright © 2009, Pontus Östlund - @url{http://www.poppa.se@}
 //!
 //! @pre{@b{License GNU GPL version 3@}
 //!
@@ -68,6 +68,9 @@ class SimpleXML
   private array(string) svalues = ({});
 
   //! Creates a new insance of @[SimpleXML]
+  //!
+  //! @throws 
+  //!  An error if @[xml] is a string and XML parsing fails
   //!
   //! @param xml
   void create(string|Node xml)
@@ -174,7 +177,7 @@ class SimpleXML
     }
   }
 
-  //! @tt{sizeof()@} method overload
+  //! @tt{sizeof()@} method overloader
   int _sizeof()
   {
     return sizeof(children);
@@ -183,7 +186,7 @@ class SimpleXML
   //! Parses the node
   //!
   //! @param n
-  protected void parse(Node n)
+  private void parse(Node n)
   {
     type       = n->get_node_type();
     name       = n->get_tag_name();

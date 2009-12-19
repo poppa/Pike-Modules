@@ -1,0 +1,15 @@
+#!/usr/bin/env pike
+
+inherit "../../.doc/docgen";
+
+int main(int argc, array(string) argv)
+{
+  if (::main(argc, argv) == 0) {
+    array xargs = ({ "xsltproc", "-o" , "../Social.pmod.html", 
+                     "../../.doc/template.xsl", "merged.xml" });
+    if (Social.Desktop.Proc(xargs)->run() != 0)
+      werror("Bad response code from \"xsltproc\"!\n");
+  }
+
+  return 0;
+}

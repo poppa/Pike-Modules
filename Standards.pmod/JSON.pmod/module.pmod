@@ -6,7 +6,7 @@
 //! @param json_data
 mixed decode(string|Stdio.File json_data)
 {
-  return __decoder()->decode_json(json_data);
+  return decoder->decode_json(json_data);
 }
 
 //! Encode Pike type into JSON string
@@ -14,15 +14,18 @@ mixed decode(string|Stdio.File json_data)
 //! @param pike_data
 string encode(mixed pike_data)
 {
-  return __encoder()->encode_json(pike_data);
+  return encoder->encode_json(pike_data);
 }
 
-class __decoder
+private __decoder decoder = __decoder();
+private __encoder encoder = __encoder();
+
+private class __decoder
 {
   inherit "json-import.pike";
 }
 
-class __encoder
+private class __encoder
 {
   inherit "json-export.pike";
 }

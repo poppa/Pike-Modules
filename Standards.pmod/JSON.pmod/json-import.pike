@@ -9,7 +9,7 @@ mixed decode_json( string|Stdio.File input ) {
   PeekReader data = PeekReader( input );
   //function ignore = Regexp( "^\\);?$" )->match;
   //  data->ignore_trailing = ignore;
-  while( data->peek() != "{" ) {
+  while( data->peek() == "" ) {
     data->read(1);
   }
   return decode( data );
@@ -151,7 +151,6 @@ mixed decode( PeekReader f )
   if(!t) error("EOF\n");
   switch(t[0])
   {
-
     // Number
     case '-':
     case '0'..'9':
