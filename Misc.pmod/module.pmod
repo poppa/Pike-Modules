@@ -46,6 +46,9 @@ import Parser.XML.Tree;
 //! </code>@}
 class SimpleXML
 {
+  string raw_xml;
+  SimpleXML parent;
+  
   //! Full name of the node, including the namespace
   protected string fullname;
 
@@ -73,8 +76,14 @@ class SimpleXML
   //!  An error if @[xml] is a string and XML parsing fails
   //!
   //! @param xml
-  void create(string|Node xml)
+  void create(string|Node xml, void|SimpleXML _parent)
   {
+    if (stringp(xml))
+      raw_xml = xml;
+
+    if (_parent)
+      parent = _parent;
+
     Node root;
     if (stringp(xml))
       root = parse_input(xml);
@@ -200,7 +209,7 @@ class SimpleXML
 	switch (cn->get_node_type())
 	{
 	  case XML_ELEMENT: 
-	    children += ({ object_program(this)(cn) });
+	    children += ({ object_program(this)(cn, this) });
 	    break;
 
 	  case XML_TEXT:
@@ -224,3 +233,98 @@ class SimpleXML
     return t == 'O' && sprintf("%O(%s)", object_program(this), name);
   }
 }
+
+//! Subprocess class
+//!
+//! @note
+//!  I take no credit for this class. It's mainly from the Roxen tag
+//!  @tt{emit#exec@} by Marcus Wellhardt at Roxen Internet Sowftware AB
+//!  @url{http://roxen.com@}
+class Proc
+{
+  //! The result from the sub process
+  string result = "";
+  
+  //! Did we end up with a timeout?
+  int(0..1) is_timeout = 0;
+
+  protected Process.create_process p;
+  protected int           timeout;
+  protected int           retval;
+  protected int(0..1)     done;
+  protected array(string) args;
+
+  private Pike.Backend backends = Thread.Local();
+
+  //! Creates a new @[Proc] class
+  //!
+  //! @param _args
+  //!  Array of arguments. The first index should be the program to run and
+  //!  there after argument to pass to the program. 
+  //! @param _timeout
+  //!  Maximimum number of seconds the process can run. Default is @tt{30@}
+  void create(array(string) _args, void|int _timeout)
+  {
+    args = _args;
+    timeout = _timeout||30;
+  }
+
+  protected void on_data(int id, string data)
+  {
+    result += data;
+  }
+
+  protected void on_close(int id)
+  {
+    done = 1;
+  }
+
+  protected void on_timeout()
+  {
+    is_timeout = 1;
+    p->kill(9);
+    done = 1;
+  }
+
+  //! Run the process
+  //!
+  //! @throws
+  //!  An error if the creation of a subprocess fails
+  //!
+  //! @returns
+  //!  The return value of the subprocess. To get the data from the process
+  //!  use @[Proc()->result].
+  int run()
+  {
+    is_timeout = 0;
+    done = 0;
+    result = "";
+
+    Stdio.File stdout = Stdio.File();
+
+    if (mixed e = catch(p = Process.create_process(args, 
+                            ([ "stdout" : stdout->pipe() ]))))
+    {
+      error("Unable to create process: %s\n", describe_error(e));
+    }
+
+    Pike.Backend backend = backends->get();
+
+    if (!backend)
+      backends->set(backend = Pike.Backend());
+
+    backend->add_file(stdout);
+    mixed to = backend->call_out(on_timeout, timeout);
+    stdout->set_nonblocking(on_data, 0, on_close);
+
+    while (!done)
+      float time = backend(0);
+
+    int rv = p->wait();
+    stdout->close();
+    backend->remove_call_out(on_timeout);
+
+    return rv;
+  }
+}
+

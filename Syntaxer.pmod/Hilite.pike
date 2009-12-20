@@ -364,10 +364,10 @@ main:
 
 protected string colorize(string what, string how)
 {
-  string clr  = colors[how];
+  string clr  = colors[how] || colors["default"];
   array style = styles[how];
 
-  if (!clr) clr = colors["default"];
+  //if (!clr) clr = colors["default"];
   if (what == "") what = SPACE;
   if (style) what = style * what;
 

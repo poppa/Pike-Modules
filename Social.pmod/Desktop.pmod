@@ -66,7 +66,7 @@ int launch_browser(void|string url, void|string browser_cmd)
 protected int low_launch_browser(void|string browser, void|string url)
 {
   string bcmd = browser||default_browser_cmd;
-  Proc p = Proc(({ "which", bcmd }), 5);
+  Misc.Proc p = Misc.Proc(({ "which", bcmd }), 5);
   int v = p->run();
 
   browser = v == 0 && TRIM(p->result);
@@ -82,100 +82,7 @@ protected int low_launch_browser(void|string browser, void|string url)
   }
 
   // Open the browser and point it to authenticate the application.
-  p = Proc(({ browser, url||"" }), 5);
+  p = Misc.Proc(({ browser, url||"" }), 5);
   return p->run() == 0;
 }
 
-//! Subprocess class
-//!
-//! @note
-//!  I take no credit for this class. It's mainly from the Roxen tag
-//!  @tt{emit#exec@} by Marcus Wellhardt at Roxen Internet Sowftware AB
-//!  @url{http://roxen.com@}
-class Proc
-{
-  //! The result from the sub process
-  string result = "";
-
-  protected Process.create_process p;
-  protected int           timeout;
-  protected int           retval;
-  protected int(0..1)     done;
-  protected array(string) args;
-
-  private Pike.Backend backends = Thread.Local();
-
-  //! Creates a new @[Proc] class
-  //!
-  //! @param _args
-  //!  Array of arguments. The first index should be the program to run and
-  //!  there after argument to pass to the program. 
-  //! @param _timeout
-  //!  Maximimum number of seconds the process can run. Default is @tt{30@}
-  void create(array(string) _args, void|int _timeout)
-  {
-    args = _args;
-    timeout = _timeout||30;
-  }
-
-  protected void on_data(int id, string data)
-  {
-    TRACE("Data in subprocess (%d): %s\n", id, data);
-    result += data;
-  }
-
-  protected void on_close(int id)
-  {
-    TRACE("Subprocess closed: %d\n", id);
-    done = 1;
-  }
-
-  protected void on_timeout()
-  {
-    TRACE("Timeout in subprocess #%d\n", p->pid());
-    p->kill(9);
-    done = 1;
-  }
-
-  //! Run the process
-  //!
-  //! @returns
-  //!  The return value of the subprocess. To get the data from the process
-  //!  use @[Proc()->result].
-  int run()
-  {
-    Stdio.File stdout = Stdio.File();
-
-    mixed e = catch {
-      p = Process.create_process(args, ([ 
-	"stdout" : stdout->pipe(),
-	"callback" : lambda(Process.Process pp) {
-	  TRACE("Process callback called: %O\n", pp);
-	}
-      ]));
-    };
-
-    if (e) error("Unable to create process: %s\n", describe_error(e));
-
-    Pike.Backend backend = backends->get();
-
-    if (!backend)
-      backends->set(backend = Pike.Backend());
-
-    backend->add_file(stdout);
-    mixed to = backend->call_out(on_timeout, timeout);
-    stdout->set_nonblocking(on_data, 0, on_close);
-
-    while (!done) {
-      TRACE("Running backend\n");
-      float time = backend(0);
-      TRACE("Backend run %O sec\n", time);
-    }
-
-    int rv = p->wait();
-    stdout->close();
-    backend->remove_call_out(on_timeout);
-
-    return rv;
-  }
-}

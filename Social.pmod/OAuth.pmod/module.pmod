@@ -602,10 +602,11 @@ string uri_encode(string s)
   foreach (s/1, string c) {
     if (has_value(UNRESERVED_CHARS, c))
       add(c);
-    else
+    else 
+      // NOTE: String.string2hex isn't Pike 7.4 compatible
       add("%" + upper_case(String.string2hex(c)));
   }
-  
+
   return b->get();
 }
 

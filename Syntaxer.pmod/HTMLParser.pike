@@ -7,6 +7,7 @@ inherit .Hilite;
 
 protected string line = "";
 protected array(array(string)) blockcomments = ({ ({ "<!--", "-->" }) });
+protected string default_tag_color = "#729ECE";
 
 void create()
 {
@@ -183,22 +184,29 @@ protected void tcb(Parser.HTML p, string _data)
     truncated = 1;
   }
 
-  string  tag_end = "";
+  string  tag_end = "&gt;";
   if ( pargs["/"] ) tag_end = " /";
   else if (search(_data, "/>") > -1)
     tag_end = "/";
 
-  c_name = colorize(name, get_color_key(name));
+  string ck = get_color_key(name);
+  string ts;
+  
+  if (!ck) {
+    ts = colorize("&lt;" + (truncated ? "/" : "") + name, 0);
+  }
+  else {
+    ts = "&lt;" +  (truncated ? "/" : "") + colorize(name, ck);
+  }
+  //c_name = colorize(name, get_color_key(name));
 
   if (HAS_NEWLINE(_data))
     parse_mline_tag(_data);
   else
     line += sprintf(
-      "&lt;%s%s%s%s&gt;",
-      (truncated ? "/" : ""),
-      c_name,
+      ts + "%s%s",
       attr_to_string(args),
-      tag_end
+      colorize(tag_end, 0)
     );
 }
 
@@ -233,4 +241,16 @@ protected void ecb(Parser.HTML p, string _data)
 string _sprintf(int t)
 {
   return ::_sprintf(t);
+}
+
+protected string colorize(string what, string how)
+{
+  string clr  = colors[how] || default_tag_color || colors["default"];
+  array style = styles[how];
+
+  //if (!clr) clr = colors["default"];
+  if (what == "") what = SPACE;
+  if (style) what = style * what;
+
+  return clr ? "<span style='color:" + clr + "'>" + what + "</span>" : what;
 }

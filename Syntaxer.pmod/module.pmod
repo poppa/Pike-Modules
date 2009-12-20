@@ -51,7 +51,11 @@
       o = .Pike();
       break;
 
-    case "xml": case "htm": case "html": case "wsdl":
+    case "xml": 
+      o = .Markup.XML();
+      break;
+
+    case "htm": case "html": case "wsdl":
       o = .Markup.HTML();
       break;
 

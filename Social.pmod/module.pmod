@@ -33,6 +33,15 @@ string md5(string s)
 #endif
 }
 
+//! Same as @[Protocols.HTTP.uri_encode()] except this turns spaces into
+//! @tt{+@} instead of @tt{%20@}.
+//!
+//! @param s
+string urlencode(string s)
+{
+  return replace(Protocols.HTTP.uri_encode(s), "%20", "+");
+}
+
 //! Parameter collection class
 class Params
 {
@@ -73,13 +82,13 @@ class Params
   {
     return params;
   }
-  
+
   //! Turns the parameters into a query string
   string to_query()
   {
     array o = ({});
     foreach (params, Param p)
-      o += ({ p->get_name()+"="+Protocols.HTTP.uri_encode(p->get_value()) });
+      o += ({ p->get_name()+"=" + urlencode(p->get_value()) });
 
     return o*"&";
   }
@@ -89,7 +98,7 @@ class Params
   {
     return mkmapping(params->get_name(), params->get_value());
   }
-  
+
   //! Add @[p] to the array of @[Param]eters
   //!
   //! @param p
@@ -114,7 +123,7 @@ class Params
     else
       params += ({ p });
   }
-  
+
   //! Clone the current instance
   Params clone()
   {
@@ -135,10 +144,10 @@ class Param
 {
   //! The name of the parameter
   protected string name;
-  
+
   //! The value of the parameter
   protected string value;
-  
+
   //! Creates a new instance of @[Param]
   //!
   //! @param _name
@@ -146,20 +155,15 @@ class Param
   void create(string _name, mixed _value)
   {
     name = _name;
-    value = (string)_value;
-    
-    if (String.width(value) != 8) {
-      werror("Not UTF-8 encoded value");
-      catch( value = string_to_utf8(value) );
-    }
+    low_set_value((string)_value);
   }
-  
+
   //! Getter for the parameter name
   string get_name()
   {
     return name;
   }
-  
+
   //! Setter for the parameter name
   //!
   //! @param _name
@@ -167,19 +171,19 @@ class Param
   {
     name = _name;
   }
-  
+
   //! Getter for the parameter value
   string get_value()
   {
     return value;
   }
-  
+
   //! Setter for the parameter value
-  //! 
+  //!
   //! @param _value
   void set_value(mixed _value)
   {
-    value = (string)_value;
+    low_set_value((string)_value);
   }
 
   //! Returns the name and value as querystring key/value pair
@@ -187,7 +191,7 @@ class Param
   {
     return name + "=" + value;
   }
-  
+
   //! Comparer method. Checks if @[other] equals this object
   //!
   //! @param other
@@ -211,7 +215,7 @@ class Param
 
     return name > other->get_name();
   }
-  
+
   //! Checks if this object is less than @[other]
   //!
   //! @param other
@@ -223,12 +227,27 @@ class Param
 
     return name < other->get_name();
   }
-  
+
   //! String format method
   //!
   //! @param t
   string _sprintf(int t)
   {
     return t == 'O' && sprintf("%O(%O,%O)", object_program(this), name, value);
+  }
+
+  //! Makes sure @[v] to set as @[value] is in UTF-8 encoding
+  //!
+  //! @param v
+  private void low_set_value(string v)
+  {
+    value = v;
+    if (String.width(value) != 8) {
+      werror(">>> UTF-8 encoding value in Param(%O, %O)\n", name, value);
+      if (mixed e = catch(value = string_to_utf8(value))) {
+	werror("Warning: string_to_utf8() failed. Already encoded?\n%s\n",
+	       describe_error(e));
+      }
+    }
   }
 }

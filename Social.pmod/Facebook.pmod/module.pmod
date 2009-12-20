@@ -1,5 +1,5 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Facebook class@}
+//! @b{Facebook module@}
 //!
 //! Copyright © 2009, Pontus Östlund - @url{http://www.poppa.se@}
 //!
@@ -18,8 +18,8 @@
 //! You should have received a copy of the GNU General Public License
 //! along with Facebook.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
 //! @}
-#define FB_DEBUG
 
+#define FB_DEBUG
 #include "facebook.h"
 import Parser.XML.Tree;
 
@@ -37,6 +37,9 @@ constant USER_AGENT = "Pike Facebook Client 0.1 (Pike " + __VERSION__ + ")";
 
 //! The URL to the Facebook REST server
 constant REST_URL = "http://api.new.facebook.com/restserver.php";
+
+//! The URL to the Facebook REST server over HTTPS
+constant RESTS_URL = "https://api.new.facebook.com/restserver.php";
 
 //! Fields to fetch in @[Api()->get_user_info()] if no fields are given.
 constant DEFAULT_USER_INFO_FIELDS = ({
@@ -63,18 +66,6 @@ constant DEFAULT_USER_INFO_FIELDS = ({
   "username",
   "website"
 });
-
-//! MD5 routine
-//!
-//! @param s
-string md5(string s)
-{
-#if constant(Crypto.MD5)
-  return String.string2hex(Crypto.MD5.hash(s));
-#else
-  return Crypto.string_to_hex(Crypto.md5()->update(s)->digest());
-#endif
-}
 
 //! Returns the full URL to Facebook
 //!
@@ -114,6 +105,12 @@ class Api
   //! Canvas mode or not
   protected int(0..1) in_canvas = 0;
 
+  //! Current user's extended permissions
+  protected array perms = ({});
+
+  //! Timestanp for when the last call occured
+  private int last_call_id = 0;
+  
   //! Create a new Facebook Api instance
   //!
   //! @param _key
@@ -182,6 +179,18 @@ class Api
     return expires;
   }
 
+  //! Setter for the extended permissions
+  void set_perms(array(string) permissions)
+  {
+    perms = permissions;
+  }
+
+  //! Getter for the extended permissions
+  array(string) get_perms()
+  {
+    return perms;
+  }
+
   //! Sets members from the result of @[auth_get_session()]. This is the same
   //! as calling @[set_session_key()], @[set_session_secret()],
   //! @[set_uid()] and @[set_expires()] respectively.
@@ -199,7 +208,7 @@ class Api
   //!
   //! @param _format
   //!
-  //! @throws 
+  //! @throws
   //!  An exception if format is other than XML or JSON
   void set_format(string _format)
   {
@@ -221,18 +230,13 @@ class Api
   //! @param next
   //!  The URL the loginpage at FB should redirect back to
   //! @param canvas
-  string get_login_url(void|string next, void|int|string canvas)
+  string get_login_url(void|Params extra_params)
   {
     string u = get_facebook_url() + "/login.php";
     Params p = Params(Param("api_key", key), Param("v", VERSION));
 
-    if (next)
-      p += Param("next", next);
-
-    if (canvas) {
-      in_canvas = 1;
-      p += Param("canvas", canvas);
-    }
+    if (extra_params)
+      p += extra_params;
 
     return u + "?" + p->to_query();
   }
@@ -249,17 +253,18 @@ class Api
   //!  Either from login callback or @[auth_create_token()]
   Response auth_get_session(string auth_token, void|int(0..1) gen_sess_secret)
   {
-    return call("auth.getSession", Params(
-                Param("auth_token", auth_token),
-                Param("generate_session_secret", gen_sess_secret)));
+    Params pp = Params(Param("auth_token", auth_token),
+                       Param("generate_session_secret", gen_sess_secret));
+
+    return call("auth.getSession", pp, 0, 1);
   }
 
-  //! Invalidates the current session being used, regardless of whether it is 
-  //! temporary or infinite. After successfully calling this function, no 
-  //! further API calls requiring a session will succeed using this session. 
+  //! Invalidates the current session being used, regardless of whether it is
+  //! temporary or infinite. After successfully calling this function, no
+  //! further API calls requiring a session will succeed using this session.
   //! If the invalidation is successful, this will return true.
-  //! 
-  //! @seealso 
+  //!
+  //! @seealso
   //!  http://wiki.developers.facebook.com/index.php/Auth.expireSession
   Response expire_session()
   {
@@ -268,36 +273,34 @@ class Api
     return call("auth.expireSession", Params(Param("session_key", sk)));
   }
 
-  //! If this method is called for the logged in user, then no further API calls 
-  //! can be made on that user's behalf until the user decides to authorize the 
+  //! If this method is called for the logged in user, then no further API calls
+  //! can be made on that user's behalf until the user decides to authorize the
   //! application again.
   //!
-  //! @seealso 
+  //! @seealso
   //!  http://wiki.developers.facebook.com/index.php/Auth.revokeAuthorization
   Response revoke_authorization()
   {
     return call("auth.revokeAuthorization");
   }
 
-  //! Returns a wide array of user-specific information for each user 
+  //! Returns a wide array of user-specific information for each user
   //! identifier passed, limited by the view of the current user.
   //!
-  //! @seealso 
+  //! @seealso
   //!  http://wiki.developers.facebook.com/index.php/Users.getInfo
   //!
   //! @throws
   //!  An error if no session is available and no @[uids] is give
   //!
-  //! @param uids 
+  //! @param uids
   //!  List of user IDs. If a @tt{string@} it should be a comma separated
   //!  list of user IDs.
   //! @param fields
-  //!  List of desired fields in return. If a @tt{string@} it should be a 
+  //!  List of desired fields in return. If a @tt{string@} it should be a
   //!  comma separated list of fields.
   Response get_user_info(void|string|array uids, void|string|array fields)
   {
-    // ASSERT_SESSION("get_user_info()");
-
     if (!uids && uid)
       uids = ({ uid });
     else if (stringp(uids))
@@ -311,8 +314,50 @@ class Api
     else if (stringp(fields))
       fields = [array](fields/",");
 
-    return call("users.getInfo", Params(Param("uids", uids*","), 
+    return call("users.getInfo", Params(Param("uids", uids*","),
                                         Param("fields", fields*",")));
+  }
+
+  //! Returns the userID of the user the current session belongs to (if any)
+  Response get_logged_in_user()
+  {
+    return session_key && call("users.getLoggedInUser");
+  }
+
+  //! Updates a user's Facebook status.
+  //!
+  //! @seealso
+  //!  http://wiki.developers.facebook.com/index.php/Users.setStatus
+  //!
+  //! @param status
+  //!  The status message to set.
+  //!  Note: The maximum message length is 255 characters; messages longer than
+  //!        that limit will be truncated and appended with "...".
+  //!  Note: If @tt{0@} the status will be cleared
+  //! @param includes_verb
+  //!  If set to true, the word "is" will not be prepended to the status
+  //!  message.
+  //! @param uid
+  //!  The user ID of the user whose status you are setting. If this parameter
+  //!  is not specified, then it defaults to the session user.
+  //!  Note: This parameter applies only to Web applications and is required by
+  //!        them only if the session_key is not specified. Facebook ignores
+  //!        this parameter if it is passed by a desktop application.
+  Response set_status(string status, void|int(0..1) includes_verb,
+                      void|string uid)
+  {
+    Params pp = Params();
+
+    if (status)        pp += Param("status", status);
+    else               pp += Param("clear", "1");
+    if (includes_verb) pp += Param("status_includes_verb", "1");
+    if (uid)           pp += Param("uid", uid);
+    else {
+      ASSERT_SESSION("set_status() needs a session when no UID is "
+                     "specified!");
+    }
+
+    return call("users.setStatus", pp);
   }
 
   //! Calls a Facebook method
@@ -322,7 +367,12 @@ class Api
   //!
   //! @param method
   //! @param params
-  Response call(string method, void|Params params, void|string http_method)
+  //! @param http_method
+  //!  Default is @tt{POST@}
+  //! @param https
+  //!  Send the request over @tt{HTTPS@}
+  Response call(string method, void|Params params, void|string http_method,
+                void|int(0..1) https)
   {
     http_method = upper_case(http_method||"POST");
 
@@ -337,10 +387,10 @@ class Api
 
     mapping eheads = ([
       "User-Agent"   : USER_AGENT,
-      "Content-Type" : "application/x-www-form-urlencoded"
+      "Content-Type" : "application/x-www-form-urlencoded; charset=utf-8"
     ]);
 
-    string url = REST_URL + "?" + get->to_query();
+    string url = (https ? RESTS_URL : REST_URL) + "?" + get->to_query();
 
     Protocols.HTTP.Query q = Protocols.HTTP.do_method(http_method,
                                                       url,
@@ -351,7 +401,42 @@ class Api
     if (q->status != 200)
       error("Bad status code (%d) in HTTP response!\n", q->status);
 
+    TRACE("Response XML: %s\n", q->data()||"");
+
     return Response(q->data());
+  }
+
+  //! Method for parsing the returned query parameters - session, perms - from
+  //! a successful Facebook login if @tt{fbconnect@} and @tt{return_session@}
+  //! is used in the login.
+  //!
+  //! @param s
+  //!  The Json string to parse
+  //!  NOTE: This only handles flat Json objects and arrays that is well
+  //!  formatted (which the returned values from Facebook is) with no extra 
+  //!  whitespace.
+  //!
+  //! @returns
+  //!  A @tt{mapping@} if @[s] is a Json object and an @tt{array@} if @[s]
+  //!  is a Json array
+  mixed simple_parse_json(string s)
+  {
+    mixed r;
+    if (s[0] == '{' && sscanf(s, "{%{%[^:]:%[^,]%}}", array m)) {
+      r = ([]);
+      foreach (m, array a) {
+	sscanf(a[0], "%*[^\"]\"%[^\"]", string k);
+	sscanf(a[1], "\"%[^\"]\"", string v);
+	r[k] = (string)v;
+      }
+    }
+    else if (s[0] == '[') {
+      r = ({});
+      foreach ((s[1..sizeof(s)-2]/",")-({""}), string l)
+	r += ({ l[1..sizeof(l)-2] });
+    }
+
+    return r;
   }
 
   //! Returns the default params
@@ -359,22 +444,30 @@ class Api
   {
     Params get_params = Params(
       Param("api_key", key),
-      Param("v", VERSION),
-      Param("format", format),
-      Param("method", method)
+      Param("v",       VERSION),
+      Param("format",  format),
+      Param("method",  method)
     );
 
-    Params post_params = Params(Param("call_id", gethrtime()));
+    if (session_key)
+      get_params += Param("session_key", session_key);
+    
+    int call_id = gethrtime();
+    if (call_id <= last_call_id)
+      call_id += 1;
+
+    Params post_params = Params(Param("call_id", last_call_id = call_id));
 
     return ({ get_params, post_params });
   }
 }
 
 //! The @[Response] class turns an XML response from a Facebook API call into
-//! an object. Each XML node will be an instance of @[Response]. A psuedo 
+//! an object. Each XML node will be an instance of @[Response]. A psuedo
 //! example could be:
 //!
-//! @xml{<codify lang="xml" detab="3">
+//! @xml{<code lang="xml" detab="3">
+//!   <!-- XML response from Facebook API call -->
 //!   <users_getInfo_response>
 //!     <user>
 //!       <name>John Doe</name>
@@ -385,9 +478,9 @@ class Api
 //!       </status>
 //!     </user>
 //!   </users_getInfo_response>
-//! </codify>@}
+//! </code>@}
 //!
-//! @xml{<codify lang="pike" detab="3">
+//! @xml{<code lang="pike" detab="3">
 //!   array fields = ({ "name", "status" });
 //!   // Fetch the current users info
 //!   Response res = facebook->get_user_info(0, fields);
@@ -401,14 +494,14 @@ class Api
 //!   // Print all status nodes
 //!   foreach ((array)res->user->status, Response child)
 //!     write("%s: %s\n", child->get_name(), (string)child);
-//! </codify>@}
+//! </code>@}
 class Response
 {
   inherit Misc.SimpleXML;
 
-  //! Creates a new insance of @[SimpleXML]
+  //! Creates a new instance of @[SimpleXML]
   //!
-  //! @throws 
+  //! @throws
   //!  An error if @[xml] is a string and XML parsing fails
   //!
   //! @param xml
@@ -422,7 +515,7 @@ class Response
 class Params
 {
   inherit Social.Params;
-  
+
   //! Creates a new instance of @[Params]
   //!
   //! @param args
@@ -436,7 +529,7 @@ class Params
 class Param
 {
   inherit Social.Param;
-  
+
   //! Creates a new instance of @[Param]
   //!
   //! @param name

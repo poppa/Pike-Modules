@@ -81,6 +81,19 @@ class HTML // {{{ HTML
   }
 } // }}}
 
+class XML
+{
+  inherit HTML;
+  
+  public string title = "XML";
+  
+  void create()
+  {
+    ::create();
+    keywords = ([]);
+  }
+}
+
 class RXML // {{{
 {
   inherit HTML;

@@ -244,11 +244,9 @@ void merge(array(string) xmlfiles, string path)
   root && root->walk_preorder(
     lambda (Node n) {
       if (n->get_tag_name() == "namespace") {
-	werror("zzz %O\n", n->get_attributes());
 	if (!n->get_attributes()->name) {
 	  werror("no name attribute in namespace\n");
 	  AttributeNode an = AttributeNode("name", "predef");
-	  //n->add_child(an);
 	}
       }
       else if (n->get_tag_name() == "module") {
