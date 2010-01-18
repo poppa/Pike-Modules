@@ -412,7 +412,7 @@ class Param
 
     return 0;
   }
-  
+
   //! Checks if this object is greater than @[other]
   //!
   //! @param other
@@ -424,7 +424,7 @@ class Param
 
     return name > other->get_name();
   }
-  
+
   //! Index lookup
   //!
   //! @param key
@@ -435,7 +435,7 @@ class Param
 
     return 0;
   }
-  
+
   //! Formatting method
   string _sprintf(int t) 
   {
@@ -528,7 +528,19 @@ class Params
 	break;
     }
   }
-  
+
+  //! Append mapping @[args] as @[Param] objects
+  //!
+  //! @param args
+  //!
+  //! @returns
+  //!  The current instance
+  object add_mapping(mapping args)
+  {
+    foreach (args; string k; string v)
+      params += ({ Param(k, v) });
+  }
+
   //! Append @[p] to the internal array
   //!
   //! @param p
