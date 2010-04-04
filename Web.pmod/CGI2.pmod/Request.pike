@@ -1,5 +1,5 @@
 #define EMPTY(S) !((S) && sizeof((S)))
-protected constant decode_string = _Roxen.http_decode_string;
+protected constant decode_string = Protocols.HTTP.uri_decode;
 
 string data;
 string method;
@@ -7,6 +7,7 @@ string query;
 
 mapping(string:mixed) misc = ([]);
 mapping(string:mixed) variables = ([]);
+mapping cookies = ([]);
 mapping server = ([]);
 
 void create()
@@ -22,10 +23,26 @@ void create()
   if ((int)server->CONTENT_LENGTH)
     data = Stdio.stdin->read((int)server->CONTENT_LENGTH);
 
+  if ( server["HTTP_COOKIE"] && sizeof( server["HTTP_COOKIE"] ))
+    decode_cookies( server["HTTP_COOKIE"] );
+
   decode_query();
-  
+
   if (misc->len && method == "POST")
     decode_post();
+}
+
+protected void decode_cookies(string data)
+{
+  foreach(data/";", string c) {
+    string name, value;
+    sscanf(c, "%*[ ]%s", c);
+    if(sscanf(c, "%s=%s", name, value) == 2) {
+      value = decode_string(value);
+      name = decode_string(name);
+      cookies[name] = value;
+    }
+  }
 }
 
 protected void decode_query()

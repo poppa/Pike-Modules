@@ -1,0 +1,20 @@
+#!/usr/bin/env pike
+
+import .SVN;
+
+int main()
+{
+  set_repository_base("file:///home/poppa/svn/PLib/trunk");
+
+  Diff diff = Diff("RC/SVN.php");
+  werror("%O\n", values(diff));
+  /*
+  Log log = Log();
+
+  foreach (log->get_revisions(), Log.Entry rev)
+  {
+    werror("%O\n", rev->get_author());
+  }
+  */
+  return 0;
+}

@@ -1,0 +1,22 @@
+#!/usr/bin/env pike
+
+import .Git;
+
+int main()
+{
+  set_repository_base("/home/pontus/Vala/roxenlauncher");
+
+  //werror("%O\n", get_repository_base());
+
+  Diff diff = Diff("src/launcherfile.vala");
+  werror("%O\n", values(diff));
+
+  /*
+  Log log = Log();
+  foreach (values(log), Log.Entry rev)
+  {
+    werror("%s\n", rev->get_author());
+  }
+  */
+  return 0;
+}

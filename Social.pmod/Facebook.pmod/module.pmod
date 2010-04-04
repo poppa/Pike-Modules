@@ -212,9 +212,10 @@ class Api
   //!  An exception if format is other than XML or JSON
   void set_format(string _format)
   {
-    if ( !(< FORMAT_XML, FORMAT_JSON >)[_format] )
+    if ( !(< FORMAT_XML, FORMAT_JSON >)[_format] ) {
       error("Unknown format \"%s\". Must be one of %s", _format,
             String.implode_nicely(({ FORMAT_XML, FORMAT_JSON }), "or"));
+    }
 
     format = _format;
   }
@@ -348,8 +349,11 @@ class Api
   {
     Params pp = Params();
 
-    if (status)        pp += Param("status", status);
-    else               pp += Param("clear", "1");
+    if (status)
+      pp += Param("status", status);
+    else
+      pp += Param("clear", "1");
+
     if (includes_verb) pp += Param("status_includes_verb", "1");
     if (uid)           pp += Param("uid", uid);
     else {
@@ -387,7 +391,7 @@ class Api
 
     mapping eheads = ([
       "User-Agent"   : USER_AGENT,
-      "Content-Type" : "application/x-www-form-urlencoded; charset=utf-8"
+      "Content-Type" : "application/x-www-form-urlencoded"
     ]);
 
     string url = (https ? RESTS_URL : REST_URL) + "?" + get->to_query();

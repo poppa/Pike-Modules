@@ -1,0 +1,132 @@
+#!/usr/bin/env pike
+/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+//! @b{[PROG-NAME]@}
+//!
+//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
+//!
+//! @pre{@b{License GNU GPL version 3@}
+//!
+//! [PROG-NAME].pmod is free software: you can redistribute it and/or modify
+//! it under the terms of the GNU General Public License as published by
+//! the Free Software Foundation, either version 3 of the License, or
+//! (at your option) any later version.
+//!
+//! [MODULE-NAME].pike is distributed in the hope that it will be useful,
+//! but WITHOUT ANY WARRANTY; without even the implied warranty of
+//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//! GNU General Public License for more details.
+//!
+//! You should have received a copy of the GNU General Public License
+//! along with [PROG-NAME].pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
+//! @}
+
+#ifdef __NT__
+# define DIRSEP '\\'
+#else
+# define DIRSEP '/'
+#endif
+
+private string path;
+
+int main(int argc, array(string) argv)
+{
+  path = sizeof(argv) > 1 ? argv[1] : ".";
+
+  array(string) st = status();
+  array(string) ig = read_ignore();
+
+  foreach (ig, string ignore) {
+    array ignores;
+    if (sizeof(ignores = glob(ignore, st)))
+      st -= ignores;
+  }
+
+  foreach (st, string new)
+    proc(({ "svn" , "add", new }));
+}
+
+array(string) status()
+{
+  array(string) out = ({});
+  array res = proc(({ "svn", "st", path }));
+  if (res[0] == 0) {
+    foreach (res[1]/"\n", string ln) {
+      if (sizeof(ln) && ln[0] == '?') {
+      	sscanf(ln, "?%*[ \t]%s", ln);
+      	out += ({ ln });
+      }
+    }
+  }
+
+  return out;
+}
+
+array(string) read_ignore()
+{
+  if (string ig = find_ignore(path)) 
+    return map(Stdio.read_file(ig)/"\n", String.trim_all_whites);
+}
+
+string find_ignore(string p)
+{
+  foreach(get_dir(p), string fl)
+    if (fl == ".svn-ignore")
+      return combine_path(p, fl);
+  
+  if (sizeof(p) && p[-1] == DIRSEP)
+    p = p[0..sizeof(p)-2];
+  
+  if (sizeof(p))
+    return find_ignore(dirname(p));
+}
+
+array(int|string) proc(array(string) args)
+{
+  int(0..1) is_timeout = 0;
+  int(0..1) done = 0;
+  string result = "";
+
+  Process.create_process p;
+  Stdio.File stdout = Stdio.File();
+
+  if (mixed e = catch(p = Process.create_process(args,
+			  ([ "stdout" : stdout->pipe() ]))))
+  {
+    error("Unable to create process: %s\n", describe_error(e));
+  }
+
+  object backends = Thread.Local();
+  
+  Pike.Backend backend = backends->get();
+
+  if (!backend)
+    backends->set(backend = Pike.Backend());
+
+  backend->add_file(stdout);
+
+  function on_timeout = lambda () { 
+    is_timeout = 1;
+    p->kill(9);
+    done = 1;
+  };
+
+  mixed to = backend->call_out(on_timeout, 10);
+
+  stdout->set_nonblocking(
+    lambda (int id, string data) {
+      result += data;
+    }, 0,
+    lambda (int id) {
+      done = 1;
+    }
+  );
+
+  while (!done)
+    float time = backend(0);
+
+  int rv = p->wait();
+  stdout->close();
+  backend->remove_call_out(on_timeout);
+
+  return ({ rv, result });
+}

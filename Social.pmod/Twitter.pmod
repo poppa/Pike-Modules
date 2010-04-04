@@ -188,11 +188,13 @@ public class Api
   {
     ASSERT_AUTHED("get_home_timeline()");
     string resp = call(home_timeline_url, params);
-    return parse_status_xml(resp);
+    if (!resp) error("Fix this error!\n");
+    //werror("Home timeline XML:\n%s\n\n--------\n\n", resp);
+    return sizeof(resp) && parse_status_xml(resp) || ({});
   }
 
-  //! Returns the 20 most recent mentions (status containing @username) for the
-  //! authenticating user
+  //! Returns the 20 most recent mentions (status containing (at)username) for 
+  //! the authenticating user
   //!
   //! @param params
   //!  @mapping
@@ -265,6 +267,9 @@ public class Api
   }
   
   //! Does the low level HTTP call to Twitter.
+  //!
+  //! @throws
+  //!  An error if HTTP status != 200
   //!
   //! @param url
   //!  The full address to the Twitter service e.g:
@@ -418,8 +423,8 @@ public class DesktopApi
   //! The password for the user to log on as
   private string password;
   
-  //! The HTTP client object
-  private Protocols.HTTP.Query http;
+  // The HTTP client object
+  //private Protocols.HTTP.Query http;
 
   //! Creates a new instance of @[DesktopApi].
   //!
@@ -464,13 +469,16 @@ public class DesktopApi
 
     string body = args && args->get_query_string();
 
-//    werror("\* %s %s?%s\n", method, url, body||"");
+//    werror("\n>>> %s %s?%s\n", method, url, body||"");
 
-    http = Protocols.HTTP.do_method(method, url, 0, headers, http, body);
+    Protocols.HTTP.Query http = Protocols.HTTP.do_method(method, url, 0,
+                                                         headers, 0, body);
 
     if (http->status != 200)
       error("Bad status (%d) in HTTP response!", http->status);
 
+    Stdio.write_file(basename((string)url), http->data());
+    
     return http->data();
   }
 }

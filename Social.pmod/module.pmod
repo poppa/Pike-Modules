@@ -39,7 +39,7 @@ string md5(string s)
 //! @param s
 string urlencode(string s)
 {
-  return replace(Protocols.HTTP.uri_encode(s), "%20", "+");
+  return Protocols.HTTP.uri_encode(s);
 }
 
 //! Parameter collection class
@@ -88,7 +88,7 @@ class Params
   {
     array o = ({});
     foreach (params, Param p)
-      o += ({ p->get_name()+"=" + urlencode(p->get_value()) });
+      o += ({ p->get_name() + "=" + urlencode(p->get_value()) });
 
     return o*"&";
   }
@@ -191,6 +191,12 @@ class Param
   {
     return name + "=" + value;
   }
+  
+  //! Same as @[name_value()] except this URL encodes the value.
+  string name_value_encoded()
+  {
+    return name + "=" + urlencode(value);
+  }
 
   //! Comparer method. Checks if @[other] equals this object
   //!
@@ -242,7 +248,7 @@ class Param
   private void low_set_value(string v)
   {
     value = v;
-    if (String.width(value) != 8) {
+    if (String.width(value) < 8) {
       werror(">>> UTF-8 encoding value in Param(%O, %O)\n", name, value);
       if (mixed e = catch(value = string_to_utf8(value))) {
 	werror("Warning: string_to_utf8() failed. Already encoded?\n%s\n",
