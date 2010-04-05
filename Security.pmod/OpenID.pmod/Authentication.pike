@@ -22,8 +22,6 @@
 //! with Authentication.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
 //! @}
 
-constant SERIAL_VERSION_UID = -7031455449710566518;
-
 private string identity;
 private string email;
 private string fullname;

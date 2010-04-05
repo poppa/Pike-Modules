@@ -199,6 +199,6 @@ string _sprintf(int t)
                              assoc_type||"",
                              assoc_handle||"",
                              mac_key||"",
-                             namespace,
+                             namespace||"",
                              exp && exp->format_time());
 }

@@ -114,7 +114,7 @@ int(0..1) is_cancelled()
 {
   string alias;
 
-  TRACE("Response: %O\n", response);
+  //TRACE("Response: %O\n", response);
 
   foreach (indices(response), string a)
     if (sscanf(a, "openid.%s.type", alias) > 0)
@@ -125,7 +125,8 @@ int(0..1) is_cancelled()
              response["openid." + alias + "." + (X)]
 
   if (!alias) {
-    werror("Unables to resolv alias! ");
+    TRACE("Unables to resolv alias! Falling back to \"sreg\" or deafult "
+          "alias!\n");
     alias = P("ns.sreg") && "sreg" || .DEFAULT_ENDPOINT_ALIAS;
   }
 
@@ -288,14 +289,32 @@ string get_login_url(.Endpoint ep, .Association assoc)
   return .association_cache(endpoint->get_url(), assoc);
 }
 
+int recursions = 0;
+
 //! Creates and enpoint for @[url].
 //!
 //! @param url
 //! @param alias
 private .Endpoint request_endpoint(string url, void|string alias)
 {
+  TRACE("Requesting endpoint: %s\n", url);
+
+  if (recursions > 3)
+    error("Too many recursions when trying to resolv endpoint for %s! ", url);
+
   mapping h = ([ "Accept" : "application/xrds+xml" ]);
   Protocols.HTTP.Query q = Protocols.HTTP.get_url(url, 0, h);
+
+  if (q->status >= 300 && q->status <= 310) {
+    string loc = q->headers["location"];
+    if (sscanf(loc, "%*s://%*s") < 2) {
+      Standards.URI uri = Standards.URI(url);
+      loc = uri->scheme + "://" + uri->host + loc;
+    }
+
+    recursions++;
+    return request_endpoint(loc, alias);
+  }
 
   if (q->status != 200)
     error("Bad status (%d) in HTTP response\n", q->status);
@@ -303,12 +322,35 @@ private .Endpoint request_endpoint(string url, void|string alias)
   int expires = .get_max_age(q->headers);
   string data = q->data();
 
+  //Stdio.write_file(replace(url, ({ "/",":" }), ({ "_","-" }))+".xml", data);
+
   if ( string enc = q->headers["content-encoding"] )
     if (enc == "gzip")
+      // FIXME: this doesn't work, but since GZIP isn't in accept-encodings 
+      // in the request headers we probably wont get here.
       data = Gz.uncompress(data);
 
-  string ep_url = .get_named_xml_element(q->data(), "URI");
+  if (search(q->headers["content-type"], "application/xrds+xml") == -1) {
+    TRACE("No XRDS file..scan...\n");
+    if ( string loc = q->headers["x-xrds-location"] ) {
+      TRACE("XRDS location found in headers: %s\n", loc);
+      recursions++;
+      return request_endpoint(loc, alias);
+    }
+    else {
+      error("Scan HTML header for XRDS location\n");
+    }
+  }
 
+  recursions = 0;
+
+  string ep_url = .resolve_endpoint_url(q->data());
+
+  TRACE("Found endpoint: %s\n", ep_url||"(null)");
+
+  if (!ep_url)
+    error("Unable to resolve authentication URL for %O! ", url);
+  
   return .Endpoint(ep_url, alias, expires);
 }
 
@@ -325,9 +367,7 @@ private .Association request_association(.Endpoint endpoint)
   .Association assoc = .Association();
 
   foreach (q->data()/"\n", string line) {
-    TRACE("=== %s\n", line);
     if (sscanf(line, "%s:%s", string key, string value) == 2) {
-      TRACE("====== %s >>> %s\n", key, value);
       switch (key) 
       {
       	case "session_type":

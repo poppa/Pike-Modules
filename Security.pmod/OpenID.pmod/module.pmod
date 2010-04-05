@@ -137,25 +137,62 @@ string get_charset(mapping http_headers)
   return 0;
 }
 
-//! Returns the value of the first occurance of a node named @[name] from an
-//! xml @[tree].
+//! Tries to find the OpenID authentication URL in the XRDS document
 //!
-//! @param tree
-//! @param name
-string get_named_xml_element(string tree, string name)
+//! @param xrds_xml
+string resolve_endpoint_url(string xrds_xml)
 {
-  Node root = get_xml_root(parse_input(tree));
-  string value;
-  root && root->walk_inorder(
-    lambda (Node n) {
-      if (n->get_tag_name() == name) {
-      	value = n->value_of_node();
-      	return STOP_WALK;
+  TRACE(">>> Resolve endpoint url!\n");
+
+  Node root = get_xml_root(parse_input(xrds_xml));
+  string uri;
+  array(Node) xrds = ({});
+  foreach (root->get_children(), Node n) {
+    if (n->get_node_type() != XML_ELEMENT)
+      continue;
+
+    if (lower_case(n->get_tag_name()) == "xrd")
+      xrds += ({ n });
+  }
+
+  loop: foreach (xrds, Node xrd) {
+    foreach (xrd->get_children(), Node n) {
+      if (n->get_node_type() != XML_ELEMENT)
+      	continue;
+
+      int is_openid = 0;
+      if (lower_case(n->get_tag_name()) == "service") {
+      	foreach (n->get_children(), Node cn) {
+      	  if (is_openid && uri)
+      	    break loop;
+
+      	  if (cn->get_node_type() != XML_ELEMENT)
+      	    continue;
+
+      	  string name = lower_case(cn->get_tag_name());
+      	  if (!is_openid && name == "type") {
+      	    string v = cn->value_of_node();
+      	    if (sscanf(v, "%*sopenid.net%*ssignon") > 1 ||
+      	        sscanf(v, "%*sopenid.net%*sauth%*sserver") > 2)
+	    {
+      	      is_openid = 1;
+      	      continue;
+      	    }
+      	  }
+
+      	  if (name == "uri") 
+      	    uri = cn->value_of_node();
+      	}
+
+      	if (is_openid && uri) break loop;
+
+      	is_openid = 0;
+      	uri = 0;
       }
     }
-  );
-
-  return value;
+  }
+  
+  return uri;
 }
 
 //! Returns the first XML element node from an XML document node.
