@@ -23,7 +23,7 @@
 
 import Parser.XML.Tree;
 
-string DEFAULT_ENDPOINT_ALIAS = "ext1";
+public constant DEFAULT_ENDPOINT_ALIAS = "ext1";
 
 //! Cache storage for @[.Endpoint]s
 private mapping(string:.Endpoint) _endpoint_cache = ([]);

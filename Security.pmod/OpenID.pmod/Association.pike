@@ -32,6 +32,7 @@ private string assoc_type;
 private string assoc_handle;
 private string mac_key;
 private string raw_mac_key;
+private string namespace;
 private int expired;
 
 //! Returns the session type
@@ -117,6 +118,16 @@ int(0..1) is_expired()
   return time() >= expired;
 }
 
+void set_namespace(string ns)
+{
+  namespace = ns;
+}
+
+string get_namespace()
+{
+  return namespace;
+}
+
 //! Turns the object members into a mapping and encodes it with Pike's 
 //! @[predef::encode_value()]
 string encode_cookie()
@@ -135,6 +146,7 @@ object_program decode_cookie(string cookie)
       	case "session_type": session_type = v; break;
       	case "assoc_handle": assoc_handle = v; break;
       	case "assoc_type":   assoc_type = v; break;
+      	case "ns":           namespace = v; break;
       	case "mac_key":
 	  mac_key = v; 
 	  raw_mac_key = MIME.decode_base64(v);
@@ -168,7 +180,8 @@ private mapping to_mapping()
     "assoc_handle" : assoc_handle,
     "mac_key"      : mac_key,
     "raw_mac_key"  : raw_mac_key,
-    "expired"      : expired
+    "expired"      : expired,
+    "ns"           : namespace
   ]);
 }
 
@@ -179,11 +192,13 @@ string _sprintf(int t)
                              "assoc_type: %s, "
                              "assoc_handle: %s, "
                              "mac_key: %s, "
+                             "namespace: %s, "
                              "expired: %s)",
                              object_program(this),
                              session_type||"",
                              assoc_type||"",
                              assoc_handle||"",
                              mac_key||"",
+                             namespace,
                              exp && exp->format_time());
 }

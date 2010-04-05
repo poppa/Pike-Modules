@@ -490,9 +490,9 @@ public class DesktopApi
 #define NULL "\0"
 #define NULLIFY(X) (X) && sizeof((X)) && (X) || 0
 
-//! This class maps and XML tree onto an inheriting class. Object members that
+//! This class maps an XML tree onto an inheriting class. Object members that
 //! have a corresponding XML node in the tree will get their values from the
-//! XML node. To handle child nodes - or nodes that should be mapped any thing
+//! XML node. To handle child nodes - or nodes that should be mapped to anything
 //! other than simple data types like strings and ints - can be handled by 
 //! creating a method of the same name as a node but prefixed with 
 //! @tt{handle_@}. So @tt{handle_created_at(Node n)@} will be called when an

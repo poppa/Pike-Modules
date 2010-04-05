@@ -21,6 +21,8 @@
 //! along with Endpoint.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
 //! @}
 
+#include "openid.h"
+
 //! The URL of the endpoint
 private string url;
 
@@ -75,7 +77,7 @@ int(0..1) `==(Security.OpenID.Endpoint other)
 string _sprintf(int t)
 {
   Calendar.Second tajm = Calendar.Second("unix", expired);
-  return t == 'O' && sprintf("%O(\"%s\", \"%s\", \"%s\")",
+  return t == 'O' && sprintf("%O(%O, %O, %O)",
                              object_program(this), url,
-                             alias, tajm->format_time());
+                             alias, tajm && tajm->format_time());
 }
