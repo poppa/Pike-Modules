@@ -95,7 +95,7 @@ string get_avatar()
 
   return gravatar_url +
   sprintf("gravatar_id=%s&amp;rating=%s&amp;size=%d",encode_id(),rating,size) +
-  (image && ("&amp;default=" + Social.OAuth.uri_encode(image))||"");
+  (image && ("&amp;default=" + Protocols.HTTP.uri_encode(image))||"");
 }
 
 //! Returns the Gravatar as a complete @tt{<img/>@} tag.

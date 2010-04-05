@@ -10,8 +10,8 @@
 #endif
 
 #define ASSERT_SESSION(FUNC) \
-	{ if (!session_key) \
-			error("%s needs a session but none is available!", (FUNC)); \
-	}
+  { if (!session_key) \
+      error("%s needs a session but none is available!", (FUNC)); \
+  }
 
 #endif /* _FACEBOOK_H */
