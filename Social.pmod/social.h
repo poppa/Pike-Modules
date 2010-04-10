@@ -1,5 +1,4 @@
 #ifndef _SOCIAL_H
-
 #define _SOCIAL_H
 
 //! Checks if STR is undefined or empty

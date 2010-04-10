@@ -139,13 +139,13 @@ int(0..1) is_cancelled()
     error("Handle is invalidated! ");
 
   string sig = P("sig");
-  if (!sig) error("Missing 'openid.sig' !");
+  if (!sig) error("Missing 'openid.sig'! ");
 
   string signed = P("signed");
-  if (!signed) error("Missing 'openid.signed' !");
+  if (!signed) error("Missing 'openid.signed'! ");
 
   if (return_to != P("return_to"))
-    error("'openid.return_to != %O !", return_to);
+    error("'openid.return_to != %O! ", return_to);
 
   String.Buffer sb = String.Buffer();
   foreach (signed/",", string s)

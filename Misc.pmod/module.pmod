@@ -70,6 +70,8 @@ class SimpleXML
   //! Temporary storage for stray text nodes
   private array(string) svalues = ({});
 
+  private int depth = 0;
+
   //! Creates a new insance of @[SimpleXML]
   //!
   //! @throws 
@@ -183,9 +185,44 @@ class SimpleXML
       case "array":   return children;
       case "mapping": return attributes;
       case "int":     return type;
+      case "xml":     return to_xml();
     }
   }
 
+  string to_xml()
+  {
+    depth = -1;
+    return low_dump(this);
+  }
+  
+  private string low_dump(object o)
+  {
+    depth++;
+    string name = o->get_name();
+    string value = o->get_value();
+    array children = o->get_children();
+    string s = (" "*depth) + "<" + name;
+
+    foreach (o->get_attributes(); string k; string v)
+      s += sprintf(" %s=\"%s\"", k, v);
+
+    s += ">" + value;
+
+    if (sizeof(children)) s += "\n";
+
+    foreach (children, object c)
+      s += low_dump(c);
+
+    
+    if (sizeof(children)) s += " "*depth;
+    
+    s += "</" + name + ">\n";
+    
+    depth--;
+    
+    return s;
+  }
+  
   //! @tt{sizeof()@} method overloader
   int _sizeof()
   {

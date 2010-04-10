@@ -1,33 +1,14 @@
+#ifndef FLICKR_H
+#define FLICKR_H
+
 #define FLICKR_DEBUG
-#define FLICKR_DEBUG2
-
-#define THROW(x...) throw(({ sprintf(x)+"\n", backtrace() }))
-#define TRIM(x)     String.trim_all_whites(x)
-
-#if constant(Crypto.MD5)
-# define MD5(s) String.string2hex(Crypto.MD5.hash(s))
-#else
-# define MD5(s) Crypto.string_to_hex(Crypto.md5()->update(s)->digest());
-#endif
+#define NULL "\0"
+#define NULLIFY(STR) STR && sizeof(STR) && STR
 
 #ifdef FLICKR_DEBUG
-  void TRACE(mixed ... args) // {{{
-  {
-    if (!has_suffix(args[0], "\n")) args[0] += "\n";
-    args[0] = "Flickr: " + args[0];
-    werror(@args);
-  } // }}}
+# define TRACE(X...) werror("# %s:%d: %s", basename(__FILE__), __LINE__, sprintf(X))
 #else
-# define TRACE(x...)
+# define TRACE(X...) 0
 #endif
 
-#ifdef FLICKR_DEBUG2
-  void DDEBUG(mixed ... args) // {{{
-  {
-    if (!has_suffix(args[0], "\n\n")) args[0] += "\n\n";
-    args[0] = "Flickr: " + args[0];
-    werror(@args);
-  } // }}}
-#else
-# define DDEBUG(x...)
 #endif
