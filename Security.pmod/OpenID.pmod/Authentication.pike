@@ -140,8 +140,19 @@ string encode_cookie()
 //! @param cookie
 object_program decode_cookie(string cookie)
 {
+  return from_mapping(decode_value(cookie));
+}
+
+//! Populates the object from a mapping with the same indices as this object
+//!
+//! @param m
+//!
+//! @returns
+//!  The instance of self
+object_program from_mapping(mapping m)
+{
   mixed e = catch {
-    foreach (decode_value(cookie); string k; string v) {
+    foreach (m; string k; string v) {
       switch (k)
       {
       	case "identity":  identity  = v; break;
@@ -155,8 +166,8 @@ object_program decode_cookie(string cookie)
     }
   };
 
-  if (e) error("Failed to decode cookie: %s\n", describe_error(e));
-  return this;
+  if (e) error("Failed to decode mapping: %s\n", describe_error(e));
+  return this;  
 }
 
 //! Casting method. Only supports mapping
@@ -170,7 +181,8 @@ mixed cast(string how)
   error("Can't cast %O to %O\n", object_program(this), how);
 }
 
-private mapping to_mapping()
+//! Turns the object members into a mapping
+mapping to_mapping()
 {
   return ([
     "identity"  : identity,

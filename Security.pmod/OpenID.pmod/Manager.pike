@@ -338,6 +338,7 @@ private .Endpoint request_endpoint(string url, void|string alias)
       return request_endpoint(loc, alias);
     }
     else {
+      TRACE("Data: %s\n", q->data());
       error("Scan HTML header for XRDS location\n");
     }
   }
