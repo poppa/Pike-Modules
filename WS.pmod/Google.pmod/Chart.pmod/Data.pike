@@ -178,6 +178,7 @@ string extended_encode()
 string low_extended_encode(void|int _max)
 {
   _max = _max || max_value;
+  if (!_max) return "";
   array(string) data = ({});
   array(string) all_data = ({});
   foreach (values, float val) {

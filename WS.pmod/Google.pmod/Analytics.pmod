@@ -21,26 +21,57 @@
 
 import Parser.XML.Tree;
 
-constant API_VERSION    = "2";
-constant ACCOUNT_TYPE   = "GOOGLE";
-constant SERVICE        = "analytics";
-constant LOGIN_ENDPOINT = "https://www.google.com/accounts/ClientLogin";
-constant DATA_ENDPOINT  = "https://www.google.com/analytics/feeds/data";
-constant FEED_ENDPOINT  = "https://www.google.com/analytics/feeds/accounts"
-			  "/default";
+//!
+constant API_VERSION = "2";
 
-//! Use from web clients
+//!
+constant ACCOUNT_TYPE = "GOOGLE";
+
+//!
+constant SERVICE = "analytics";
+
+//!
+constant LOGIN_ENDPOINT = "https://www.google.com/accounts/ClientLogin";
+
+//!
+constant DATA_ENDPOINT = "https://www.google.com/analytics/feeds/data";
+
+//!
+constant FEED_ENDPOINT = "https://www.google.com/analytics/feeds/accounts/"
+                         "default";
+
+//! This class handles authentication against and data fetching from Google
+//! Analytics. This class is intended to be use by web clients.
 class Api
 {
+  //! Hash from authentication. Not actually used.
   protected string sid;
+  
+  //! Hash from authentication. Not actually used
   protected string lsid;
+  
+  //! The authentication session.
   protected string auth;
+  
+  //! Errors from a response is stored here.
+  //! 
+  //! @mapping
+  //!  @item domain
+  //!  @item code
+  //!  @item internalreason
+  //! @endmapping
+  protected mapping gerror;
 
+  //! Authenticate the current user
   int(0..1) authenticate()
   {
     error("Not implemented yet! ");
   }
 
+  //! Returns the list of available accounts
+  //!
+  //! @param prettyprint
+  //!  If @tt{1@} the returned XML document will be formatted
   string get_feed(void|int(0..1) prettyprint)
   {
     mapping h = ([ "prettyprint" : prettyprint ? "true" : "false" ]);
@@ -51,6 +82,12 @@ class Api
       return q->data();
 
     return 0;
+  }
+  
+  //! Returns the error mapping if any
+  mapping get_error()
+  {
+    return gerror;
   }
 
   //! Fetches report data from Google Analytics
@@ -103,12 +140,31 @@ class Api
 
     Protocols.HTTP.Query q = Protocols.HTTP.get_url(DATA_ENDPOINT, params,
                                                     default_headers());
-    if (q->status != 200)
-      error("Bad HTTP status code (%d) in response! ", q->status);
+    if (q->status != 200) {
+      Node xroot = parse_input(q->data());
+      xroot && xroot[0]->walk_inorder(
+	lambda(Node n) {
+	  if (n->get_tag_name() == "error") {
+	    gerror = ([]);
+	    foreach (n->get_children(), Node en) {
+	      if (en->get_node_type() == XML_ELEMENT) {
+	      	gerror[lower_case(en->get_tag_name())] = en->value_of_node();
+	      }
+	    }
+	  }
+	}
+      );
+
+      if (gerror)
+      	error("%s: %s! ", gerror->code, gerror->internalreason);
+      else
+	error("Bad HTTP status code (%d) in response! ", q->status);
+    }
 
     return q->data();
   }
 
+  //! Created the default headers mapping
   protected mapping default_headers()
   {
     return ([
@@ -118,11 +174,22 @@ class Api
   }
 }
 
-//! Use from non-web clients
+//! This class handles authentication against and data fetching from Google
+//! Analytics. This class is intended to be use by non-web clients.
 class DesktopApi
 {
   inherit Api;
 
+  //! Authenticate a user
+  //!
+  //! @param email
+  //! @param password
+  //! @param source
+  //!  This is an abritrary string which identifies the current client
+  //!  implementation. Could be something like: @tt{my-ga-client-v0.1@}.
+  //!
+  //! @returns
+  //!  @tt{1@} on success, @tt{0@} otherwise.
   int(0..1) authenticate(string email, string password, string source)
   {
     mapping(string:string) vars = ([
@@ -153,18 +220,61 @@ class DesktopApi
   }
 }
 
+//! This class handles parsing of a successful response from Google Analytics.
+//! Some generic results, from the top level in the XML document, will populate 
+//! this object and all @tt{entry@} nodes will be parsed - into a mapping - and
+//! put in the array @[DataParser()->rows].
+//!
+//! If this class is inherited and a method, prefixed with @tt{_@}
+//! (an underscore), exists in the inherited class with the same name as a node 
+//! in the XML document, that method will be called with the XML node as 
+//! argument.
+//!
+//! @xml{<code detab="3">
+//!   class GData {
+//!     inherit DataParser;
+//!
+//!     void _entry(Node n) {
+//!       werror("Got entry node: %O\n", n);
+//!     }
+//!   }
+//! </code>@}
 class DataParser
 {
+  //! Array of entries (i.e. the data nodes of the document)
+  array(mapping) rows = ({});
+  
+  //! Contains aggregated results of the @tt{metric@} parameter
+  mapping aggregates = ([]);
+
+  //! The id is the URL of the report at Google Analytics.
   string id;
+  
+  //! The title of the report
   string title;
+  
+  //! Total results of the report
   int total_results;
+  
+  //! Starts index (page) of the report
   int start_index;
+  
+  //! Items displayed per page in the report
   int items_per_page;
 
+  //! When the report was last updated
   Calendar.Second updated;
+  
+  //! The start date of the report
   Calendar.Day start_date;
+  
+  //! The end date of the report
   Calendar.Day end_date;
 
+  //! Parsed the report XML and populates this object
+  //!
+  //! @param data
+  //!  The result of a successful call to @[Api()->get_data()].
   mixed parse(string data)
   {
     Node root = parse_input(data);
@@ -223,16 +333,52 @@ class DataParser
       }
     );
   }
-
-  void dump_members()
+  
+  //! Handles the @tt{aggregates@} node in the XML document.
+  //! Consider protected, only used internally.
+  //!
+  //! @param n
+  void _aggregates(Node n)
   {
-    string out = sprintf("%O(\n    ", object_program(this));
-    array(string) mems = ({});
-    foreach (sort(indices(this)), string key) {
-      if (object_variablep(this, key))
-	mems += ({ key + "=" + sprintf( "%O", this[key] ) });
+    foreach (n->get_children(), Node cn) {
+      if (cn->get_tag_name() == "metric") {
+      	mapping a = cn->get_attributes();
+      	sscanf(a->name, "%*s:%s", a->name);
+      	a->name = lower_case(a->name);
+      	switch (a->type)
+      	{
+      	  case "integer": aggregates[a->name] = (int)a->value;   break;
+      	  case "float":   aggregates[a->name] = (float)a->value; break;
+      	  default:        aggregates[a->name] = a->value;        break;
+      	}
+      }
     }
+  }
 
-    werror("%s\n", out + (mems*"\n    ") + "\n)");
+  //! Handles the @tt{entry@} nodes in the XML document.
+  //! Consider protected, only used internally.
+  //!
+  //! @param n
+  void _entry(Node n)
+  {
+    if (n->get_attributes()["gd:kind"] == "analytics#datarow") {
+      mapping m = ([]);
+      foreach (n->get_children(), Node cn) {
+      	if ( cn->get_node_type() == XML_ELEMENT) {
+      	  mapping a = cn->get_attributes();
+      	  if (string val = a->value) {
+	    sscanf(a->name, "%*s:%s", a->name);
+	    switch (a->type)
+	    {
+	      case "integer": m[lower_case(a->name)] = (int)val;   break;
+	      case "float":   m[lower_case(a->name)] = (float)val; break;
+	      default:        m[lower_case(a->name)] = val;        break;
+	    }
+	  }
+	}
+      }
+
+      rows += ({ m });
+    }
   }
 }

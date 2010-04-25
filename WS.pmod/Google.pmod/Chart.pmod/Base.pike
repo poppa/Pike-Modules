@@ -41,8 +41,8 @@ void add_axis(.Axis axis)
 //!  Hexadecimal color
 void set_title(string text, void|string|int size, void|string color)
 {
-  if (catch(title->text = string_to_utf8(text)))
-    title->text = text;
+  //if (catch(title->text = string_to_utf8(text)))
+  title->text = text;
   title->size = size;
   title->color = color && .normalize_color(color);
 }
