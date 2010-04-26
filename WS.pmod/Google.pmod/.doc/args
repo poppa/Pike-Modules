@@ -1,0 +1,11 @@
+../module.pmod module.xml -t module -n Google
+../Analytics.pmod analytics.xml -t module -n Analytics -p Google
+../Weather.pike weather.xml -t class -n Weather -p Google
+../Chart.pmod/module.pmod chart.xml -t module -n Chart -p Google
+../Chart.pmod/Axis.pmod axis.xml -t module -n Axis -p Google,Chart
+../Chart.pmod/Data.pike data.xml -t class -n Data -p Google,Chart
+../Chart.pmod/Base.pike base.xml -t class -n Base -p Google,Chart
+../Chart.pmod/BaseSimple.pike basesimple.xml -t class -n BaseSimple -p Google,Chart
+../Chart.pmod/Bar.pike bar.xml -t class -n Bar -p Google,Chart
+../Chart.pmod/Line.pike line.xml -t class -n Line -p Google,Chart
+../Chart.pmod/Pie.pike pie.xml -t class -n Pie -p Google,Chart

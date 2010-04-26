@@ -1,0 +1,2926 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title>Pike doc</title>
+    <style type="text/css">
+	  BODY { 
+		  font: 80%/140% arial, sans-serif; 
+		  padding: 0; 
+		  margin: 0; 
+		  background: #212121;
+		  color: #F5F5F5;
+		  }
+	  H1, H2 {
+		  padding: 20px 10px; 
+		  background: #141212; 
+		  font-size: 2.5em;
+		  border-bottom: 5px solid #35353C;
+		  margin: 0;
+		  color: #F1F1F1;
+		  clear: left;
+		  }
+	  H2 { font-size: 2em; }
+	  H1 SMALL,
+	  H2 SMALL { 
+		  font-weight: normal; 
+		  font-variant: small-caps; 
+		  font-family: georgia, serif;
+		  font-style: italic;
+		  }
+	  A { color: orange; }
+	  HR { 
+		  height: 1px; 
+		  background: #333; 
+		  border: none;
+		  margin: 0 0 20px 0;
+		  }
+	  PRE { font-size: 11px; }
+	  DIV.docwrap { 
+		  border-top: 1px solid black;
+		  background: #232323;
+		  }
+	  DIV.docgroup {
+		  border-bottom: 1px solid black;
+		  background: #2A2A29;
+		  clear: left;
+		  }
+	  DIV.docgroup DL {
+		  clear: both;	
+		  }
+	  DIV.docgroup DT {
+		  float: left;
+		  width: 18%;
+		  background: #1a1a1a;
+		  padding: 5px;
+		  clear: left;
+		  }
+	  DIV.docgroup DD {
+		  float: left;
+		  width: 76%;
+		  color: #BBB;
+		  }
+	  DIV.docgroup DD P { margin-top: 5px; }
+	  DIV.docdoc { 
+		  background: #222522; 
+		  padding: 7px; 
+		  padding-bottom: 0;
+		  outline: 1px solid #1e1e1e;
+		  }
+	  DIV.content { padding: 14px; padding-left: 40px; }
+	  DL.method-summary { margin: 0 }
+	  DL.method-summary UL { padding-left: 0; list-style: none; margin: 10px 0 0 0; }
+	  DL.method-summary UL LI { background:#181818; margin-bottom: 1px; padding: 3px}
+	  DL.method-summary UL LI A { color: #66ccff; font-weight: bold; }
+	  DL.method-summary UL LI .params SPAN,
+	  DL.method-summary UL LI .params { color: #555 !important; }
+	  DL.method-summary UL LI UL { margin: 0 0 0 25px;}
+	  .label { font-weight: bold; margin-right: 10px; color: #777; }
+	  .homogen-name { font-size: 1.6em; font-weight: bold; }
+	  .top-level { color: #6cf; }
+	  .modifier { color: #cf5e5e;  }
+	  .homogen-type { color: #909; }
+	  .type-type { color: #b9b91d; }
+	  .type-name, .var-name { color: #A0F0E0; }
+	  .delim { color: #CCC; }
+	  .literal { color: #C00; }
+	  .method { color: #66ccff; }
+	  .ref { 
+		  font-family: 'andale mono', monospace;
+		  background: #212129;
+		  padding: 2px;
+		  font-size: .9em;
+		  color: #f66;
+		  }
+	  .program-name { color: #1379a9; }
+	  DT .param-name { color: #f66; font-size: 1.0em !important; }
+	  P.expanded-member { 
+		  font-size: 1.3em; margin-top: 0;
+		  background: #212129;
+		  padding: 0px 5px 3px 5px;
+		  display: table;
+		  margin-top: 2px;
+		  }
+	  P TT {
+		  background: #212129;
+		  font-size: 1.3em;
+		  padding: 2px;
+		  color: #f0f56b;
+		  }
+	  DIV.code, CODE { color: white; font: 11.5px/120% 'andale mono', monospace !IMPORTANT }
+	  DIV.code {
+		  padding: 1px;
+		  border: 1px solid #000;
+		  background: #333;
+		  }
+	  DIV.code OL {
+		  list-style: none;
+		  padding: 10px;
+		  margin: 0;
+		  background: #212129;
+		  }
+	</style>
+  </head>
+  <body>
+    <div xmlns="" class="module" id="id69343">
+      <h1><small>Module</small> <span class="top-level">Google</span></h1>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Google modules</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of Google.pmod
+
+Google.pmod is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Google.pmod is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Google.pmod. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Module summary</dt>
+          <dd>
+            <ul>
+              <li>module <a href="#id69497">Analytics</a></li>
+              <li>module <a href="#id71333">Chart</a><ul><li>module <a href="#id71666">Axis</a></li></ul></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Class summary</dt>
+          <dd>
+            <ul>
+              <li>class <a href="#id70791">Weather</a></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">string</span> <a href="#id69381">md5</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">s</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id69430">download</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">url</span>, <span class="type-type">void</span>|<span class="type-type">mapping</span> <span class="param-name">headers</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docwrap">
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id69381">Google.md5</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google</span>.</span><span class="method">md5</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">s</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Makes an <tt>MD5</tt> hashed string of <span class="ref">s</span>.</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">s</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id69430">Google.download</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google</span>.</span><span class="method">download</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">url</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">mapping</span> <span class="param-name">headers</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Makes a HTTP GET request to <span class="ref">url</span>.</p>
+</dd>
+            <dt>
+              <span class="label">Throws</span>
+            </dt>
+            <dd><p>An error if the HTTP response code isn't <tt>200</tt>.</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">url</code></dt>
+            <dt><span class="label">Parameter</span> <code class="param-name">headers</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id70791">
+      <h2><small>Class</small> <span class="top-level">Google.Weather</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>WS.Google.Weather class</b></p>
+<p> Fetches weather forecast from Google for a given location.</p>
+<p> Copyright © 2009, Pontus Östlund - <a href="http://www.poppa.se">http://www.poppa.se</a></p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of Google.pmod
+
+Google.pmod is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Google.pmod is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Google.pmod. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul><li><span class="type-type">void</span> <a href="#id68984">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">city</span>, <span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_locale</span><span class="delim">)</span></strong></span></li>
+
+
+</ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Import</span>
+          <span class="homogen-name" id="id70835">Parser.XML.Tree</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70905">Google.Weather.info</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Information</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Weather</span>()-&gt;</span><span class="var-name">info</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Information about the current forecast. The the <span class="ref">Information</span> class
+ for more info</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70936">Google.Weather.current</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>CurrentCondition</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Weather</span>()-&gt;</span><span class="var-name">current</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The current weather condition. See <span class="ref">CurrentCondition</span>.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70966">Google.Weather.forecast</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">array</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>ForecastCondition</em><span class="delim">)</span><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Weather</span>()-&gt;</span><span class="var-name">forecast</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Forecast conditions. The next four days. See <span class="ref">ForecastCondition</span>.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id68984">Google.Weather.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Weather</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">city</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_locale</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Weather</span> object</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">city</code></dt>
+          <dd><p>The city to fetch the forecast for. Like <tt>new york, ny</tt> or 
+  <tt>stockholm</tt>.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_locale</code></dt>
+          <dd><p>Locale of the preferred language the response should be in.
+  Like <tt>sv</tt> for Swedish or <tt>no</tt> for Norwegian.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="module" id="id69497">
+      <h1><small>Module</small> <span class="top-level">Analytics</span></h1>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Google Analytics</b></p>
+<p> Copyright © 2010, Pontus Östlund - <a href="http://www.poppa.se">http://www.poppa.se</a></p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+Analytics.pmod is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Analytics.pmod is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Analytics.pmod. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Class summary</dt>
+          <dd>
+            <ul>
+              <li>class <a href="#id69538">Api</a></li>
+              <li>class <a href="#id69965">DesktopApi</a></li>
+              <li>class <a href="#id70088">DataParser</a></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docwrap">
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Import</span>
+            <span class="homogen-name" id="id70658">Parser.XML.Tree</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id70676">Google.Analytics.API_VERSION</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id70695">Google.Analytics.ACCOUNT_TYPE</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id70714">Google.Analytics.SERVICE</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id70733">Google.Analytics.LOGIN_ENDPOINT</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id70752">Google.Analytics.DATA_ENDPOINT</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id70771">Google.Analytics.FEED_ENDPOINT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id69538">
+      <h2><small>Class</small> <span class="top-level">Google.Analytics.Api</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>This class handles authentication against and data fetching from Google
+ Analytics. This class is intended to be use by web clients.</p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul><li><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <a href="#id69689">authenticate</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id69725">get_feed</a><span class="params"><strong><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="param-name">prettyprint</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mapping</span> <a href="#id69778">get_error</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id69809">get_data</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">table_id</span>, <span class="type-type">mapping</span> <span class="param-name">params</span><span class="delim">)</span></strong></span></li>
+
+
+</ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id69689">Google.Api.authenticate</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Analytics.Api</span>()-&gt;</span><span class="method">authenticate</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Authenticate the current user</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id69725">Google.Api.get_feed</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Analytics.Api</span>()-&gt;</span><span class="method">get_feed</span><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="param-name">prettyprint</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the list of available accounts</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">prettyprint</code></dt>
+          <dd><p>If <tt>1</tt> the returned XML document will be formatted</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id69778">Google.Api.get_error</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mapping</span> <span class="delim"><span class="program-name">Google.Analytics.Api</span>()-&gt;</span><span class="method">get_error</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the error mapping if any</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id69809">Google.Api.get_data</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Analytics.Api</span>()-&gt;</span><span class="method">get_data</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">table_id</span><span class="delim">, </span><span class="type-type">mapping</span> <span class="param-name">params</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Fetches report data from Google Analytics</p>
+</dd>
+          <dt>
+            <span class="label">See also</span>
+          </dt>
+          <dd><p>http://code.google.com/intl/sv-SE/apis/analytics/docs/gdata/ \
+  gdataReferenceDataFeed.html#dataRequest</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">table_id</code></dt>
+          <dd><p>The ID of the site in Google Analytics, i.e: ga:123456</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">params</code></dt>
+          <dd><dl><dt><code><span class="literal">"start-date"</span><span class="delim"> : </span><span class="type-type">string</span></code></dt><dt><code><span class="literal">"end-date"</span><span class="delim"> : </span><span class="type-type">string</span></code></dt><dt><code><span class="literal">"dimensions"</span><span class="delim"> : </span><span class="type-type">string</span></code></dt><dt><code><span class="literal">"metrics"</span><span class="delim"> : </span><span class="type-type">string</span></code></dt><dt><code><span class="literal">"sort"</span><span class="delim"> : </span><span class="type-type">string</span></code></dt><dt><code><span class="literal">"segment"</span><span class="delim"> : </span><span class="type-type">string</span></code></dt><dt><code><span class="literal">"start-index"</span><span class="delim"> : </span><span class="type-type">int</span></code></dt><dt><code><span class="literal">"max-results"</span><span class="delim"> : </span><span class="type-type">int</span></code></dt><dt><code><span class="literal">"filter"</span><span class="delim"> : </span><span class="type-type">string</span></code></dt><dt><code><span class="literal">"prettyprint"</span><span class="delim"> : </span><span class="type-type">string</span></code></dt><dd></dd></dl>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id69965">
+      <h2><small>Class</small> <span class="top-level">Google.Analytics.DesktopApi</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>This class handles authentication against and data fetching from Google
+ Analytics. This class is intended to be use by non-web clients.</p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <a href="#id70005">authenticate</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">email</span>, <span class="type-type">string</span> <span class="param-name">password</span>, <span class="type-type">string</span> <span class="param-name">source</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Inherit</span>
+          <span class="homogen-name" id="id69980">Api</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id70005">Google.DesktopApi.authenticate</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Analytics.DesktopApi</span>()-&gt;</span><span class="method">authenticate</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">email</span><span class="delim">, </span><span class="type-type">string</span> <span class="param-name">password</span><span class="delim">, </span><span class="type-type">string</span> <span class="param-name">source</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Authenticate a user</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">email</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">password</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">source</code></dt>
+          <dd><p>This is an abritrary string which identifies the current client
+  implementation. Could be something like: <tt>my-ga-client-v0.1</tt>.</p>
+</dd>
+          <dt>
+            <span class="label">Returns</span>
+          </dt>
+          <dd><p><tt>1</tt> on success, <tt>0</tt> otherwise.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id70088">
+      <h2><small>Class</small> <span class="top-level">Google.Analytics.DataParser</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>This class handles parsing of a successful response from Google Analytics.
+ Some generic results, from the top level in the XML document, will populate 
+ this object and all <tt>entry</tt> nodes will be parsed - into a mapping - and
+ put in the array <span class="ref">DataParser()-&gt;rows</span>.</p>
+<p> If this class is inherited and a method, prefixed with <tt>_</tt>
+ (an underscore), exists in the inherited class with the same name as a node 
+ in the XML document, that method will be called with the XML node as 
+ argument.</p>
+<p> <div class="code"><ol>
+<li><span style="color:#ff6666">class</span> GData <span style="color:#82bbfb">{</span>  </li>
+<li>  <span style="color:#ff6666">inherit</span> DataParser<span style="color:#82bbfb">;</span>  </li>
+<li>  </li>
+<li>  <span style="color:#b9b91d">void</span> _entry<span style="color:#82bbfb">(</span>Node n<span style="color:#82bbfb">)</span> <span style="color:#82bbfb">{</span>  </li>
+<li>    <span style="color:#CCC">werror</span><span style="color:#82bbfb">(</span><span style="color:#d4d21f">"Got entry node: %O\n"</span><span style="color:#82bbfb">,</span> n<span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span>  </li>
+<li>  <span style="color:#82bbfb">}</span>  </li>
+<li><span style="color:#82bbfb">}</span> </li>
+</ol></div></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">mixed</span> <a href="#id70516">parse</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">data</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id70568">_aggregates</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Node</em><span class="delim">)</span> <span class="param-name">n</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id70613">_entry</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Node</em><span class="delim">)</span> <span class="param-name">n</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70245">Google.DataParser.rows</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">array</span><span class="delim">(</span><span class="type-type">mapping</span><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">rows</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Array of entries (i.e. the data nodes of the document)</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70274">Google.DataParser.aggregates</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mapping</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">aggregates</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Contains aggregated results of the <tt>metric</tt> parameter</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70303">Google.DataParser.id</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">id</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The id is the URL of the report at Google Analytics.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70330">Google.DataParser.title</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">title</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The title of the report</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70356">Google.DataParser.total_results</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">total_results</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Total results of the report</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70382">Google.DataParser.start_index</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">start_index</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Starts index (page) of the report</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70408">Google.DataParser.items_per_page</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">items_per_page</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Items displayed per page in the report</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70434">Google.DataParser.updated</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Calendar.Second</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">updated</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>When the report was last updated</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70461">Google.DataParser.start_date</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Calendar.Day</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">start_date</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The start date of the report</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id70489">Google.DataParser.end_date</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Calendar.Day</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="var-name">end_date</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The end date of the report</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id70516">Google.DataParser.parse</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="method">parse</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">data</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Parsed the report XML and populates this object</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">data</code></dt>
+          <dd><p>The result of a successful call to <span class="ref">Api()-&gt;get_data()</span>.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id70568">Google.DataParser._aggregates</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="method">_aggregates</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Node</em><span class="delim">)</span> <span class="param-name">n</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Handles the <tt>aggregates</tt> node in the XML document.
+ Consider protected, only used internally.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">n</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id70613">Google.DataParser._entry</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Analytics.DataParser</span>()-&gt;</span><span class="method">_entry</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Node</em><span class="delim">)</span> <span class="param-name">n</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Handles the <tt>entry</tt> nodes in the XML document.
+ Consider protected, only used internally.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">n</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="module" id="id71333">
+      <h1><small>Module</small> <span class="top-level">Chart</span></h1>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Google Chart module</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of Google.pmod
+
+Chart.pmod is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Chart.pmod is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Chart.pmod. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Module summary</dt>
+          <dd>
+            <ul>
+              <li>module <a href="#id71666">Axis</a></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Class summary</dt>
+          <dd>
+            <ul>
+              <li>class <a href="#id73401">Data</a></li>
+              <li>class <a href="#id74636">Base</a></li>
+              <li>class <a href="#id75155">BaseSimple</a></li>
+              <li>class <a href="#id75349">Bar</a></li>
+              <li>class <a href="#id75786">Line</a></li>
+              <li>class <a href="#id75993">Pie</a></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">string</span> <a href="#id71394">normalize_color</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">c</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">float</span> <a href="#id71448">round_to_nearest</a><span class="params"><strong><span class="delim">(</span><span class="type-type">float</span>|<span class="type-type">int</span> <span class="param-name">x</span>, <span class="type-type">float</span>|<span class="type-type">int</span> <span class="param-name">base</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">float</span> <a href="#id71597">ceil_to_nearest</a><span class="params"><strong><span class="delim">(</span><span class="type-type">float</span>|<span class="type-type">int</span> <span class="param-name">x</span>, <span class="type-type">float</span>|<span class="type-type">int</span> <span class="param-name">base</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docwrap">
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id71371">Google.Chart.BASE_URL</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Google.Chart</span>.<span class="type-name">BASE_URL</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>URL at Google that generates the charts</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id71394">Google.Chart.normalize_color</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart</span>.</span><span class="method">normalize_color</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">c</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Fix colors: <tt>36a</tt> will become <tt>3366AA</tt>, <tt>#aaff99</tt> will become
+ <tt>aaff99</tt>.</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">c</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id71448">Google.Chart.round_to_nearest</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">float</span> <span class="delim"><span class="program-name">Google.Chart</span>.</span><span class="method">round_to_nearest</span><span class="delim">(</span><span class="type-type">float</span>|<span class="type-type">int</span> <span class="param-name">x</span><span class="delim">, </span><span class="type-type">float</span>|<span class="type-type">int</span> <span class="param-name">base</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Rounds <span class="ref">x</span> to the nearest <span class="ref">base</span></p>
+<p> <div class="code"><ol>
+<li>round_to_nearest<span style="color:#82bbfb">(</span><span style="color:#c00">1430</span><span style="color:#82bbfb">,</span>  <span style="color:#c00">100</span><span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span> <span style="color:#555568">// 1400</span> </li>
+<li>round_to_nearest<span style="color:#82bbfb">(</span><span style="color:#c00">1430</span><span style="color:#82bbfb">,</span> <span style="color:#c00">1000</span><span style="color:#82bbfb">)</span><span style="color:#82bbfb">;</span> <span style="color:#555568">// 1000</span> </li>
+</ol></div></p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">x</code></dt>
+            <dt><span class="label">Parameter</span> <code class="param-name">base</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id71597">Google.Chart.ceil_to_nearest</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">float</span> <span class="delim"><span class="program-name">Google.Chart</span>.</span><span class="method">ceil_to_nearest</span><span class="delim">(</span><span class="type-type">float</span>|<span class="type-type">int</span> <span class="param-name">x</span><span class="delim">, </span><span class="type-type">float</span>|<span class="type-type">int</span> <span class="param-name">base</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Same as <span class="ref">round_to_nearest()</span> except this ceils <span class="ref">x</span> to the nearest <span class="ref">base</span>.</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">x</code></dt>
+            <dt><span class="label">Parameter</span> <code class="param-name">base</code></dt>
+            <dd>
+              <p> </p>
+            </dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id73401">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.Data</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Google Chart Data class</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> This class represents the data of a Google Chart</p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of Google.pmod
+
+Data.pike is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Data.pike is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Data.pike. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul><li><span class="type-type">void</span> <a href="#id73757">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span><span class="delim"> ... </span> <span class="param-name">args</span><span class="delim">)</span></strong></span></li><li><span class="type-type">object</span> <a href="#id73818">`+</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span>|<span class="type-type">object</span> <span class="param-name">value</span><span class="delim">)</span></strong></span></li><li><span class="type-type">void</span> <a href="#id73890">set_color</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_color</span><span class="delim">)</span></strong></span></li><li><span class="type-type">void</span> <a href="#id73935">set_data_point</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.DataPoint.Any</em><span class="delim">)</span> <span class="param-name">data_point</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id73976">get_color</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">void</span> <a href="#id74006">clear_group</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">array</span><span class="delim">(</span><span class="type-type">float</span><span class="delim">)</span> <a href="#id74036">get_min_max</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+
+
+<li><span class="type-type">void</span> <a href="#id74133">set_scale</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span> <span class="param-name">_min</span>, <span class="type-type">int</span>|<span class="type-type">float</span> <span class="param-name">_max</span><span class="delim">)</span></strong></span></li><li><span class="type-type">int</span> <a href="#id74186">get_min</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">int</span> <a href="#id74216">get_max</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">array</span> <a href="#id74246">get_labels</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">object</span><span class="delim">(</span><em>.DataPoint.Any</em><span class="delim">)</span> <a href="#id74276">get_data_point</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">void</span> <a href="#id74307">set_legend</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">text</span>, <span class="type-type">void</span>|<span class="type-type">string</span>|<span class="type-type">int</span> <span class="param-name">position</span><span class="delim">)</span></strong></span></li><li><span class="type-type">object</span><span class="delim">(</span><em>.Legend</em><span class="delim">)</span> <a href="#id74367">get_legend</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id74398">extended_encode</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id74429">low_extended_encode</a><span class="params"><strong><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">_max</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id74471">low_simple_encode</a><span class="params"><strong><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">_max</span><span class="delim">)</span></strong></span></li><li><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <a href="#id74513">is_group</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id74554">scale_to_url</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li><li><span class="type-type">mixed</span> <a href="#id74596">cast</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></strong></span></li></ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id73757">Google.Data.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span><span class="delim"> ... </span> <span class="param-name">args</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Data</span> object.</p>
+</dd>
+          <dt>
+            <span class="label">Example</span>
+          </dt>
+          <dd><p>Chart.Data data = Chart.Data(10, 15, 12, 17, 24, 16);</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">args</code></dt>
+          <dd><p>Abritrary number of arguments</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id73818">Google.Data.`+</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">`+</span><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span>|<span class="type-type">object</span> <span class="param-name">value</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Appends to object.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">value</code></dt>
+          <dd><p>If <span class="ref">value</span> is an instance of <span class="ref">Data</span> a data group will be created.
+  Else <span class="ref">value</span> will be appended to the internal data set.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id73890">Google.Data.set_color</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">set_color</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_color</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the color of the chart items this data set represents (pie slice,
+ bar, line etc).</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_color</code></dt>
+          <dd><p>Hexadecimal</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id73935">Google.Data.set_data_point</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">set_data_point</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.DataPoint.Any</em><span class="delim">)</span> <span class="param-name">data_point</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the data point of this object</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">data_point</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id73976">Google.Data.get_color</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">get_color</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the color</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74006">Google.Data.clear_group</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">clear_group</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Clear the data group</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74036">Google.Data.get_min_max</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">array</span><span class="delim">(</span><span class="type-type">float</span><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">get_min_max</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the minimum and maximum value of this object.
+ If this is data group the min and max of the group will be returned.</p>
+</dd>
+          <dt>
+            <span class="label">See also</span>
+          </dt>
+          <dd><p><span class="ref">get_min()</span>, <span class="ref">get_max()</span></p>
+</dd>
+          <dt>
+            <span class="label">Returns</span>
+          </dt>
+          <dd><p>Index <tt>0</tt> is the minimum value. Index <tt>1</tt> is the maximum value.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74133">Google.Data.set_scale</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">set_scale</span><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span> <span class="param-name">_min</span><span class="delim">, </span><span class="type-type">int</span>|<span class="type-type">float</span> <span class="param-name">_max</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the scale of the data values.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_min</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_max</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74186">Google.Data.get_min</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">get_min</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the minimum value</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74216">Google.Data.get_max</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">get_max</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the maximum value</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74246">Google.Data.get_labels</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">array</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">get_labels</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the labels</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74276">Google.Data.get_data_point</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>.DataPoint.Any</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">get_data_point</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the data point</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74307">Google.Data.set_legend</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">set_legend</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">text</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">string</span>|<span class="type-type">int</span> <span class="param-name">position</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Sets the legend for the data set</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">text</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">position</code></dt>
+          <dd><p>See <span class="ref">Legend</span> for available positions</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74367">Google.Data.get_legend</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>.Legend</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">get_legend</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the legend</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74398">Google.Data.extended_encode</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">extended_encode</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Extended encodes the data
+ Consider protected.</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74429">Google.Data.low_extended_encode</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">low_extended_encode</span><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">_max</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Low level method for extended encoding
+ Consider protected</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_max</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74471">Google.Data.low_simple_encode</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">low_simple_encode</span><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">_max</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Low level method for simple encoding
+ Consider protected</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_max</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74513">Google.Data.is_group</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">is_group</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Checks if this object is a group of <span class="ref">Data</span> obejcts</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74554">Google.Data.scale_to_url</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">scale_to_url</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Turs the <span class="ref">min_value</span> and <span class="ref">max_value</span> values into a query variable</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74596">Google.Data.cast</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">mixed</span> <span class="delim"><span class="program-name">Google.Chart.Data</span>()-&gt;</span><span class="method">cast</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">how</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Cast method</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">how</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id74636">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.Base</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Google Chart Base class</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> Base class for all types of charts</p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of Google.pmod
+
+Base.pike is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Base.pike is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Base.pike. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+
+
+<li><span class="type-type">void</span> <a href="#id74954">add_axis</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Axis</em><span class="delim">)</span> <span class="param-name">axis</span><span class="delim">)</span></strong></span></li><li><span class="type-type">void</span> <a href="#id74991">set_title</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">text</span>, <span class="type-type">void</span>|<span class="type-type">string</span>|<span class="type-type">int</span> <span class="param-name">size</span>, <span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">color</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id75058">render_url</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></strong></span></li><li><span class="type-type">string</span> <a href="#id75099">render_url_nice</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></strong></span></li></ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74954">Google.Base.add_axis</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Base</span>()-&gt;</span><span class="method">add_axis</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Axis</em><span class="delim">)</span> <span class="param-name">axis</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Add an axis to the chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id74991">Google.Base.set_title</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Base</span>()-&gt;</span><span class="method">set_title</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">text</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">string</span>|<span class="type-type">int</span> <span class="param-name">size</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">color</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set a title for the chart</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">text</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">size</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">color</code></dt>
+          <dd><p>Hexadecimal color</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id75058">Google.Base.render_url</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Base</span>()-&gt;</span><span class="method">render_url</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Render the chart url</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">data</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id75099">Google.Base.render_url_nice</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Base</span>()-&gt;</span><span class="method">render_url_nice</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Same as <span class="ref">render_url()</span> execpt this replaces the <tt>&amp;amp;</tt> with
+ <tt>&amp;</tt>.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">data</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id75155">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.BaseSimple</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Google Chart Base class</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> Base class for <span class="ref">Line</span> and <span class="ref">Bar</span> charts.</p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of Google.pmod
+
+BaseSimple.pike is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+BaseSimple.pike is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with BaseSimple.pike. If not, see 
+&lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id75257">set_grid</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Grid</em><span class="delim">)</span> <span class="param-name">_grid</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id75306">render_url</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Inherit</span>
+          <span class="homogen-name" id="id75205">Base</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id75257">Google.BaseSimple.set_grid</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.BaseSimple</span>()-&gt;</span><span class="method">set_grid</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Grid</em><span class="delim">)</span> <span class="param-name">_grid</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set a chart grid</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">grid</code></dt>
+          <dd><p>A <span class="ref">Grid</span> object</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id75306">Google.BaseSimple.render_url</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.BaseSimple</span>()-&gt;</span><span class="method">render_url</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Render the chart url</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">data</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id75349">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.Bar</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Google Chart Base class</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> Class for creating bar charts</p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of Google.pmod
+
+Bar.pike is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Bar.pike is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Bar.pike. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id75600">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_type</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">width</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">height</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id75669">set_bar_params</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">string</span> <span class="param-name">width</span>, <span class="type-type">int</span>|<span class="type-type">string</span> <span class="param-name">bar_space</span>, <span class="type-type">int</span>|<span class="type-type">string</span> <span class="param-name">group_space</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id75744">render_url</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Inherit</span>
+          <span class="homogen-name" id="id75391">BaseSimple</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id75414">Google.Bar.HORIZONTAL_STACK</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Bar</span>.<span class="type-name">HORIZONTAL_STACK</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Horizontally stacked chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id75437">Google.Bar.VERTICAL_STACK</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Bar</span>.<span class="type-name">VERTICAL_STACK</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Vertically stacked chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id75461">Google.Bar.HORIZONTAL_GROUP</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Bar</span>.<span class="type-name">HORIZONTAL_GROUP</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Horizontally grouped chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id75518">Google.Bar.VERTICAL_GROUP</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Bar</span>.<span class="type-name">VERTICAL_GROUP</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>vertically grouped chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id75542">Google.Bar.auto_size</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span><span class="delim">(</span><span class="literal">0</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Bar</span>()-&gt;</span><span class="var-name">auto_size</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Auto size the width of the bars or not</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id75572">Google.Bar.bar_params</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">array</span><span class="delim">(</span><span class="type-type">string</span><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Bar</span>()-&gt;</span><span class="var-name">bar_params</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Style parameters of the bars</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id75600">Google.Bar.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Bar</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_type</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">width</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">height</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Bar</span> chart</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">type</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">width</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">height</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id75669">Google.Bar.set_bar_params</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Bar</span>()-&gt;</span><span class="method">set_bar_params</span><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">string</span> <span class="param-name">width</span><span class="delim">, </span><span class="type-type">int</span>|<span class="type-type">string</span> <span class="param-name">bar_space</span><span class="delim">, </span><span class="type-type">int</span>|<span class="type-type">string</span> <span class="param-name">group_space</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the style of the bars</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">width</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">bar_space</code></dt>
+          <dd><p>The space between each bar</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">group_space</code></dt>
+          <dd><p>The space between each group of bars</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id75744">Google.Bar.render_url</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Bar</span>()-&gt;</span><span class="method">render_url</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Render the chart url</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">data</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id75786">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.Line</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Google Chart Base class</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> Class for creating line charts</p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of Google.pmod
+
+Line.pike is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Line.pike is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Line.pike. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id75922">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_type</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">width</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">height</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Inherit</span>
+          <span class="homogen-name" id="id75829">BaseSimple</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id75851">Google.Line.LINES</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Line</span>.<span class="type-name">LINES</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Basic line chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id75875">Google.Line.SPARKLINES</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Line</span>.<span class="type-name">SPARKLINES</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Sparkline line chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id75898">Google.Line.POINTS</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Line</span>.<span class="type-name">POINTS</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Pointed chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id75922">Google.Line.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Line</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_type</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">width</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">height</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Line</span> chart</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">type</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">width</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">height</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id75993">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.Pie</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p><b>Google Chart Base class</b></p>
+<p> Copyright © 2009, Pontus Östlund - <a href="www.poppa.se">www.poppa.se</a></p>
+<p> Class for creating pie charts</p>
+<p> <pre><b>License GNU GPL version 3</b>
+
+This file is part of Google.pmod
+
+Pie.pike is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Pie.pike is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Pie.pike. If not, see &lt;<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.
+</pre></p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id76155">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_type</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">width</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">height</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id76218">render_url</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Inherit</span>
+          <span class="homogen-name" id="id76036">Base</span>
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id76058">Google.Pie.BASIC</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Pie</span>.<span class="type-name">BASIC</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Two dimentional pie chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id76082">Google.Pie.THREE_DIMENTIONAL</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Pie</span>.<span class="type-name">THREE_DIMENTIONAL</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Three dimentional pie chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Constant</span>
+          <span class="homogen-name" id="id76105">Google.Pie.CONCENTRIC</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Pie</span>.<span class="type-name">CONCENTRIC</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Concentric pie chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id76129">Google.Pie.orientation</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">float</span> <span class="delim"><span class="program-name">Google.Chart.Pie</span>()-&gt;</span><span class="var-name">orientation</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Rotation of the pie chart</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id76155">Google.Pie.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Pie</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">void</span>|<span class="type-type">string</span> <span class="param-name">_type</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">width</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">height</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates new pie chart</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">type</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">width</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">height</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id76218">Google.Pie.render_url</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Pie</span>()-&gt;</span><span class="method">render_url</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>.Data</em><span class="delim">)</span> <span class="param-name">data</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Render the chart URL</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">data</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="module" id="id71666">
+      <h1><small>Module</small> <span class="top-level">Axis</span></h1>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Class summary</dt>
+          <dd>
+            <ul>
+              <li>class <a href="#id71671">Axis</a></li>
+              <li>class <a href="#id72252">Label</a></li>
+              <li>class <a href="#id72411">Range</a></li>
+              <li>class <a href="#id72599">Style</a></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="description content">
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+
+
+<li><span class="type-type">object</span><span class="delim">(</span><em>Axis</em><span class="delim">)</span> <a href="#id73330">`()</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">type</span><span class="delim">)</span></strong></span></li></ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docwrap">
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73082">Google.Axis.BOTTOM</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Axis</span>.<span class="type-name">BOTTOM</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Places the axis at the bottom of the chart</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73106">Google.Axis.TOP</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Axis</span>.<span class="type-name">TOP</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Places the axis at the top of the chart</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73129">Google.Axis.LEFT</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Axis</span>.<span class="type-name">LEFT</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Places the axis at the left of the chart</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73153">Google.Axis.RIGHT</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">constant</span> <span class="program-name">Google.Chart.Axis</span>.<span class="type-name">RIGHT</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Places the axis at the right of the chart</p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73177">Google.Axis.DRAWING_CONTROL_LINE_ONLY</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73196">Google.Axis.DRAWING_CONTROL_TICK_MARKS_ONLY</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73215">Google.Axis.DRAWING_CONTROL_LINES_AND_TICK_MARKS</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73234">Google.Axis.STYLE_ALIGN_LEFT</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73253">Google.Axis.STYLE_ALIGN_CENTER</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Constant</span>
+            <span class="homogen-name" id="id73272">Google.Axis.STYLE_ALIGN_RIGHT</span>
+          </div>
+        </div>
+        <div class="docgroup content">
+          <div class="member">
+            <span class="label homogen-type">Method</span>
+            <span class="homogen-name" id="id73330">Google.Axis.`()</span>
+          </div>
+          <p class="expanded-member">
+            <code><span class="type-type">object</span><span class="delim">(</span><em>Axis</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Axis</span>.</span><span class="method">`()</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">type</span><span class="delim">)</span></code>
+          </p>
+          <div class="docdoc">
+            <dt>
+              <span class="label">Description</span>
+            </dt>
+            <dd><p>Creates a new Axis object</p>
+</dd>
+            <dt><span class="label">Parameter</span> <code class="param-name">type</code></dt>
+            <dd><p>Where to place the axis: <span class="ref">BOTTOM</span>, <span class="ref">TOP</span>, <span class="ref">LEFT</span> or <span class="ref">RIGHT</span></p>
+</dd>
+            <br style="clear: both" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id71671">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.Axis.Axis</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>This class represents a chart axis</p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id71829">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_type</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id71900">set_labels</a><span class="params"><strong><span class="delim">(</span><span class="type-type">array</span><span class="delim">(</span><span class="type-type">string</span><span class="delim">)</span> <span class="param-name">_labels</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id71955">add_label</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">text</span>, <span class="type-type">void</span>|<span class="type-type">int</span>|<span class="type-type">string</span> <span class="param-name">position</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>Range</em><span class="delim">)</span> <a href="#id72006">get_range_object</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id72038">set_range</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">start</span>, <span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">end</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">interval</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">void</span> <a href="#id72112">set_style</a><span class="params"><strong><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Style</em><span class="delim">)</span>|<span class="type-type">string</span> <span class="param-name">style_or_color</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">size</span>, <span class="type-type">void</span>|<span class="type-type">int</span><span class="delim">(</span><span class="literal">-1</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="param-name">alignment</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id72222">get_type</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id71829">Google.Axis.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Axis</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_type</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new <span class="ref">Axis</span> object</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_type</code></dt>
+          <dd><p>Type of axis, <span class="ref">BOTTOM</span>, <span class="ref">TOP</span>, <span class="ref">LEFT</span> or <span class="ref">RIGHT</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id71900">Google.Axis.set_labels</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Axis</span>()-&gt;</span><span class="method">set_labels</span><span class="delim">(</span><span class="type-type">array</span><span class="delim">(</span><span class="type-type">string</span><span class="delim">)</span> <span class="param-name">_labels</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set labels.</p>
+</dd>
+          <dt>
+            <span class="label">Note</span>
+          </dt>
+          <dd><p>If you also want to set the position of the labels you have to call
+  <span class="ref">add_label()</span>.</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_labels</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id71955">Google.Axis.add_label</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Axis</span>()-&gt;</span><span class="method">add_label</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">text</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span>|<span class="type-type">string</span> <span class="param-name">position</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Add a label</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">text</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">position</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72006">Google.Axis.get_range_object</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>Range</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Axis</span>()-&gt;</span><span class="method">get_range_object</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the range object</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72038">Google.Axis.set_range</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Axis</span>()-&gt;</span><span class="method">set_range</span><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">start</span><span class="delim">, </span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">end</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">interval</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the range of the axis</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">start</code></dt>
+          <dd><p>I.e, the minimum value</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">end</code></dt>
+          <dd><p>I.e, the maximum value</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">interval</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72112">Google.Axis.set_style</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Axis</span>()-&gt;</span><span class="method">set_style</span><span class="delim">(</span><span class="type-type">object</span><span class="delim">(</span><em>Style</em><span class="delim">)</span>|<span class="type-type">string</span> <span class="param-name">style_or_color</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">size</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span><span class="delim">(</span><span class="literal">-1</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="param-name">alignment</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the style of the labels</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">style_or_color</code></dt>
+          <dd><p>Either an entire <span class="ref">Style</span> object, or the label color</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">size</code></dt>
+          <dd><p>The font size of the labels</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">alignment</code></dt>
+          <dd><p>See <span class="ref">STYLE_ALIGN_LEFT</span>, <span class="ref">STYLE_ALIGN_CENTER</span> and <span class="ref">STYLE_ALIGN_RIGHT</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72222">Google.Axis.get_type</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Axis</span>()-&gt;</span><span class="method">get_type</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the axis type</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id72252">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.Axis.Label</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>Axis label</p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id72336">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_text</span>, <span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">_position</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72267">Google.Label.text</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Label</span>()-&gt;</span><span class="var-name">text</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The label text</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72293">Google.Label.position</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Label</span>()-&gt;</span><span class="var-name">position</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>The label position
+ See <span class="ref">STYLE_ALIGN_LEFT</span>, <span class="ref">STYLE_ALIGN_CENTER</span> and <span class="ref">STYLE_ALIGN_RIGHT</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72336">Google.Label.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Label</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_text</span><span class="delim">, </span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">_position</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new Lable</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_text</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_position</code></dt>
+          <dd><p>See <span class="ref">STYLE_ALIGN_LEFT</span>, <span class="ref">STYLE_ALIGN_CENTER</span> and <span class="ref">STYLE_ALIGN_RIGHT</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id72411">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.Axis.Range</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>Axis range</p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id72502">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">_start</span>, <span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">_end</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">_interval</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id72568">get</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72426">Google.Range.start</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Range</span>()-&gt;</span><span class="var-name">start</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Start of range</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72451">Google.Range.end</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Range</span>()-&gt;</span><span class="var-name">end</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>End of range</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72476">Google.Range.interval</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Range</span>()-&gt;</span><span class="var-name">interval</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Range interval</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72502">Google.Range.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Range</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">_start</span><span class="delim">, </span><span class="type-type">int</span>|<span class="type-type">float</span>|<span class="type-type">string</span> <span class="param-name">_end</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">_interval</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new Range object</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_start</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_end</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_interval</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72568">Google.Range.get</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Range</span>()-&gt;</span><span class="method">get</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the URL parameter value for this object
+ Consider this a proteced method</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+    <div xmlns="" class="class" id="id72599">
+      <h2><small>Class</small> <span class="top-level">Google.Chart.Axis.Style</span></h2>
+      <div class="description content">
+        <dt>
+          <span class="label">Description</span>
+        </dt>
+        <dd><p>Axis label style</p>
+</dd>
+        <dl class="method-summary">
+          <dt class="label">Method summary</dt>
+          <dd>
+            <ul>
+              <li><span class="type-type">void</span> <a href="#id72789">create</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_color</span>, <span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">_size</span>, <span class="type-type">void</span>|<span class="type-type">int</span><span class="delim">(</span><span class="literal">-1</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="param-name">_alignment</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>object_program</em><span class="delim">)</span> <a href="#id72877">set_tick_mark_color</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">color</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>object_program</em><span class="delim">)</span> <a href="#id72925">set_tick_mark_length</a><span class="params"><strong><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">len</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">object</span><span class="delim">(</span><em>object_program</em><span class="delim">)</span> <a href="#id72972">set_drawing_control</a><span class="params"><strong><span class="delim">(</span><span class="type-type">string</span>|<span class="type-type">int</span> <span class="param-name">type</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">int</span> <a href="#id73022">get_tick_mark_length</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+              <li><span class="type-type">string</span> <a href="#id73052">get</a><span class="params"><strong><span class="delim">(</span><span class="delim">)</span></strong></span></li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72614">Google.Style.color</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="var-name">color</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Color</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72639">Google.Style.size</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="var-name">size</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Font size</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72665">Google.Style.alignment</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span><span class="delim">(</span><span class="literal">-1</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="var-name">alignment</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Alignment
+ See <span class="ref">STYLE_ALIGN_LEFT</span>, <span class="ref">STYLE_ALIGN_CENTER</span> and <span class="ref">STYLE_ALIGN_RIGHT</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72712">Google.Style.drawing_control</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="var-name">drawing_control</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Drawing control</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72738">Google.Style.tick_mark_color</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="var-name">tick_mark_color</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Tick mark color</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Variable</span>
+          <span class="homogen-name" id="id72763">Google.Style.tick_mark_length</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="var-name">tick_mark_length</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Tick mark length</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72789">Google.Style.create</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">void</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="method">create</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">_color</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span> <span class="param-name">_size</span><span class="delim">, </span><span class="type-type">void</span>|<span class="type-type">int</span><span class="delim">(</span><span class="literal">-1</span><span class="delim">..</span><span class="literal">1</span><span class="delim">)</span> <span class="param-name">_alignment</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Creates a new Style object</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">_color</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_size</code></dt>
+          <dt><span class="label">Parameter</span> <code class="param-name">_alignment</code></dt>
+          <dd><p>See <span class="ref">STYLE_ALIGN_LEFT</span>, <span class="ref">STYLE_ALIGN_CENTER</span> and <span class="ref">STYLE_ALIGN_RIGHT</span></p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72877">Google.Style.set_tick_mark_color</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>object_program</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="method">set_tick_mark_color</span><span class="delim">(</span><span class="type-type">string</span> <span class="param-name">color</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the color of the tick marks</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">color</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <dt>
+            <span class="label">Returns</span>
+          </dt>
+          <dd><p>The current object</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72925">Google.Style.set_tick_mark_length</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>object_program</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="method">set_tick_mark_length</span><span class="delim">(</span><span class="type-type">int</span> <span class="param-name">len</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the length of the tick marks</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">len</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <dt>
+            <span class="label">Returns</span>
+          </dt>
+          <dd><p>The current object</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id72972">Google.Style.set_drawing_control</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">object</span><span class="delim">(</span><em>object_program</em><span class="delim">)</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="method">set_drawing_control</span><span class="delim">(</span><span class="type-type">string</span>|<span class="type-type">int</span> <span class="param-name">type</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Set the drawing contol</p>
+</dd>
+          <dt><span class="label">Parameter</span> <code class="param-name">type</code></dt>
+          <dd>
+            <p> </p>
+          </dd>
+          <dt>
+            <span class="label">Returns</span>
+          </dt>
+          <dd><p>The current object</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id73022">Google.Style.get_tick_mark_length</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">int</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="method">get_tick_mark_length</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Getter for the tick mark length</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+      <div class="docgroup content">
+        <div class="member">
+          <span class="label homogen-type">Method</span>
+          <span class="homogen-name" id="id73052">Google.Style.get</span>
+        </div>
+        <p class="expanded-member">
+          <code><span class="type-type">string</span> <span class="delim"><span class="program-name">Google.Chart.Axis.Style</span>()-&gt;</span><span class="method">get</span><span class="delim">(</span><span class="delim">)</span></code>
+        </p>
+        <div class="docdoc">
+          <dt>
+            <span class="label">Description</span>
+          </dt>
+          <dd><p>Returns the URL parameter values for this object.
+ Consider protected</p>
+</dd>
+          <br style="clear: both" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

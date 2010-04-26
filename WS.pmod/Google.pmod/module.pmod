@@ -1,5 +1,5 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{WS.Google module@}
+//! @b{Google modules@}
 //!
 //! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
 //!
@@ -20,8 +20,10 @@
 //! You should have received a copy of the GNU General Public License
 //! along with Google.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
 //! @}
-//!
 
+//! Makes an @tt{MD5@} hashed string of @[s].
+//!
+//! @param s
 string md5(string s)
 {
 #if constant(Crypto.MD5)
@@ -32,6 +34,13 @@ string md5(string s)
   return s;
 }
 
+//! Makes a HTTP GET request to @[url].
+//!
+//! @throws
+//!  An error if the HTTP response code isn't @tt{200@}.
+//!
+//! @param url
+//! @param headers
 string download(string url, void|mapping headers)
 {
   url = replace(url, "&amp;", "&");

@@ -56,9 +56,9 @@ class Api
   //! Errors from a response is stored here.
   //! 
   //! @mapping
-  //!  @item domain
-  //!  @item code
-  //!  @item internalreason
+  //!  @member string "domain"
+  //!  @member string "code"
+  //!  @member string "internalreason"
   //! @endmapping
   protected mapping gerror;
 
@@ -92,23 +92,24 @@ class Api
 
   //! Fetches report data from Google Analytics
   //!
-  //! @seealso http://code.google.com/intl/sv-SE/apis/analytics/docs/gdata/ \
-  //!          gdataReferenceDataFeed.html#dataRequest
+  //! @seealso
+  //!  http://code.google.com/intl/sv-SE/apis/analytics/docs/gdata/ \
+  //!  gdataReferenceDataFeed.html#dataRequest
   //!
   //! @param table_id
   //!  The ID of the site in Google Analytics, i.e: ga:123456
   //! @param params
   //!  @mapping
-  //!   @item start-date
-  //!   @item end-date
-  //!   @item dimensions
-  //!   @item metrics
-  //!   @item sort
-  //!   @item segment
-  //!   @item start-index
-  //!   @item max-results
-  //!   @item filter
-  //!   @item prettyprint
+  //!   @member string "start-date"
+  //!   @member string "end-date"
+  //!   @member string "dimensions"
+  //!   @member string "metrics"
+  //!   @member string "sort"
+  //!   @member string "segment"
+  //!   @member int    "start-index"
+  //!   @member int    "max-results"
+  //!   @member string "filter"
+  //!   @member string "prettyprint"
   //!  @endmapping
   string get_data(string table_id, mapping params)
   {

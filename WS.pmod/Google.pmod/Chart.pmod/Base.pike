@@ -1,9 +1,41 @@
+/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+//! @b{Google Chart Base class@}
+//!
+//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//!
 //! Base class for all types of charts
+//!
+//! @pre{@b{License GNU GPL version 3@}
+//!
+//! This file is part of Google.pmod
+//!
+//! Base.pike is free software: you can redistribute it and/or modify
+//! it under the terms of the GNU General Public License as published by
+//! the Free Software Foundation, either version 3 of the License, or
+//! (at your option) any later version.
+//!
+//! Base.pike is distributed in the hope that it will be useful,
+//! but WITHOUT ANY WARRANTY; without even the implied warranty of
+//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//! GNU General Public License for more details.
+//!
+//! You should have received a copy of the GNU General Public License
+//! along with Base.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
+//! @}
 
+//! The width of the chart
 protected int width = 400;
+
+//! The height of the chart
 protected int height = 300;
+
+//! Type of chart
 protected string type;
+
+//! The axes  of the chart
 protected array(.Axis) axes = ({});
+
+//! Chart title parameters
 protected mapping title = ([
   "text"  : 0,
   "color" : 0,

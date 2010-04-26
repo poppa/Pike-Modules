@@ -10,19 +10,34 @@ constant LEFT   = "y";
 //! Places the axis at the right of the chart
 constant RIGHT  = "r";
 
+//!
 constant DRAWING_CONTROL_LINE_ONLY            = 0;
+
+//!
 constant DRAWING_CONTROL_TICK_MARKS_ONLY      = 1;
+
+//!
 constant DRAWING_CONTROL_LINES_AND_TICK_MARKS = 2;
 
+//!
 constant STYLE_ALIGN_LEFT   = -1;
+
+//!
 constant STYLE_ALIGN_CENTER =  0;
+
+//!
 constant STYLE_ALIGN_RIGHT  =  1;
 
+//! Hidden module constructor
 protected void create(mixed ... args) { }
 
-optional Axis `()(string name)
+//! Creates a new Axis object
+//!
+//! @param type
+//!  Where to place the axis: @[BOTTOM], @[TOP], @[LEFT] or @[RIGHT]
+Axis `()(string type)
 {
-  return Axis(name);
+  return Axis(type);
 }
 
 //! This class represents a chart axis
@@ -89,7 +104,15 @@ class Axis // {{{
   {
     range = Range(start, end, interval);
   }
-  
+
+  //! Set the style of the labels
+  //!
+  //! @param style_or_color
+  //!  Either an entire @[Style] object, or the label color
+  //! @param size
+  //!  The font size of the labels
+  //! @param alignment
+  //!  See @[STYLE_ALIGN_LEFT], @[STYLE_ALIGN_CENTER] and @[STYLE_ALIGN_RIGHT]
   void set_style(Style|string style_or_color, void|int size,
                  void|int(-1..1) alignment)
   {
@@ -134,11 +157,21 @@ class Axis // {{{
   }
 } // }}}
 
-public class Label
+//! Axis label
+class Label
 {
+  //! The label text
   string text;
+  
+  //! The label position
+  //! See @[STYLE_ALIGN_LEFT], @[STYLE_ALIGN_CENTER] and @[STYLE_ALIGN_RIGHT]
   string position;
 
+  //! Creates a new Lable
+  //!
+  //! @param _text
+  //! @param _position
+  //!  See @[STYLE_ALIGN_LEFT], @[STYLE_ALIGN_CENTER] and @[STYLE_ALIGN_RIGHT]
   void create(string _text, int|float|string _position)
   {
     text = _text;
@@ -152,12 +185,23 @@ public class Label
   }
 }
 
-public class Range
+//! Axis range
+class Range
 {
+  //! Start of range
   int start;
+  
+  //! End of range
   int end;
+  
+  //! Range interval
   int interval;
 
+  //! Creates a new Range object
+  //!
+  //! @param _start
+  //! @param _end
+  //! @param _interval
   void create(int|float|string _start, int|float|string _end,
 	      void|int _interval)
   {
@@ -166,6 +210,8 @@ public class Range
     interval = (int)_interval;
   }
 
+  //! Returns the URL parameter value for this object
+  //! Consider this a proteced method
   string get()
   {
     string s = sprintf("%d,%d", start, end);
@@ -175,15 +221,34 @@ public class Range
   }
 }
 
-public class Style
+//! Axis label style
+class Style
 {
-  string     color;
-  int        size = 11;
+  //! Color
+  string color;
+  
+  //! Font size
+  int size = 11;
+  
+  //! Alignment
+  //! See @[STYLE_ALIGN_LEFT], @[STYLE_ALIGN_CENTER] and @[STYLE_ALIGN_RIGHT]
   int(-1..1) alignment = -1;
-  string     drawing_control;
-  string     tick_mark_color;
-  int        tick_mark_length;
+  
+  //! Drawing control
+  string drawing_control;
+  
+  //! Tick mark color
+  string tick_mark_color;
+  
+  //! Tick mark length
+  int tick_mark_length;
 
+  //! Creates a new Style object
+  //!
+  //! @param _color
+  //! @param _size
+  //! @param _alignment
+  //!  See @[STYLE_ALIGN_LEFT], @[STYLE_ALIGN_CENTER] and @[STYLE_ALIGN_RIGHT]
   void create(string _color, void|int _size, void|int(-1..1) _alignment)
   {
     color            = .normalize_color(_color);
@@ -191,18 +256,36 @@ public class Style
     alignment        = _alignment;
   }
 
+  //! Set the color of the tick marks
+  //!
+  //! @param color
+  //!
+  //! @returns
+  //!  The current object
   object_program set_tick_mark_color(string color)
   {
     tick_mark_color = color;
     return this;
   }
 
+  //! Set the length of the tick marks
+  //!
+  //! @param len
+  //!
+  //! @returns
+  //!  The current object
   object_program set_tick_mark_length(int len)
   {
     tick_mark_length = len;
     return this;
   }
 
+  //! Set the drawing contol
+  //!
+  //! @param type
+  //!
+  //! @returns
+  //!  The current object
   object_program set_drawing_control(string|int type)
   {
     if (intp(type)) {
@@ -233,12 +316,15 @@ public class Style
     return this;
   }
 
+  //! Getter for the tick mark length
   int get_tick_mark_length()
   {
     werror("Get tick mark length: %d\n", tick_mark_length);
     return tick_mark_length;
   }
   
+  //! Returns the URL parameter values for this object.
+  //! Consider protected
   string get()
   {
     array values = map(({

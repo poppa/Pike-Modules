@@ -1,4 +1,27 @@
-//! Chart data class
+/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+//! @b{Google Chart Data class@}
+//!
+//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//!
+//! This class represents the data of a Google Chart
+//!
+//! @pre{@b{License GNU GPL version 3@}
+//!
+//! This file is part of Google.pmod
+//!
+//! Data.pike is free software: you can redistribute it and/or modify
+//! it under the terms of the GNU General Public License as published by
+//! the Free Software Foundation, either version 3 of the License, or
+//! (at your option) any later version.
+//!
+//! Data.pike is distributed in the hope that it will be useful,
+//! but WITHOUT ANY WARRANTY; without even the implied warranty of
+//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//! GNU General Public License for more details.
+//!
+//! You should have received a copy of the GNU General Public License
+//! along with Data.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
+//! @}
 
 //! Used to simple encode data
 protected constant ALNUMS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -10,6 +33,7 @@ protected constant EXTENDED_MAP = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                   "abcdefghijklmnopqrstuvwxyz"
 				  "0123456789-."/1;
 
+//! The length of the extended map
 protected constant EXTENDED_MAP_LEN = 64;
 
 //! Actual values
@@ -33,11 +57,16 @@ protected .Legend legend  = .Legend();
 //! Data labels
 protected array labels   = ({});
 
+//! Data point
 protected .DataPoint.Any datapoint;
 
 //! Creates a new @[Data] object.
 //!
-//! @param ... args
+//! @example
+//!  Chart.Data data = Chart.Data(10, 15, 12, 17, 24, 16);
+//!
+//! @param args
+//!  Abritrary number of arguments
 void create(int|float|string ... args)
 {
   values = map( args, lambda (int|float|string v){ return (float)v; } );
@@ -78,6 +107,9 @@ void set_color(string _color)
   color = .normalize_color(_color);
 }
 
+//! Set the data point of this object
+//!
+//! @param data_point
 void set_data_point(.DataPoint.Any data_point)
 {
   datapoint = data_point;
@@ -100,11 +132,20 @@ void clear_group()
   group = ({});
 }
 
+//! Returns the minimum and maximum value of this object.
+//! If this is data group the min and max of the group will be returned.
+//!
+//! @seealso
+//!  @[get_min()], @[get_max()]
+//!
+//! @returns
+//!  Index @tt{0@} is the minimum value. Index @tt{1@} is the maximum value.
 array(float) get_min_max()
 {
   return ({ min_value, max_value });
 }
 
+//! Low level method for min and max values.
 protected array(float) low_get_min_max()
 {
   array(float) all_values = values;
@@ -170,11 +211,17 @@ void set_legend(string text, void|string|int position)
   return legend;
 }
 
+//! Extended encodes the data
+//! Consider protected.
 string extended_encode()
 {
   return "e:" + low_extended_encode(); 
 }
 
+//! Low level method for extended encoding
+//! Consider protected
+//!
+//! @param _max
 string low_extended_encode(void|int _max)
 {
   _max = _max || max_value;
@@ -208,6 +255,10 @@ string simple_encode()
   return "s:" + low_simple_encode();
 }
 
+//! Low level method for simple encoding
+//! Consider protected
+//!
+//! @param _max
 string low_simple_encode(void|int _max)
 {
   int vlen = sizeof(ALNUMS)-1;
@@ -239,7 +290,7 @@ int(0..1) is_group()
   return sizeof(group) > 0;
 }
 
-// Turs the @[min] and @[max] values into a query variable
+//! Turs the @[min_value] and @[max_value] values into a query variable
 string scale_to_url()
 {
   array(string) data = ({ low_get_scale() });
