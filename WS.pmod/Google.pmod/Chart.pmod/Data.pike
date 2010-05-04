@@ -1,7 +1,7 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! @b{Google Chart Data class@}
 //!
-//! Copyright Â© 2009, Pontus Ã–stlund - @url{www.poppa.se@}
+//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
 //!
 //! This class represents the data of a Google Chart
 //!
@@ -222,10 +222,10 @@ string extended_encode()
 //! Consider protected
 //!
 //! @param _max
-string low_extended_encode(void|int _max)
+string low_extended_encode(void|int|float _max)
 {
-  _max = _max || max_value;
-  if (!_max) return "";
+  _max = (float)(_max || max_value);
+  if (_max == UNDEFINED || _max <= 0.0) return "";
   array(string) data = ({});
   array(string) all_data = ({});
   foreach (values, float val) {
@@ -244,7 +244,7 @@ string low_extended_encode(void|int _max)
   all_data += ({ data*"" });
 
   if (sizeof(group))
-    all_data += group->low_extended_encode();
+    all_data += group->low_extended_encode(_max);
 
   return all_data*",";
 }
@@ -259,10 +259,14 @@ string simple_encode()
 //! Consider protected
 //!
 //! @param _max
-string low_simple_encode(void|int _max)
+string low_simple_encode(void|int|float _max)
 {
   int vlen = sizeof(ALNUMS)-1;
-  _max = _max || max_value;
+  _max = (float)(_max || max_value);
+
+  if (_max == UNDEFINED || _max < 0.0)
+    return "";
+
   array(string) all_data = ({});
   array(string) data = ({});
 

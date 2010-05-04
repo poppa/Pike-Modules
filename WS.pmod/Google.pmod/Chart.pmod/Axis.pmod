@@ -252,8 +252,8 @@ class Style
   void create(string _color, void|int _size, void|int(-1..1) _alignment)
   {
     color            = .normalize_color(_color);
-    size             = _size;
-    alignment        = _alignment;
+    size             = _size||12;
+    alignment        = _alignment||0;
   }
 
   //! Set the color of the tick marks
@@ -319,7 +319,7 @@ class Style
   //! Getter for the tick mark length
   int get_tick_mark_length()
   {
-    werror("Get tick mark length: %d\n", tick_mark_length);
+    //werror("Get tick mark length: %d\n", tick_mark_length);
     return tick_mark_length;
   }
   

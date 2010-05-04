@@ -20,7 +20,7 @@
 #if constant(Crypto.MD5)
 # define MD5(S) String.string2hex(Crypto.MD5.hash((S)))
 #else
-# define MD5(S) Crypto.string_to_hex(Crypto.md5()->update((S))->digest());
+# define MD5(S) Crypto.string_to_hex(Crypto.md5()->update((S))->digest())
 #endif
 
 #endif /* _OAUTH_H */

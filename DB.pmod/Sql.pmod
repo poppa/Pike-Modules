@@ -238,7 +238,7 @@ class Date // {{{
 
   string get_quoted()
   {
-    if (!value && !nullable || lower_case(value) == "now()")
+    if ((!value && !nullable) || lower_case(value) == "now()")
       return "NOW()";
 
     if (search(value, "(") > -1)

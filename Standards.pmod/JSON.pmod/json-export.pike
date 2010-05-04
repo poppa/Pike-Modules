@@ -1,4 +1,4 @@
-//! @author Johan SundstrÃ¶m
+//! @author Johan Sundström
 
 //! intended for use by inheritance
 
@@ -17,6 +17,11 @@ int sort_by_size = 1;
 array(string) head = ({}); // "id,uri,url,title,version,$t" / ",";
 array(string) tail = ({}); // "link,feed,entry"/",";
 
+// Addition by Pontus Östlund
+#define ESCAPE_STRING(S) \
+  replace((S),({ "\\", "\"", "\0", "\n", "\r" }), \
+              ({ "\\\\", "\\\"", "\\0", "\\n", "\\r" }))
+  
 //! encode @[data] into JSON form
 string encode_json( mixed data, int|void level, string|void jsonp )
 {
@@ -38,7 +43,7 @@ string encode_json( mixed data, int|void level, string|void jsonp )
       return (has_suffix( res, "." ) ? res + "0" : res) + end;
 
     case "string":
-      return sprintf( "%s%O%s", res, data, end );
+      return sprintf( "%s\"%s\"%s", res, ESCAPE_STRING(data||""), end );
 
     case "mapping":
       array(string) ind = indices( data );
