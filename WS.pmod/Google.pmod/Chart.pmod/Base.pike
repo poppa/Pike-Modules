@@ -1,7 +1,7 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! @b{Google Chart Base class@}
 //!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//! Copyright Â© 2009, Pontus Ã–stlund - @url{www.poppa.se@}
 //!
 //! Base class for all types of charts
 //!

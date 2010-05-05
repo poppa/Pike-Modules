@@ -1,7 +1,7 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! @b{Google Analytics@}
 //!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
+//! Copyright Â© 2010, Pontus Ã–stlund - @url{http://www.poppa.se@}
 //!
 //! @pre{@b{License GNU GPL version 3@}
 //!
