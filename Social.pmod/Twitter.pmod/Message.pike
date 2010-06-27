@@ -1,26 +1,23 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{[PROG-NAME]@}
-//!
 //! Class representing a Twitter message (or @tt{status@} as the XML nodes
 //! are called).
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! [PROG-NAME].pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! [MODULE-NAME].pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with [PROG-NAME].pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Message.pike is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Message.pike is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Message.pike. If not, see <http://www.gnu.org/licenses/>.
 
 #include "twitter.h"
 import ".";
@@ -60,26 +57,26 @@ public Message retweeted_status;
 //! The time and date when the message was created
 public Calendar.Second created_at = Calendar.now();
 
-//! Handles the @tt{created_at@} node. Turns the date into a 
-//! @[Calendar.Second] object. 
-//!
-//! @note
-//!  This method is called from the constructor of @[XmlMapper] and should 
-//!  be considered private.
-//!
-//! @param n
+// Handles the @tt{created_at@} node. Turns the date into a 
+// @[Calendar.Second] object. 
+//
+// @note
+//  This method is called from the constructor of @[XmlMapper] and should 
+//  be considered private.
+//
+// @param n
 public void handle_created_at(Node n)
 {
   created_at = parse_date(n->value_of_node());
 }
 
-//! Handles the @tt{user@} node. Turns the date into a @[User] object. 
-//!
-//! @note
-//!  This method is called from the constructor of @[XmlMapper] and should 
-//!  be considered private.
-//!
-//! @param n
+// Handles the @tt{user@} node. Turns the date into a @[User] object. 
+//
+// @note
+//  This method is called from the constructor of @[XmlMapper] and should 
+//  be considered private.
+//
+// @param n
 public void handle_user(Node n)
 {
   user = User(n);

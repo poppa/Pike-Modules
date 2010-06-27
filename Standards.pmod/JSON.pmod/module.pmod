@@ -1,5 +1,9 @@
 //! JSON encoding/decoding module
-//! See README.
+//|
+//| By Johan Sundström
+//| Additions by Pontus Östlund
+//|
+//| See README.
 
 //! Decode JSON data into Pike type
 //!

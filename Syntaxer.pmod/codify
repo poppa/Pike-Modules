@@ -1,13 +1,12 @@
-#!/usr/bin/pike
-
+#!/usr/bin/env pike
 //| ============================================================================
 //|
 //| codify
 //|
 //| Author:
 //|
-//|   Pontus Östlund <pontus@poppa.se>
-//|   Copyright © 2008
+//|   Pontus Ã–stlund <pontus@poppa.se>
+//|   Copyright (C) 2008
 //|
 //| Description:
 //|
@@ -70,19 +69,19 @@
 #define CWERROR(args...) werror(clrcli(args))
 
 // Make sure you have the module Syntaxer.pmod in your module path
-import ".";
+import Syntaxer;
 
 constant html_template = #"
 <html>
   <head>
     <style type='text/css'>
     BODY { font: 80%%/120%% verdana, sans-serif; }
-    OL LI { font: 11.5/100%% monospace }
+    OL LI { font: 11.5px/100%% monospace }
     </style>
   </head>
   <body>
     <h1>%s</h1>
-    <p><strong>%d</strong> lines of <strong>%s</strong> code</strong></p>
+    <p><strong>%d</strong> lines of <strong>%s</strong> code</p>
     <ol>%s</ol>
   </body>
 </html>";

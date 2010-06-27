@@ -1,6 +1,4 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{[PROG-NAME]@}
-//!
 //! This class maps an XML tree onto an inheriting class. Object members that
 //! have a corresponding XML node in the tree will get their values from the
 //! XML node. To handle child nodes - or nodes that should be mapped to anything
@@ -11,23 +9,23 @@
 //!
 //! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
 //!
-//! @pre{@b{License GNU GPL version 3@}
+//! License GNU GPL version 3
 //!
-//! [PROG-NAME].pmod is free software: you can redistribute it and/or modify
+//! XmlMapper.pike is free software: you can redistribute it and/or modify
 //! it under the terms of the GNU General Public License as published by
 //! the Free Software Foundation, either version 3 of the License, or
 //! (at your option) any later version.
 //!
-//! [MODULE-NAME].pike is distributed in the hope that it will be useful,
+//! XmlMapper.pike is distributed in the hope that it will be useful,
 //! but WITHOUT ANY WARRANTY; without even the implied warranty of
 //! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //! GNU General Public License for more details.
 //!
 //! You should have received a copy of the GNU General Public License
-//! along with [PROG-NAME].pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! along with XmlMapper.pike. If not, see <http://www.gnu.org/licenses/>.
 
 #include "twitter.h"
+
 import Parser.XML.Tree;
 
 //! Creates a new instance of @[XmlMapper]

@@ -1,3 +1,5 @@
+//! SOAP encoding module
+
 import Standards.XML.Namespace;
 
 constant PIKE_STRING    = 1<<0;

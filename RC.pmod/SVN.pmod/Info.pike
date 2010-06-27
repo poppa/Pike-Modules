@@ -1,15 +1,13 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{RC.SVN.Info@}
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
 //! This module executes the @tt{svn info@} command.
+//|
+//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
 //|
 //| ============================================================================
 //|
 //|     GNU GPL version 3
 //|
-//! ============================================================================
+//| ============================================================================
 //|
 //| This file is part of SVN.pmod
 //|
@@ -35,6 +33,10 @@ protected string url;
 protected string root;
 protected string uuid;
 
+//! Creates a new @[Info] object
+//!
+//! @param path
+//! @param revision
 void create(string path, void|int revision)
 {
   ::create(revision, path);
@@ -42,26 +44,31 @@ void create(string path, void|int revision)
   s && ::parse_xml(s);
 }
 
+//! Returns the file type
 string get_type()
 {
   return type;
 }
 
+//! Returns the URL of the file
 string get_url()
 {
   return url;
 }
 
+//! Returns the root of the file
 string get_root()
 {
   return root;
 }
 
+//! Returns the @tt{uuid@} of the file
 string get_uuid()
 {
   return uuid;
 }
 
+// Callback for the entry node
 void _handle_entry(Node n)
 {
   revision = (int)n->get_attributes()["revision"];
@@ -69,22 +76,27 @@ void _handle_entry(Node n)
   ::parse_xml(n);
 }
 
+// Callback for the url node
 void _handle_url(Node n)
 {
   url = n->value_of_node();
 }
 
+// Callback for the repository node
 void _handle_repository(Node n)
 {
   ::parse_xml(n);
 }
 
+// Callback for the root node
 void _handle_root(Node n)
 {
   root = n->value_of_node();
 }
 
+// Callback for the uuid node
 void _handle_uuid(Node n)
 {
   uuid = n->value_of_node();
 }
+

@@ -1,26 +1,23 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Authentication.pike@}
-//!
 //! This class represents a successful authentication returned from an OpenID
 //! provider.
-//! 
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Authentication.pike is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Authentication.pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License along 
-//! with Authentication.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//| 
+//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Authentication.pike is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Authentication.pike is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License along 
+//| with Authentication.pike. If not, see <http://www.gnu.org/licenses/>.
 
 private string identity;
 private string email;
@@ -53,6 +50,8 @@ string get_email()
 }
 
 //! Sets the email of the authentication
+//!
+//! @param _email
 void set_email(string _email)
 {
   email = _email;
@@ -137,6 +136,9 @@ string encode_cookie()
 
 //! Populates the object from a cookie created with @[encode_cookie()]
 //!
+//! @seealso
+//!  @[from_mapping()]
+//!
 //! @param cookie
 object_program decode_cookie(string cookie)
 {
@@ -148,7 +150,7 @@ object_program decode_cookie(string cookie)
 //! @param m
 //!
 //! @returns
-//!  The instance of self
+//!  The object being called
 object_program from_mapping(mapping m)
 {
   mixed e = catch {
@@ -173,6 +175,18 @@ object_program from_mapping(mapping m)
 //! Casting method. Only supports mapping
 //!
 //! @param how
+//!
+//! @returns
+//!  A mapping with the following members
+//!  @mapping
+//!   @member string "identity"
+//!   @member string "gender"
+//!   @member string "language"
+//!   @member string "email"
+//!   @member string "fullname"
+//!   @member string "firstname"
+//!   @member string "lastname"
+//!  @endmapping
 mixed cast(string how)
 {
   if (how == "mapping")
@@ -182,6 +196,9 @@ mixed cast(string how)
 }
 
 //! Turns the object members into a mapping
+//!
+//! @seealso
+//!  @[cast()]
 mapping to_mapping()
 {
   return ([

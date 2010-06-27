@@ -1,23 +1,22 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{[PROG-NAME]@}
+//! Wiki parser
 //!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
+//! Copyright © 2010, Pontus Östlund - www.poppa.se
 //!
-//! @pre{@b{License GNU GPL version 3@}
+//! License GNU GPL version 3
 //!
-//! [PROG-NAME].pmod is free software: you can redistribute it and/or modify
+//! Parser.pike is free software: you can redistribute it and/or modify
 //! it under the terms of the GNU General Public License as published by
 //! the Free Software Foundation, either version 3 of the License, or
 //! (at your option) any later version.
 //!
-//! [MODULE-NAME].pike is distributed in the hope that it will be useful,
+//! Parser.pike is distributed in the hope that it will be useful,
 //! but WITHOUT ANY WARRANTY; without even the implied warranty of
 //! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //! GNU General Public License for more details.
 //!
 //! You should have received a copy of the GNU General Public License
-//! along with [PROG-NAME].pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! along with Parser.pike. If not, see <http://www.gnu.org/licenses/>.
 
 #define TRIM String.trim_all_whites
 #define TRACE(X...) werror(X)
@@ -43,39 +42,39 @@ private mapping(string:string) simple_patterns = ([
 
 private mapping(PCRE_SW:string) simple_re_patterns;
 
-//! Regexp template for simple patterns. Used in the constructor when 
-//! settings up the regexp for the simple stuff. Will look like:
-//!
-//! "//(.+)//", "\\*\\*(.+)\\*\\*"
-//! @note
-//!  This is a bit sloppy. 
+// Regexp template for simple patterns. Used in the constructor when 
+// settings up the regexp for the simple stuff. Will look like:
+//
+// "//(.+)//", "\\*\\*(.+)\\*\\*"
+// @note
+//  This is a bit sloppy. 
 private string simple_re_template = "%s(.+)%[0]s";
 
 private PCRE_SW re_em = Regexp.PCRE("[^:]//(.+)[^:]//", PCRE_OPT.UNGREEDY);
 
-//! Regexp matching links, like: [/my/path/|Link description]
+// Regexp matching links, like: [/my/path/|Link description]
 private PCRE_SW re_link = Regexp.PCRE("\\\[(.[^\\\]]*)(\\\|(.*))*\\\]",
                                       PCRE_OPT.UNGREEDY);
 
-//! Regexp matching images, like: [img:/my/path/|attr]
+// Regexp matching images, like: [img:/my/path/|attr]
 private PCRE_SW re_img = Regexp.PCRE("\\\[img:(.[^\\\]]*)(\\\|(.*))*\\\]",
                                      PCRE_OPT.UNGREEDY);
 
-//! Regexp matching wiki page link, like: [wiki:WikiWord]
+// Regexp matching wiki page link, like: [wiki:WikiWord]
 private PCRE_SW re_wiki = Regexp.PCRE("\\\[wiki:(.[^\\\]]*)((.*))*\\\]",
                                       PCRE_OPT.UNGREEDY);
 
-//! Regexp matching code blocks, like: {{{ my code }}}
+// Regexp matching code blocks, like: {{{ my code }}}
 private PCRE_SW re_code = Regexp.PCRE("\\\{\\\{\\\{(.+)\\\}\\\}\\\}",
                                       PCRE_OPT.UNGREEDY|PCRE_OPT.DOTALL);
 
-//! Regexp matching headers, like: = Header 1, == Header 2
+// Regexp matching headers, like: = Header 1, == Header 2
 private PCRE_SW re_headers = Regexp.PCRE("^[=]+.*$", PCRE_OPT.MULTILINE);
 
-//! Macro regexp, like: [[BR]], [[Date]]
+// Macro regexp, like: [[BR]], [[Date]]
 private PCRE_SW re_macro = Regexp.PCRE("\\\[\\\[(.*)\\]\\]", PCRE_OPT.UNGREEDY);
 
-//! HR regexp
+// HR regexp
 private PCRE_SW re_hr = Regexp.PCRE("\n[-]{4,}\n");
 
 private mapping(PCRE_SW:function) re_dynamic = ([]);
@@ -91,7 +90,13 @@ private mapping             hiliters    = ([]);
 private mapping             wiki_words  = ([]);
 private string              wiki_root   = "";
 
-public void create(void|string _wiki_root, void|mapping _wiki_words)
+//! Creates a new Wiki @[Parser] object
+//!
+//! @param _wiki_root
+//!  Root path of the wiki
+//! @param _wiki_words
+//!  Known wiki words
+void create(void|string _wiki_root, void|mapping _wiki_words)
 {
   wiki_root  = _wiki_root||wiki_root;
   wiki_words = _wiki_words||wiki_words;
@@ -105,7 +110,10 @@ public void create(void|string _wiki_root, void|mapping _wiki_words)
   }
 }
 
-public void add_wiki_word(string|mapping word)
+//! Adds a wiki word or a mapping of wiki words
+//!
+//! @param word
+void add_wiki_word(string|mapping word)
 {
   if (stringp(word))
     wiki_words[word] = 1;
@@ -113,7 +121,10 @@ public void add_wiki_word(string|mapping word)
     wiki_words += word;
 }
 
-public void remove_wiki_word(string|mapping word)
+//! Remove one or many wiki words
+//!
+//! @param word
+void remove_wiki_word(string|mapping word)
 {
   if (stringp(word))
     m_delete(wiki_words, word);
@@ -122,32 +133,49 @@ public void remove_wiki_word(string|mapping word)
       m_delete(wiki_words, word);
 }
 
-public void add_regexp(Regexp.PCRE.StudiedWidestring re, function callback)
+//! Add a regexp to the wiki parser
+//!
+//! @param re
+//! @param callback
+//!  The function to call upon a regexp match.
+void add_regexp(Regexp.PCRE.StudiedWidestring re, function callback)
 {
   re_dynamic[re] = callback;
 }
 
-public void add_macro(string name, mixed todo)
+//! Add macro to the parser
+//!
+//! @param name
+//!  What the macro should match
+//! @param todo
+//!  What to do upon match
+void add_macro(string name, mixed todo)
 {
   macros[name] = todo;
 }
 
-public string get_replace_block()
+//! Returns a replacepment string for block items
+string get_replace_block()
 {
   return REPLACE;
 }
 
-public string get_replace_inline()
+//! Returns a replacement string for inline items
+string get_replace_inline()
 {
   return REPLACE2;
 }
 
-public string get_wiki_root()
+//! Returns the wiki root
+string get_wiki_root()
 {
   return wiki_root;
 }
 
-public string parse(string text)
+//! Parse the @[text]
+//!
+//! @param text
+string parse(string text)
 {
   text = normalize_lines(TRIM((text-"\r"))/"\n")*"\n";
   text = re_code->replace(text, code_callback);

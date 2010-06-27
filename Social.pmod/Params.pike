@@ -1,25 +1,26 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{[PROG-NAME]@}
-//!
 //! Parameter collection class
 //!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! [PROG-NAME].pike is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! [PROG-NAME].pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with [PROG-NAME].pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! @seealso
+//!  @[Param]
+//|
+//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Params.pike is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Params.pike is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Params.pike. If not, see <http://www.gnu.org/licenses/>.
+
 #include "social.h"
 #define Self Social.Params
 
@@ -29,6 +30,7 @@ protected array(.Param) params;
 //! Creates a new instance of @[Params]
 //!
 //! @param args
+//!  Arbitrary number of arguments.
 void create(.Param ... args)
 {
   params = args||({});
@@ -88,10 +90,11 @@ Self add_mapping(mapping value)
 //! Add @[p] to the array of @[Param]eters
 //!
 //! @param p
+//!  Either a @[Param] or @[Params] object.
 //!
 //! @returns
 //!  A new @[Params] object
-Self `+(.Param|Self p)
+object_program `+(.Param|object_program p)
 {
   Self pp = object_program(this)(@params);
   pp += p;
@@ -102,7 +105,8 @@ Self `+(.Param|Self p)
 //! Append @[p] to the @[Param]eters array of the current object
 //!
 //! @param p
-Self `+=(.Param|Self p)
+//!  Either a @[Param] or @[Params] object.
+object_program `+=(.Param|object_program p)
 {
   if (INSTANCE_OF(p, this))
     params += p->get_params();
@@ -110,6 +114,10 @@ Self `+=(.Param|Self p)
     params += ({ p });
 }
 
+//! Index lookup
+//!
+//! @param key
+//!  The name of a @[Param]erter to find.
 .Param `[](string key)
 {
   foreach (params, .Param p)
@@ -118,7 +126,7 @@ Self `+=(.Param|Self p)
 }
 
 //! Clone the current instance
-Self clone()
+object_program clone()
 {
   return object_program(this)(@params);
 }

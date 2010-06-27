@@ -1,23 +1,22 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Facebook module@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Facebook.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Facebook.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Facebook.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! A Facebook connect module
+//|
+//| Copyright © 2009, Pontus Östlund - http://www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Facebook.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Facebook.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Facebook.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 #define FB_DEBUG
 #include "facebook.h"
@@ -116,6 +115,7 @@ class Api
   //! @param _key
   //! @param _secret
   //! @param gen_sess
+  //!  Whether or not to generate a session secret
   void create(string _key, string _secret, void|int(0..1) gen_sess)
   {
     key = _key;
@@ -180,6 +180,8 @@ class Api
   }
 
   //! Setter for the extended permissions
+  //!
+  //! @param permissions
   void set_perms(array(string) permissions)
   {
     perms = permissions;
@@ -209,7 +211,8 @@ class Api
   //! @param _format
   //!
   //! @throws
-  //!  An exception if format is other than XML or JSON
+  //!  An exception if format is other than @tt{FORMAT_XML@} or
+  //!  @tt{FORMAT_JSON@}.
   void set_format(string _format)
   {
     if ( !(< FORMAT_XML, FORMAT_JSON >)[_format] ) {
@@ -230,7 +233,6 @@ class Api
   //!
   //! @param next
   //!  The URL the loginpage at FB should redirect back to
-  //! @param canvas
   string get_login_url(void|Params extra_params)
   {
     string u = get_facebook_url() + "/login.php";
@@ -252,10 +254,12 @@ class Api
   //!
   //! @param auth_token
   //!  Either from login callback or @[auth_create_token()]
+  //! @param gen_sess_secret
   Response auth_get_session(string auth_token, void|int(0..1) gen_sess_secret)
   {
     Params pp = Params(Param("auth_token", auth_token),
-                       Param("generate_session_secret", gen_sess_secret));
+                       Param("generate_session_secret",
+                             gen_sess_secret||generate_session_secret));
 
     return call("auth.getSession", pp, 0, 1);
   }
@@ -266,7 +270,7 @@ class Api
   //! If the invalidation is successful, this will return true.
   //!
   //! @seealso
-  //!  http://wiki.developers.facebook.com/index.php/Auth.expireSession
+  //!  @url{http://wiki.developers.facebook.com/index.php/Auth.expireSession@}
   Response expire_session()
   {
     string sk = session_key;
@@ -279,7 +283,8 @@ class Api
   //! application again.
   //!
   //! @seealso
-  //!  http://wiki.developers.facebook.com/index.php/Auth.revokeAuthorization
+  //!  @url{http://wiki.developers.facebook.com/index.php/@
+  //!Auth.revokeAuthorization@}
   Response revoke_authorization()
   {
     return call("auth.revokeAuthorization");
@@ -289,7 +294,7 @@ class Api
   //! identifier passed, limited by the view of the current user.
   //!
   //! @seealso
-  //!  http://wiki.developers.facebook.com/index.php/Users.getInfo
+  //!  @url{http://wiki.developers.facebook.com/index.php/Users.getInfo@}
   //!
   //! @throws
   //!  An error if no session is available and no @[uids] is give
@@ -328,7 +333,7 @@ class Api
   //! Updates a user's Facebook status.
   //!
   //! @seealso
-  //!  http://wiki.developers.facebook.com/index.php/Users.setStatus
+  //!  @url{http://wiki.developers.facebook.com/index.php/Users.setStatus@}
   //!
   //! @param status
   //!  The status message to set.
@@ -523,6 +528,7 @@ class Params
   //! Creates a new instance of @[Params]
   //!
   //! @param args
+  //!  Arbitrary number of @[Param] objects.
   void create(Param ... args)
   {
     ::create(@args);

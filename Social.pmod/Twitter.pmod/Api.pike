@@ -1,27 +1,25 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{[PROG-NAME]@}
-//!
 //! The main Twitter object from which all Twitter actions take place.
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! [PROG-NAME].pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! [MODULE-NAME].pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with [PROG-NAME].pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
+//|
+//| License GNU GPL version 3
+//|
+//| Api.pike is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Api.pike.pike is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with [PROG-NAME].pike. If not, see <http://www.gnu.org/licenses/>.
 
 #include "twitter.h"
+
 import ".";
 import Security.OAuth;
 import Parser.XML.Tree;
@@ -35,11 +33,11 @@ private Token token;
 //! Is the current instance authenticated or not
 protected int(0..1) is_authenticated = 0;
 
-//! Creates a new Twitter.Api object
+//! Creates a new @[Api] object
 //!
 //! @param _consumer
 //! @param _token
-public void create(void|Consumer _consumer, void|Token _token)
+void create(void|Consumer _consumer, void|Token _token)
 {
   consumer = _consumer;
   token = _token;
@@ -51,34 +49,34 @@ public void create(void|Consumer _consumer, void|Token _token)
 //!  Either a valid @[Token] object, or a token key. If a key @[secret] is
 //!  required.
 //! @param secret
-public void set_token(Token|string _token, void|string secret)
+void set_token(Token|string _token, void|string secret)
 {
   if (objectp(_token))
     token = _token;
-  else 
+  else
     token = Token(_token, secret);
 }
 
-//! Returns the @[Token] object, 
-public Token get_token()
+//! Returns the @[Token] object of this instance.
+Token get_token()
 {
   return token;
 }
 
-//! Set if the user is authenticated or not. This gets set in 
+//! Set if the user is authenticated or not. This gets set in
 //! @[verify_credentials()] but for web apps to call that method for every
 //! page access will slow it down considerably so if you know the user is
-//! authenticated you can verify that by calling this method with 
+//! authenticated you can verify that by calling this method with
 //! @[ok] set to @tt{1@}.
 //!
 //! @param ok
-public void set_is_authenticated(int(0..1) ok)
+void set_is_authenticated(int(0..1) ok)
 {
   is_authenticated = ok;
 }
 
 //! Fetches a request token
-public Token get_request_token()
+Token get_request_token()
 {
   string ctoken = call(request_token_url);
   mapping res = ctoken && (mapping)query_to_params(ctoken);
@@ -105,17 +103,17 @@ Token get_access_token(void|string oauth_verifier)
 }
 
 //! Returns the authorization URL.
-public final string get_auth_url()
+final string get_auth_url()
 {
-  if (!token || !token->key || !token->secret) 
+  if (!token || !token->key || !token->secret)
     get_request_token();
 
-  return sprintf("%s?%s=%s", user_auth_url, TOKEN_KEY, 
+  return sprintf("%s?%s=%s", user_auth_url, TOKEN_KEY,
 		 (token&&token->key)||"");
 }
 
 //! Use this method to test if supplied user credentials are valid.
-public User verify_credentials()
+User verify_credentials()
 {
   mixed e = catch {
     string resp = call(TURL("account/verify_credentials"));
@@ -127,15 +125,15 @@ public User verify_credentials()
   return 0;
 }
 
-//! Updates the authenticating user's status. Requires the status parameter 
-//! specified below. A status update with text identical to the 
-//! authenticating user's current status will be ignored to prevent 
+//! Updates the authenticating user's status. Requires the status parameter
+//! specified below. A status update with text identical to the
+//! authenticating user's current status will be ignored to prevent
 //! duplicates.
 //!
 //! @param status
 //! @param params
 //!  If replying add @tt{in_reply_to_status_id@} to the @[params] mapping
-public Message update_status(string status, void|mapping params)
+Message update_status(string status, void|mapping params)
 {
   ASSERT_AUTHED("update_status()");
   if (!params) params = ([]);
@@ -144,12 +142,12 @@ public Message update_status(string status, void|mapping params)
   return parse_message_xml(resp);
 }
 
-//! Retweets a tweet. Returns the original tweet with retweet details 
+//! Retweets a tweet. Returns the original tweet with retweet details
 //! embedded.
 //!
 //! @param status_id
 //!  The ID of the message being retweeted
-public Message retweet(string|int status_id)
+Message retweet(string|int status_id)
 {
   ASSERT_AUTHED("retweet()");
   string url = sprintf(retweet_status_url, (string)status_id);
@@ -157,46 +155,48 @@ public Message retweet(string|int status_id)
   return parse_message_xml(resp);
 }
 
-//! Returns the 20 most recent statuses from non-protected users who have set 
+//! Returns the 20 most recent statuses from non-protected users who have set
 //! a custom user icon.
 //!
 //! @seealso
-//!  @url{http://apiwiki.twitter.com/Twitter-REST-API-Method%3A-statuses-public_timeline@}
-public array(Message) get_public_timeline()
+//!  @url{http://apiwiki.twitter.com/Twitter-REST-API-Method%3A-statuses-@
+//!public_timeline@}
+array(Message) get_public_timeline()
 {
   string resp = call(public_timeline_url, 0);
   return parse_status_xml(resp);
 }
 
-//! Returns the 20 most recent statuses, including retweets, posted by the 
-//! authenticating user and that user's friends. This is the equivalent of 
+//! Returns the 20 most recent statuses, including retweets, posted by the
+//! authenticating user and that user's friends. This is the equivalent of
 //! @tt{/timeline/home@} on the Web.
 //!
-//! Usage note: This home_timeline is identical to statuses/friends_timeline 
-//! except it also contains retweets, which statuses/friends_timeline does 
-//! not (for backwards compatibility reasons). In a future version of the 
-//! API, statuses/friends_timeline will go away and be replaced by 
+//! Usage note: This home_timeline is identical to statuses/friends_timeline
+//! except it also contains retweets, which statuses/friends_timeline does
+//! not (for backwards compatibility reasons). In a future version of the
+//! API, statuses/friends_timeline will go away and be replaced by
 //! home_timeline.
 //!
 //! @seealso
-//!  @url{http://apiwiki.twitter.com/Twitter-REST-API-Method%3A-statuses-home_timeline@}
+//!  @url{http://apiwiki.twitter.com/Twitter-REST-API-Method%3A-statuses-@
+//!home_timeline@}
 //!
 //! @param params
 //!  @mapping
-//!   @member string|int "since_id"  
-//!    Optional. Returns only statuses with an ID greater than (that is, 
-//!    more recent than) the specified ID. 
-//!   @member string|int "max_id" 
-//!    Optional. Returns only statuses with an ID less than (that is, older 
+//!   @member string|int "since_id"
+//!    Optional. Returns only statuses with an ID greater than (that is,
+//!    more recent than) the specified ID.
+//!   @member string|int "max_id"
+//!    Optional. Returns only statuses with an ID less than (that is, older
 //!    than) or equal to the specified ID.
-//!   @member string|int "count" 
-//!    Optional. Specifies the number of statuses to retrieve. May not be 
+//!   @member string|int "count"
+//!    Optional. Specifies the number of statuses to retrieve. May not be
 //!    greater than @tt{200@}.
 //!   @member string|int "page"
-//!    Optional. Specifies the page of results to retrieve. Note: there are 
+//!    Optional. Specifies the page of results to retrieve. Note: there are
 //!    pagination limits.
 //!  @endmapping
-public array(Message) get_home_timeline(void|mapping params)
+array(Message) get_home_timeline(void|mapping params)
 {
   ASSERT_AUTHED("get_home_timeline()");
   string resp = call(home_timeline_url, params);
@@ -205,25 +205,25 @@ public array(Message) get_home_timeline(void|mapping params)
   return sizeof(resp) && parse_status_xml(resp) || ({});
 }
 
-//! Returns the 20 most recent mentions (status containing (at)username) for 
+//! Returns the 20 most recent mentions (status containing (at)username) for
 //! the authenticating user
 //!
 //! @param params
 //!  @mapping
-//!   @member string|int "since_id"  
-//!    Optional. Returns only statuses with an ID greater than (that is, 
-//!    more recent than) the specified ID. 
-//!   @member string|int "max_id" 
-//!    Optional. Returns only statuses with an ID less than (that is, older 
+//!   @member string|int "since_id"
+//!    Optional. Returns only statuses with an ID greater than (that is,
+//!    more recent than) the specified ID.
+//!   @member string|int "max_id"
+//!    Optional. Returns only statuses with an ID less than (that is, older
 //!    than) or equal to the specified ID.
-//!   @member string|int "count" 
-//!    Optional. Specifies the number of statuses to retrieve. May not be 
+//!   @member string|int "count"
+//!    Optional. Specifies the number of statuses to retrieve. May not be
 //!    greater than @tt{200@}.
 //!   @member string|int "page"
-//!    Optional. Specifies the page of results to retrieve. Note: there are 
+//!    Optional. Specifies the page of results to retrieve. Note: there are
 //!    pagination limits.
 //!  @endmapping
-public array(Message) get_mentions(void|mapping params)
+array(Message) get_mentions(void|mapping params)
 {
   string resp = call(mentions_url, params);
   return parse_status_xml(resp);
@@ -233,45 +233,45 @@ public array(Message) get_mentions(void|mapping params)
 //!
 //! @param params
 //!  @mapping
-//!   @member string|int "since_id"  
-//!    Optional. Returns only statuses with an ID greater than (that is, 
-//!    more recent than) the specified ID. 
-//!   @member string|int "max_id" 
-//!    Optional. Returns only statuses with an ID less than (that is, older 
+//!   @member string|int "since_id"
+//!    Optional. Returns only statuses with an ID greater than (that is,
+//!    more recent than) the specified ID.
+//!   @member string|int "max_id"
+//!    Optional. Returns only statuses with an ID less than (that is, older
 //!    than) or equal to the specified ID.
-//!   @member string|int "count" 
-//!    Optional. Specifies the number of statuses to retrieve. May not be 
+//!   @member string|int "count"
+//!    Optional. Specifies the number of statuses to retrieve. May not be
 //!    greater than @tt{200@}.
 //!   @member string|int "page"
-//!    Optional. Specifies the page of results to retrieve. Note: there are 
+//!    Optional. Specifies the page of results to retrieve. Note: there are
 //!    pagination limits.
 //!  @endmapping
-public array(Message) get_retweeted_by_me(void|mapping params)
+array(Message) get_retweeted_by_me(void|mapping params)
 {
   string resp = call(retweeted_by_me_url, params);
   return parse_status_xml(resp);
 }
 
-//! Returns a list of the 20 most recent direct messages sent to the 
-//! authenticating user. The XML and JSON versions include detailed 
+//! Returns a list of the 20 most recent direct messages sent to the
+//! authenticating user. The XML and JSON versions include detailed
 //! information about the sending and recipient users.
-//! 
+//!
 //! @param params
 //!  @mapping
 //!   @member string|int "since_id"
-//!    Optional. Returns only statuses with an ID greater than (that is, 
+//!    Optional. Returns only statuses with an ID greater than (that is,
 //!    more recent than) the specified ID.
 //!   @member string|int "max_id"
-//!    Optional. Returns only statuses with an ID less than (that is, older 
+//!    Optional. Returns only statuses with an ID less than (that is, older
 //!    than) or equal to the specified ID.
 //!   @member string|int "count"
-//!    Optional. Specifies the number of statuses to retrieve. May not be 
+//!    Optional. Specifies the number of statuses to retrieve. May not be
 //!    greater than @tt{200@}.
 //!   @member string|int "page"
-//!    Optional. Specifies the page of results to retrieve. Note: there are 
+//!    Optional. Specifies the page of results to retrieve. Note: there are
 //!    pagination limits.
 //!  @endmapping
-public array(DirectMessage) get_direct_messages(void|mapping params)
+array(DirectMessage) get_direct_messages(void|mapping params)
 {
   ASSERT_AUTHED("get_direct_messages()");
   string resp = call(TURL("direct_messages"), params);
@@ -290,8 +290,8 @@ public array(DirectMessage) get_direct_messages(void|mapping params)
 //!  Arguments to send with the request
 //! @param mehod
 //!  The HTTP method to use
-public string call(string|Standards.URI url, void|mapping|Params args,
-		   void|string method)
+string call(string|Standards.URI url, void|mapping|Params args,
+            void|string method)
 {
   method = normalize_method(method);
 
@@ -325,16 +325,16 @@ protected string normalize_method(string method)
   return method;
 }
 
-//! Parses an XML response from the Twitter API method returning 
+//! Parses an XML response from the Twitter API method returning
 //! @tt{statuses@} as the root node
 //!
 //! @param xml
 //!  The raw response from @[call()].
-public array(Message) parse_status_xml(string xml)
+array(Message) parse_status_xml(string xml)
 {
   array(Message) list = ({});
   if (Node root = get_xml_root(xml)) {
-    if (root->get_tag_name() != "statuses") 
+    if (root->get_tag_name() != "statuses")
       error("Name of root node in XML is not \"statuses\"! ");
 
     foreach (root->get_children(), Node status)
@@ -345,16 +345,16 @@ public array(Message) parse_status_xml(string xml)
   return list;
 }
 
-//! Parses an XML response from the Twitter API method returning 
+//! Parses an XML response from the Twitter API method returning
 //! @tt{direct-messages@} as the root node
 //!
 //! @param xml
 //!  The raw response from @[call()].
-public array(DirectMessage) parse_direct_messages_xml(string xml)
+array(DirectMessage) parse_direct_messages_xml(string xml)
 {
   array(DirectMessage) list = ({});
   if (Node root = get_xml_root(xml)) {
-    if (root->get_tag_name() != "direct-messages") 
+    if (root->get_tag_name() != "direct-messages")
       error("Name of root node in XML is not \"direct-messages\"! ");
 
     foreach (root->get_children(), Node node)
@@ -365,12 +365,12 @@ public array(DirectMessage) parse_direct_messages_xml(string xml)
   return list;
 }
 
-//! Parses an XML response from the Twitter API method returning 
+//! Parses an XML response from the Twitter API method returning
 //! @tt{status@} as the root node, wich is the same as a message
 //!
 //! @param xml
 //!  The raw response from @[call()].
-public Message parse_message_xml(string xml)
+Message parse_message_xml(string xml)
 {
   Message m;
   if (Node root = get_xml_root(xml)) {
@@ -383,12 +383,12 @@ public Message parse_message_xml(string xml)
   return m;
 }
 
-//! Parses an XML response from the Twitter API method returning 
+//! Parses an XML response from the Twitter API method returning
 //! @tt{user@} as the root node
 //!
 //! @param xml
 //!  The raw response from @[call()].
-public User parse_user_xml(string xml)
+User parse_user_xml(string xml)
 {
   User user;
   if (Node root = get_xml_root(xml)) {

@@ -1,27 +1,24 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Standards.WSDL.PortType@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
 //! This class represents a schema node of a WSDL document
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Schema.pike is part of WSDL.pmod
-//!
-//! WSDL.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! WSDL.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with WSDL.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Schema.pike is part of WSDL.pmod
+//|
+//| WSDL.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| WSDL.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with WSDL.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 #include "wsdl.h"
 
@@ -40,16 +37,16 @@ string element_form_default;
 string attribute_form_default;
 
 //! Complex types
-array  complex_types = ({});
+array complex_types = ({});
 
 //! Simple types
-array  simple_types = ({});
+array simple_types = ({});
 
 //! Elements
-array  elements = ({});
+array elements = ({});
 
 //! Imports
-array  imports = ({});
+array imports = ({});
 
 //! Returns the type with name @[name]
 object get_element(string name)
@@ -70,7 +67,7 @@ array(object) get_all_elements()
 
 //! Decodes the schema node
 //!
-//! TODO: Handle @tt{<import/>} nodes.
+//! TODO: Handle @tt{<import/>@} nodes.
 protected void decode(Node n)
 {
   mapping a = n->get_attributes();

@@ -1,5 +1,8 @@
 //! Generic syntax highlighting
 //!
+//! To add support for a new language just inherit the Hilite class and see
+//! how the other extensions are made.
+//|
 //| This is in part a Pike port of my generic styntax highlighting script
 //| Syntaxer [http://plib.poppa.se/doc/index.php?__plibmodule=Parser.Syntaxer
 //| .Syntaxer] written in PHP.
@@ -9,30 +12,31 @@
 //| isn't as a dynamic language like PHP I decided to skip that path for this
 //| solution.
 //|
-//! To add support for a new language just inherit the Hilite class and see
-//! how the other extensions are made.
-//!
 //| ============================================================================
 //|
-//! author:  Pontus Östlund <pontus@poppa.se>
-//! date:    2007-04-22, 2007-05-20, 2008-09-10
-//! license: GPL License 2
-//! version: 0.2
+//| author:  Pontus Östlund <pontus@poppa.se>
+//| date:    2007-04-22, 2007-05-20, 2008-09-10
+//| license: GPL License 2
+//| version: 0.2
 //|
-//! @todo:
-//!
-//!   o Documentation!
-//!     Since most stuff is ported from my PHP version it's already
-//!     documented, it's just a matter of cut and paste.
-//!
-//!     The HTMLParser class, which is not ported from the PHP version, needs
-//!     some documentation though.
+//| todo:
+//|
+//|   o Documentation!
+//|     Since most stuff is ported from my PHP version it's already
+//|     documented, it's just a matter of cut and paste.
+//|
+//|     The HTMLParser class, which is not ported from the PHP version, needs
+//|     some documentation though.
 //|
 //| Tab width:    8
 //| Indent width: 2
 
 #include "syntaxer.h"
 
+//! Returns a parser object for @[type] which can be a file extension name
+//! or an alias for a supported language
+//!
+//! @param type
 .Hilite get_parser(string type)
 {
   .Hilite o;

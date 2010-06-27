@@ -1,23 +1,22 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{QName class@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! QName.pike is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! QName.pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with QName.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! QName class
+//|
+//| Copyright © 2009, Pontus Östlund - http://www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| QName.pike is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| QName.pike is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with QName.pike. If not, see <http://www.gnu.org/licenses/>.
 
 //! The QName namepace
 protected string namespace;
@@ -32,9 +31,9 @@ protected string prefix;
 //!
 //! @param _namespace
 //! @param _local_name
-//!  If @[_local_name] contains the namspace, e.g. @tt{{namespace}local_name@}, 
-//!  the namespace will be substracted from the @[_local_name.
-//!  If @[_local_name] contains the prefix, e.g. @tt{prefix:local_name@}, 
+//!  If @[_local_name] contains the namspace, e.g. @tt{{namespace}local_name@},
+//!  the namespace will be substracted from the @[_local_name].
+//!  If @[_local_name] contains the prefix, e.g. @tt{prefix:local_name@},
 //!  the prefix will be subtracted from the @[_local_name]
 void create(string _namespace, void|string _local_name,
             void|string _prefix)

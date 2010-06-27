@@ -1,42 +1,41 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Google Analytics@}
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Analytics.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Analytics.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Analytics.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! Module for fetching data from a Google Analytics account
+//|
+//| Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
+//|
+//| License GNU GPL version 3
+//|
+//| Analytics.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Analytics.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Analytics.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 import Parser.XML.Tree;
 
-//!
+//! The Analytics API version being used
 constant API_VERSION = "2";
 
-//!
+//! Type of account
 constant ACCOUNT_TYPE = "GOOGLE";
 
-//!
+//! Name of service
 constant SERVICE = "analytics";
 
-//!
+//! URL for login
 constant LOGIN_ENDPOINT = "https://www.google.com/accounts/ClientLogin";
 
-//!
+//! URL for fetching data
 constant DATA_ENDPOINT = "https://www.google.com/analytics/feeds/data";
 
-//!
+//! URL for getting feeds
 constant FEED_ENDPOINT = "https://www.google.com/analytics/feeds/accounts/"
                          "default";
 
@@ -57,8 +56,11 @@ class Api
   //! 
   //! @mapping
   //!  @member string "domain"
+  //!   The error domain
   //!  @member string "code"
+  //!   The error code
   //!  @member string "internalreason"
+  //!   The error description
   //! @endmapping
   protected mapping gerror;
 
@@ -93,14 +95,17 @@ class Api
   //! Fetches report data from Google Analytics
   //!
   //! @seealso
-  //!  http://code.google.com/intl/sv-SE/apis/analytics/docs/gdata/ \
-  //!  gdataReferenceDataFeed.html#dataRequest
+  //!  @url{http://code.google.com/intl/sv-SE/apis/analytics/docs/gdata/@
+  //!gdataReferenceDataFeed.html#dataRequest@}
   //!
   //! @param table_id
-  //!  The ID of the site in Google Analytics, i.e: ga:123456
+  //!  The ID of the site in Google Analytics, i.e: @tt{ga:123456@}
   //! @param params
+  //!  Mapping of parameters for the call to the API. The mapping can contain 
+  //!  the following indices
   //!  @mapping
   //!   @member string "start-date"
+  //!    ISO formatted date from when to fetch data
   //!   @member string "end-date"
   //!   @member string "dimensions"
   //!   @member string "metrics"
@@ -335,10 +340,10 @@ class DataParser
     );
   }
   
-  //! Handles the @tt{aggregates@} node in the XML document.
-  //! Consider protected, only used internally.
-  //!
-  //! @param n
+  // Handles the @tt{aggregates@} node in the XML document.
+  // Consider protected, only used internally.
+  //
+  // @param n
   void _aggregates(Node n)
   {
     foreach (n->get_children(), Node cn) {
@@ -356,10 +361,10 @@ class DataParser
     }
   }
 
-  //! Handles the @tt{entry@} nodes in the XML document.
-  //! Consider protected, only used internally.
-  //!
-  //! @param n
+  // Handles the @tt{entry@} nodes in the XML document.
+  // Consider protected, only used internally.
+  //
+  // @param n
   void _entry(Node n)
   {
     if (n->get_attributes()["gd:kind"] == "analytics#datarow") {

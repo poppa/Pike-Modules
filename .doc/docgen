@@ -141,7 +141,7 @@ mapping get_args(array(string) argv)
   
   if (!docfile) {
     infile = argv[0];
-    outfile = argv[1];
+      outfile = argv[1];
   }
 
   return ([
@@ -154,8 +154,9 @@ mapping get_args(array(string) argv)
   ]);
 }
 
-int parse(string pikefile, string outfile, string type, string name,
-           string|array parents, void|multiset my_modules)
+int(0..1) parse(string pikefile, string outfile, string type, string name,
+                string|array parents, void|multiset my_modules,
+                void|string namespace)
 {
   if (stringp(parents) && sizeof(parents))
     parents = map( parents/",", String.trim_all_whites);
@@ -164,10 +165,17 @@ int parse(string pikefile, string outfile, string type, string name,
 
   string xml;
   if (mixed e = catch(xml = 
-    Tools.AutoDoc.ProcessXML.extractXML(pikefile, 1, type, name, parents))
-  ) DIE(1, "Error extracting XML: %O\n", e);
+    Tools.AutoDoc.ProcessXML.extractXML(pikefile, 1, type, name, parents)))
+  {
+    werror("Error extracting XML for %s: %s\n", pikefile, describe_error(e));
+    return 0;
+  }
 
-  Node n = parse_input(TRIM(xml));
+  Node n;
+  if (mixed e = catch(n = parse_input(TRIM(xml)))) {
+    werror("Failed parsing XML input: %s\n", describe_error(e));
+    return 0;
+  }
 
   my_modules = my_modules || (<>); 
 
@@ -195,7 +203,7 @@ int parse(string pikefile, string outfile, string type, string name,
 	m_delete(s->get_styles(), "keywords");
 	m_delete(s->get_styles(), "keywords1");
 	mapping(string:string) clrs = s->get_colors();
-	
+
 	foreach (clrs; string ckey; string cval)
 	  clrs[ckey] = my_colors[ckey];
 
@@ -234,12 +242,31 @@ int parse(string pikefile, string outfile, string type, string name,
 
   postProcess( n[0] );
 
-  Stdio.write_file(outfile, replace(n->render_xml(), " name='predef'", ""));
+  if (namespace) {
+    string r = n->render_xml();
+    r = replace(r, "<namespace name='predef'>", "<namespace name='" + namespace  + "'>");
+    r = replace(r, "<namespace>", "<namespace name='" + namespace + "'>");
+    Stdio.write_file(outfile, r);
+  }
+  else
+    Stdio.write_file(outfile, n->render_xml());
+  
+  return 1;
 }
 
-void merge(array(string) xmlfiles, string path)
+void merge(array(string) _xmlfiles, string path)
 {
-  SimpleNode root = simple_parse_file( xmlfiles[0] );
+  array xmlfiles = ({});
+  foreach (_xmlfiles, string file)
+    if (Stdio.exist(file))
+      xmlfiles += ({ file });
+
+  SimpleNode root;
+  if (mixed e = catch(root = simple_parse_file( xmlfiles[0] ))) {
+    werror("%s in %s\n", describe_error(e), xmlfiles[0] );
+    return;
+  }
+
   SimpleNode root2;
   root && root->walk_preorder(
     lambda (Node n) {
@@ -267,9 +294,15 @@ void merge(array(string) xmlfiles, string path)
       }
     );
 
-    mergeTrees(root2, child);
+    if (mixed e = catch(mergeTrees(root2, child))) {
+      werror("Bummer: %s\n", describe_error(e));
+      Stdio.write_file("error.xml", child->render_xml());
+      exit(0);
+    }
   }
+
+  postProcess( root[0] );
+  root2 = root[0]->get_children()[1]->get_children()[1];
 
   Stdio.write_file(combine_path(path, "merged.xml"), root2->render_xml());
 }
-

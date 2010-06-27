@@ -1,25 +1,22 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Last.fm module@}
-//!
 //! This is a wrapper class around the @url{http://last.fm@} API.
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Lastfm.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Lastfm.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Lastfm.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//|
+//| License GNU GPL version 3
+//|
+//| Lastfm.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Lastfm.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Lastfm.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 import Parser.XML.Tree;
 
@@ -47,11 +44,14 @@ class Api
   //! Logged in user.
   protected mixed user;
 
-  //! Creates a new instance of @[Social.Lastfm]
-  void create(string _key, string _secret)
+  //! Creates a new instance of @[Api]
+  //!
+  //! @param api_key
+  //! @param api_secret
+  void create(string api_key, string api_secret)
   {
-    key    = _key;
-    secret = _secret;
+    key    = api_key;
+    secret = api_secret;
   }
 
   //! Set the session key.
@@ -113,7 +113,7 @@ class Api
   //!  Method specific parameters. All default parameters will be added
   //!  automatically
   //! @param http_method
-  //!  Should be GET or POST. Default is GET.
+  //!  Should be @tt{GET@} or @tt{POST@}. Default is @tt{GET@}.
   Response call(string method, void|Params params, void|string http_method)
   {
     http_method = upper_case(http_method||"GET");
@@ -194,6 +194,7 @@ class Params
   //! Creates a new instance of @[Params]
   //!
   //! @param params
+  //!  Arbitrary number of @[Param] objects.
   void create(Param ... params)
   {
     ::create(@params);
@@ -217,7 +218,7 @@ class Param
     ::create(name, value);
   }
 
-  //! Returns the param name and value concatenated for usage when signing 
+  //! Returns the param name and value concatenated for usage when signing
   //! the parameters.
   string name_value()
   {

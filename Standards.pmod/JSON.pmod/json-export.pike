@@ -1,11 +1,10 @@
-//! @author Johan Sundström
+// author Johan SundstrÃ¶m
+// intended for use by inheritance
 
-//! intended for use by inheritance
-
-//! number of spaces to indent per level
+// number of spaces to indent per level
 int indent_step = 1;
 
-//! stuff to insert to break up records visually
+// stuff to insert to break up records visually
 string line_separator = "\n";
 string array_element_separator = " ";
 
@@ -13,16 +12,19 @@ string array_element_separator = " ";
 // -1 descending, 0 to sort by index, paying attention to @[head] and @[tail].
 int sort_by_size = 1;
 
-//! keys to sort before or after others in the output presentation format:
+// keys to sort before or after others in the output presentation format:
 array(string) head = ({}); // "id,uri,url,title,version,$t" / ",";
 array(string) tail = ({}); // "link,feed,entry"/",";
 
-// Addition by Pontus Östlund
+// Addition by Pontus Ã–stlund
 #define ESCAPE_STRING(S) \
   replace((S),({ "\\", "\"", "\0", "\n", "\r" }), \
               ({ "\\\\", "\\\"", "\\0", "\\n", "\\r" }))
-  
-//! encode @[data] into JSON form
+
+// prettify
+#define INDENT(VAL,LEVEL) sprintf("%*s%s",(LEVEL),"",(VAL))
+
+// encode @[data] into JSON form
 string encode_json( mixed data, int|void level, string|void jsonp )
 {
   string res = "", end = "", type = sprintf("%t", data);
@@ -62,13 +64,13 @@ string encode_json( mixed data, int|void level, string|void jsonp )
 
       string fmt_pair( array indval ) {
 	[mixed index, string value] = indval;
-	return indent( encode_json( index, level ), level+indent_step ) +
+	return INDENT( encode_json( index, level ), level+indent_step ) +
 	  ":" + value;
       };
 
       return res + "{" + line_separator +
 	(map( data, fmt_pair ) * ("," + line_separator)) + line_separator +
-	indent( "}", level ) + end;
+	INDENT( "}", level ) + end;
 
     case "array":
       return res + "[" + (map( data, encode_json, level+indent_step ) *
@@ -82,12 +84,6 @@ string encode_json( mixed data, int|void level, string|void jsonp )
     default:
       throw( sprintf( "Can't handle %s: %O", type, data ) );
   }
-}
-
-// prettify
-string indent( string value, int level )
-{
-  return sprintf( "%*s%s", level, "", value );
 }
 
 // information aesthetics

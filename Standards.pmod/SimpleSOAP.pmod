@@ -1,35 +1,32 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Standards.SimpleSOAP module@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
 //! SimpleSOAP.pmod is a SOAP client that does a SOAP request to a webservice
 //! by using a WSDL file. This is not a full implementation of SOAP and may
 //! very well not work with more complex SOAP services.
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! SimpleSOAP.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! SimpleSOAP.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with SimpleSOAP.pmod. If not, see
-//! <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| SimpleSOAP.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| SimpleSOAP.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with SimpleSOAP.pmod. If not, see
+//| <http://www.gnu.org/licenses/>.
 
 //#define SOAP_DEBUG
 
 import Standards.WSDL;
 import Parser.XML.Tree;
 
-constant VERSION = "0.1";
+private constant VERSION = "0.1";
 
 //! SOAP parameter class
 class Param
@@ -49,19 +46,19 @@ class Param
     name = _name;
     value = _value;
   }
-  
+
   //! Returns the paramter name
   string get_name()
   {
     return name;
   }
-  
+
   //! Returns the parameter value
   string get_value()
   {
     return value;
   }
-  
+
   //! Sets the name of the parameter
   //!
   //! @param _name
@@ -69,7 +66,7 @@ class Param
   {
     name = _name;
   }
-  
+
   //! Sets the value of the paramter
   //!
   //! @param _value
@@ -77,7 +74,7 @@ class Param
   {
     value = _value;
   }
-  
+
   //! Serializes the value and creates an XML representation of the parameter
   string to_xml()
   {
@@ -150,7 +147,6 @@ class Param
     return s;
   }
 
-  //! String format
   string _sprintf(int t)
   {
     return t == 'O' && sprintf("%O(%O, %O)", object_program(this), name, value);
@@ -163,7 +159,7 @@ class Param
 //! @[Client()->username] and  @[Client()->password].
 class Client // {{{
 {
-  //! The parsed WSDL. @[Standards.WSLD.Definition]
+  //! The parsed WSDL. @[Standards.WSDL.Definitions]
   protected Definitions wsdl;
 
   //! Username for a basic authentication
@@ -171,6 +167,9 @@ class Client // {{{
 
   //! Password for a basic authentication
   string password;
+
+  //! Set to use another query object for the request
+  protected Protocols.HTTP.Query con;
 
   //! Invoke the SOAP call.
   //!
@@ -181,10 +180,22 @@ class Client // {{{
   //!  The SOAP operation to invoke. This is the name of an @tt{operation@}
   //!  element in a @tt{binding@} element in the WSDL file.
   //! @param params
+  //!
+  //! @returns
+  //!  A @[Response] object on success. A @[Fault] object otherwise.
   Response|Fault invoke(string|Standards.URI url, string operation,
                         array(Param) params)
   {
     return load_wsdl(url, operation, params);
+  }
+
+  //! Set a given HTTP query object to use for the request. Can be useful if
+  //! another query object contains an authentication for instance
+  //!
+  //! @param q
+  void set_connection(Protocols.HTTP.Query q)
+  {
+    con = q;
   }
 
   //! Loads the WSDL file
@@ -199,7 +210,10 @@ class Client // {{{
     if ( wsdl = wsdl_cache[url] )
       return send_soap_request(url, method, p);
 
-    wsdl = get_url(url);
+    if (con)
+      Standards.WSDL.set_connection(con);
+
+    wsdl = get_url(url, username, password);
     if (wsdl) {
       wsdl_cache[url] = wsdl;
       return send_soap_request(url, method, p);
@@ -227,7 +241,7 @@ class Client // {{{
     Port port = wsdl->get_first_soap_port();
     if (!port)
       error("Unable to resolv port from WSDL\n");
-    
+
     Binding binding = wsdl->get_binding(port->binding->get_local_name());
     if (!binding)
       error("Unable to resolv binding from WSDL port binding\n");
@@ -277,9 +291,30 @@ class Client // {{{
     Stdio.write_file(method+"Envelope.xml", env->to_xml(body));
 #endif
 
-    Protocols.HTTP.Query q = Protocols.HTTP.do_method("POST", endpoint, 0,
-                                                      headers, 0,
-						      env->to_xml(body));
+    Protocols.HTTP.Query q;
+
+    if (con) {
+      Standards.URI url = Standards.URI(endpoint);
+      string host;
+      if (con->con->query_address())
+	host = (con->con->query_address()/" ")[0];
+      else
+	host = url->host;
+
+      string query = url->path;
+      if (url->query) query += "?" + url->query;
+      query = sprintf("POST %s HTTP/1.0", query);
+#ifdef SOAP_DEBUG
+      werror("+++ SimpleSOAP()->Client()->con->sync_request(%O,%d,%O,%O)\n",
+             host, url->port, query, headers);
+#endif
+      q = con->sync_request(host, url->port, query, headers, env->to_xml(body));
+    }
+    else {
+      q = Protocols.HTTP.do_method("POST", endpoint, 0, headers, 0,
+                                   env->to_xml(body));
+    }
+
     if (q->status != 200)
       werror("Bad status (%d) in SOAP call %O\n", q->status, (string)url);
 
@@ -314,7 +349,7 @@ class Response // {{{
   //! The end result
   protected mapping(string:mixed) result;
 
-  //! Creats a new Result object
+  //! Creats a new @[Response] object
   //!
   //! @param _wsdl
   //! @param out
@@ -485,7 +520,7 @@ class Response // {{{
     return nds;
   }
 
-  //! Resolv result types
+  //! Resolve result types
   protected void get_wsdl_types()
   {
 
@@ -493,7 +528,7 @@ class Response // {{{
     if (find_node_by_name(response, "schema"))
       nds = get_nodes_by_tag_name(response, "element");
 
-    // Resolv types from response
+    // Resolve types from response
     if (nds && sizeof(nds)) {
       foreach (nds, Node n) {
 	mapping attr = shorten_attributes(n->get_attributes());
@@ -501,7 +536,7 @@ class Response // {{{
 	  wsdl_types[attr->name] = attr->type;
       }
     }
-    // Resolv types from WSDL
+    // Resolve types from WSDL
     else {
       array(Types.Type) els = response_element->get_element_elements();
       foreach (els||({}), Types.Type t) {
@@ -539,13 +574,13 @@ class Response // {{{
 	  if (!arrayp( p[name] ))
 	    p[name] = ({});
 #ifdef SOAP_DEBUG
-	  werror("Extract to array: %s\n", cn->get_tag_name());
+//	  werror("Extract to array: %s\n", cn->get_tag_name());
 #endif
 	  p[name] += ({ extract(cn, ([])) });
 	}
 	else {
 #ifdef SOAP_DEBUG
-	  werror("Extract to mapping: %s\n", cn->get_tag_name());
+//	  werror("Extract to mapping: %s\n", cn->get_tag_name());
 #endif
 	  if (sizeof( p[name] )) {
 	    if (!arrayp( p[name] ))
@@ -643,7 +678,8 @@ class Fault // {{{
   //! Create a new SOAP Fault object
   //!
   //! @param code
-  //! @param
+  //! @param message
+  //! @param details
   void create(string code, string message, void|mixed details)
   {
     faultcode = code;

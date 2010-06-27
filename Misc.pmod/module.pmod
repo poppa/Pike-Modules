@@ -1,30 +1,29 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Misc. modules@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Misc.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Misc.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Misc.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! Various modules and classes
+//|
+//| Copyright © 2009, Pontus Östlund - http://www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Misc.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Misc.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Misc.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 import Parser.XML.Tree;
 
 //! Turns an XML tree into an object
 //! 
 //! @xml{<code lang="xml" detab="3">
-//!   <arist name="Dream Theater">
+//!   <artist name="Dream Theater">
 //!    <album>
 //!     <name>When dream and day unite</name>
 //!     <year>1989</year>
@@ -38,7 +37,7 @@ import Parser.XML.Tree;
 //!
 //! @xml{<code lang="pike" detab="3">
 //!   SimpleXML sxml = SimpleXML(xml);
-//!   werror("%O\n", sxml->album->name->get_value())
+//!   werror("%O\n", sxml->album->name->get_value());
 //!   ({ /* 2 elements */
 //!       "When dream and day unite",
 //!       "Images and words"
@@ -78,6 +77,8 @@ class SimpleXML
   //!  An error if @[xml] is a string and XML parsing fails
   //!
   //! @param xml
+  //!  Either a @tt{Parser.XML.Tree.Node@} object or an XML string.
+  //! @param _parent
   void create(string|Node xml, void|SimpleXML _parent)
   {
     if (stringp(xml))
@@ -168,7 +169,7 @@ class SimpleXML
   //!
   //! @param how
   //!  @ul
-  //!   @item 
+  //!   @item
   //!    string: returns the node text value
   //!   @item
   //!    array: returns the child nodes
@@ -189,6 +190,7 @@ class SimpleXML
     }
   }
 
+  //! Turns the object into an XML tree
   string to_xml()
   {
     depth = -1;
@@ -300,7 +302,7 @@ class Proc
   //!  there after argument to pass to the program. 
   //! @param _timeout
   //!  Maximimum number of seconds the process can run. Default is @tt{30@}
-  void create(array(string) _args, void|int _timeout)
+  void create(array(string)|void _args, void|int _timeout)
   {
     args = _args;
     timeout = _timeout||30;
@@ -331,18 +333,21 @@ class Proc
   //! @returns
   //!  The return value of the subprocess. To get the data from the process
   //!  use @[Proc()->result].
-  int run()
+  int run(void|array _args)
   {
     is_timeout = 0;
-    done = 0;
+    done   = 0;
+    retval = 0;
     result = "";
+
+    array the_args = _args||args;
 
     Stdio.File stdout = Stdio.File();
 
-    if (mixed e = catch(p = Process.create_process(args, 
+    if (mixed e = catch(p = Process.create_process(the_args, 
                             ([ "stdout" : stdout->pipe() ]))))
     {
-      error("Unable to create process: %s\n", describe_error(e));
+      error("Unable to create process: %s\n", describe_backtrace(e));
     }
 
     Pike.Backend backend = backends->get();
@@ -360,6 +365,7 @@ class Proc
     int rv = p->wait();
     stdout->close();
     backend->remove_call_out(on_timeout);
+    p->kill(9);
 
     return rv;
   }

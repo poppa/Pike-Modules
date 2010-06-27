@@ -1,23 +1,42 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{[MODULE-NAME]@}
+//! Sql module with helper classes and such.
 //!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
+//! @b{Example@}
 //!
-//! @pre{@b{License GNU GPL version 3@}
+//! This is how the column type classes can be used.
 //!
-//! [MODULE-NAME].pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
+//! @xml{<code lang="pike" detab="2">
+//!  import DB.Sql;
 //!
-//! [MODULE-NAME].pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
+//!  array(Field) cols = ({
+//!    Int("caliber", 45),
+//!    String("firstname", "Harry"),
+//!    String("lastname", "Callahan"),
+//!    Enum("bad_ass", (&lt; "y","n" &gt;), "y")
+//!  });
 //!
-//! You should have received a copy of the GNU General Public License
-//! along with [MODULE-NAME].pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//!  string sql = sprintf("INSERT INTO table (%s) VALUES (%s)",
+//!                       cols->get_quoted_name()*",",
+//!                       cols->get_quoted()*",");
+//!  mydb->query(sql);
+//! </code>@}
+//|
+//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Sql.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Sql.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Sql.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 #define THIS_OBJECT object_program(this)
 #define QUOTE_SQL(X) replace((X),                                        \
@@ -26,11 +45,14 @@
 #define TYPEOF_SELF(OTHER) (object_program(this) == object_program((OTHER)))
 #define INHERITS_THIS(CHILD) Program.inherits(object_program(CHILD),    \
 			                      object_program(this))
+
+//! Escapes @[s] for safe insertion into database
 string quote(string s) // {{{
 {
   return QUOTE_SQL(s);
 } // }}}
 
+//! MySQL data types
 enum DataType { // {{{
   SQL_INT,
   SQL_STRING,
@@ -39,6 +61,7 @@ enum DataType { // {{{
   SQL_FLOAT
 } // }}}
 
+//! Class representing a SQL column
 class Field // {{{
 {
   protected string      name;
@@ -46,6 +69,11 @@ class Field // {{{
   protected DataType    type;
   protected int(0..1)   nullable = 1;
 
+  //! Creates a new @[Field] object
+  //!
+  //! @param _name
+  //! @param _type
+  //! @param _value
   void create(string _name, DataType _type, void|mixed _value)
   {
     name = _name;
@@ -53,6 +81,9 @@ class Field // {{{
     if (_value) set(_value);
   }
   
+  //! Set the value
+  //!
+  //! @param _value
   void set(mixed _value)
   {
     switch (type)
@@ -63,36 +94,46 @@ class Field // {{{
     }
   }
 
+  //! Set whether or not the column is nullable or not
+  //!
+  //! @param nul
   void set_nullable(int(0..1) nul)
   {
     nullable = nul;
   }
 
+  //! Returns the name and value for usage in an update query.
+  //! @tt{`name`='quoted-value'@}.
   mixed get()
   {
     return sprintf("`%s`=%s", name, get_quoted());
   }
 
+  //! Returns the name
   string get_name()
   {
     return name;
   }
 
+  //! Returns the value
   mixed get_value()
   {
     return value;
   }
 
+  //! Returns the data type
   int get_type()
   {
     return type;
   }
   
+  //! Returns the name quoted for usage in a query
   string get_quoted_name()
   {
     return sprintf("`%s`", name);
   }
 
+  //! Returns the value quoted
   string get_quoted()
   {
     switch (type)
@@ -112,6 +153,10 @@ class Field // {{{
     }
   }
 
+  //! Casting method.
+  //!
+  //! @param how
+  //!  Supports @tt{string, float and int@}.
   mixed cast(string how)
   {
     switch (how)
@@ -124,6 +169,9 @@ class Field // {{{
     error("Can't cast %O() to \"%s\"! ", THIS_OBJECT, how);
   }
 
+  //! Comparer method
+  //!
+  //! @param other
   int(0..1) `==(mixed other)
   {
     if (objectp(other)) {
@@ -171,47 +219,76 @@ class Field // {{{
   }
 } // }}}
 
+//! Represents an INT column
 class Int // {{{
 {
   inherit Field;
 
+  //! Creates a new @[Int] object
+  //!
+  //! @param name
+  //! @param value
   void create(string name, int|void value)
   {
     ::create(name, SQL_INT, value);
   }
 } // }}}
 
+//! Represents a FLOAT column
 class Float // {{{
 {
   inherit Field;
-  
+
+  //! Creates a new @[Float] object
+  //!
+  //! @param name
+  //! @param value  
   void create(string name, float|void value)
   {
     ::create(name, SQL_FLOAT, value);
   }
 } // }}}
 
+//! Represents a string column (VARCHAR, TEXT and alike).
 class String // {{{
 {
   inherit Field;
 
+  //! Creates a new @[String] object
+  //!
+  //! @param name
+  //! @param value
   void create(string name, string|void value)
   {
     ::create(name, SQL_STRING, value);
   }
 } // }}}
 
+//! Represents an ENUM column
 class Enum // {{{
 {
   inherit String;
   protected multiset fields;
   
+  //! Creates a new @[Int] object
+  //!
+  //! @param name
+  //! @param enum_fields
+  //!  Possible values of this ENUM
+  //! @param value
   void create(string name, multiset enum_fields, string|void value)
   {
     fields = enum_fields;
     ::create(name, value);
   }
 
+  //! Setter
+  //!
+  //! @throws 
+  //!  An error if @[_value] isn't allowed according to the @tt{enum_fields@}
+  //!  given in @[create()].
+  //!
+  //! @param _value
   void set(string _value)
   {
     if (!nullable && _value == UNDEFINED) {
@@ -226,16 +303,23 @@ class Enum // {{{
   }
 } // }}}
 
+//! Represents a DATE or DATETIME column
 class Date // {{{
 {
   inherit String;
 
+  //! Creates a new @[Date] object
+  //!
+  //! @param name
+  //! @param value
+  //! @param not_nullable
   void create(string name, void|string value, void|int(0..1) not_nullable)
   {
     ::create(name, value);
     nullable = !not_nullable;
   }
 
+  //! Returns the value quoted
   string get_quoted()
   {
     if ((!value && !nullable) || lower_case(value) == "now()")

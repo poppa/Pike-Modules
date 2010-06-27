@@ -1,27 +1,24 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Google Chart Data class@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
 //! This class represents the data of a Google Chart
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! This file is part of Google.pmod
-//!
-//! Data.pike is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Data.pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Data.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| This file is part of Google.pmod
+//|
+//| Google.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Google.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Google.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 //! Used to simple encode data
 protected constant ALNUMS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -40,33 +37,33 @@ protected constant EXTENDED_MAP_LEN = 64;
 protected array(float) values = ({});
 
 //! Data group. Array of instances of self
-protected array(object_program) group  = ({});
+protected array(object_program) group = ({});
 
 //! Minimum value
-protected int|float min_value  = 0;
+protected int|float min_value = 0;
 
 //! Maximum value
-protected int|float max_value  = 100;
+protected int|float max_value = 100;
 
 //! Chart color of this data set
-protected string color   = "FFCC33";
+protected string color = "FFCC33";
 
 //! Data legend
-protected .Legend legend  = .Legend();
+protected .Legend legend = .Legend();
 
 //! Data labels
-protected array labels   = ({});
+protected array labels = ({});
 
 //! Data point
 protected .DataPoint.Any datapoint;
 
 //! Creates a new @[Data] object.
 //!
-//! @example
-//!  Chart.Data data = Chart.Data(10, 15, 12, 17, 24, 16);
-//!
 //! @param args
 //!  Abritrary number of arguments
+//!  @xml{<code lang="pike" detab="3">
+//!   Chart.Data data = Chart.Data(10, 15, 12, 17, 24, 16);
+//!  </code>@}
 void create(int|float|string ... args)
 {
   values = map( args, lambda (int|float|string v){ return (float)v; } );
@@ -121,6 +118,7 @@ string get_color()
   return color;
 }
 
+//! Returns the array of values
 array get_values()
 {
   return values;
@@ -139,7 +137,8 @@ void clear_group()
 //!  @[get_min()], @[get_max()]
 //!
 //! @returns
-//!  Index @tt{0@} is the minimum value. Index @tt{1@} is the maximum value.
+//!  An array of two indices where index @tt{0@} is the minimum value and index 
+//!  @tt{1@} is the maximum value.
 array(float) get_min_max()
 {
   return ({ min_value, max_value });
@@ -211,17 +210,17 @@ void set_legend(string text, void|string|int position)
   return legend;
 }
 
-//! Extended encodes the data
-//! Consider protected.
+// Extended encodes the data
+// Consider protected.
 string extended_encode()
 {
   return "e:" + low_extended_encode(); 
 }
 
-//! Low level method for extended encoding
-//! Consider protected
-//!
-//! @param _max
+// Low level method for extended encoding
+// Consider protected
+//
+// @param _max
 string low_extended_encode(void|int|float _max)
 {
   _max = (float)(_max || max_value);
@@ -255,10 +254,10 @@ string simple_encode()
   return "s:" + low_simple_encode();
 }
 
-//! Low level method for simple encoding
-//! Consider protected
-//!
-//! @param _max
+// Low level method for simple encoding
+// Consider protected
+//
+// @param _max
 string low_simple_encode(void|int|float _max)
 {
   int vlen = sizeof(ALNUMS)-1;
@@ -294,7 +293,7 @@ int(0..1) is_group()
   return sizeof(group) > 0;
 }
 
-//! Turs the @[min_value] and @[max_value] values into a query variable
+// Turs the @[min_value] and @[max_value] values into a query variable
 string scale_to_url()
 {
   array(string) data = ({ low_get_scale() });
@@ -352,9 +351,11 @@ string datapoints_to_url()
   return "";
 }
 
-//! Cast method
+//! Casting method
 //!
 //! @param how
+//!  Can cast to @tt{string@} which will generate a query string of the object
+//!  or an @tt{array@} which returns the array of values.
 mixed cast(string how)
 {
   array vals = map(values, lambda(float v) { return sprintf("%.1f", v); } );

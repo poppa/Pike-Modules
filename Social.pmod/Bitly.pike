@@ -1,26 +1,6 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Bitly class@}
-//!
 //! This class communicates with @url{http://bit.ly@} which is a service to
 //! shorten, track and share links.
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Bitly.pike is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Bitly.pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Bitly.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
 //!
 //! @b{Example@}
 //!
@@ -34,8 +14,25 @@
 //!  if (resp->success())
 //!    write("Short url: %s\n", resp->result()->nodeKeyVal->shortUrl);
 //!  else
-//!   write("Error: %s\n", resp->error_message());
+//!    write("Error: %s\n", resp->error_message());
 //! </code>@}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Bitly.pike is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Bitly.pike is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Bitly.pike. If not, see <http://www.gnu.org/licenses/>.
 
 #if constant(Crypto.MD5)
 # define MD5(S) String.string2hex(Crypto.MD5.hash((S)))
@@ -83,7 +80,7 @@ protected string version = VERSION;
 
 //! The reponse format to use
 //!
-//! @note 
+//! @note
 //!  Only XML is supported at the moment.
 protected string format  = "xml";
 
@@ -99,6 +96,7 @@ protected DataCache cache;
 //!
 //! @param username
 //! @param api_key
+//! @param cache_dir
 void create(string username, string api_key, void|int cache_dir)
 {
   handle = username;
@@ -116,6 +114,9 @@ void set_version(string _version)
 
 //! Set the response format
 //!
+//! @throws
+//!  An error if @[_format] is unknown
+//!
 //! @param _format
 void set_format(string _format)
 {
@@ -124,7 +125,7 @@ void set_format(string _format)
   format = _format;
 }
 
-//! Set the callback for @tt{JSON@} responses
+// Set the callback for @tt{JSON@} responses
 void set_callback(string _callback)
 {
   error("Callback needs JSON response format but that isn't implemented\n!");
@@ -186,12 +187,19 @@ Response stats(string|Standards.URI url_or_hash)
   return call("stats", ([ PARAM_KEY[arg_type] : url_or_hash ]));
 }
 
-//! Does the HTTP call to Bitly
+//| @decl Response shorten(string|Standards.URI uri)
+//| @decl Response expand(string|Standards.URI uri_or_hash)
+//| @decl Response info(string|Standards.URI uri_or_hash, void|array keys)
+//| @decl Response stats(string|Standards.URI uri_or_hash)
+//|
+//! Does the HTTP call to Bitly. This method shouldn't be needed to be called
+//! explicitly. This is called from @[shorten()], @[expand()], @[info()] and
+//! @[stats()].
 //!
 //! @param service
 //! @param params
 //! @param method
-protected Response call(string service, mapping params, void|string method)
+Response call(string service, mapping params, void|string method)
 {
   mapping response;
   mapping p = default_params();

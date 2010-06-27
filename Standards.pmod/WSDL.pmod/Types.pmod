@@ -1,27 +1,24 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Standards.WSDL.Types.pmod@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
 //! This module handles WSDL types, i.e the child nodes of a schema node
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Types.pmod is part of WSDL.pmod
-//!
-//! WSDL.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! WSDL.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with WSDL.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Types.pmod is part of WSDL.pmod
+//|
+//| WSDL.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| WSDL.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with WSDL.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 import Parser.XML.Tree;
 import Standards.XML.Namespace;
@@ -62,26 +59,26 @@ constant TYPE_SIMPLE_TYPE = 1<<10;
 //! Resolves the class that should be used to decode the node @[n]
 //!
 //! @param n
-protected object resolv_class(Parser.XML.Tree.Node n)
+protected object resolve_class(Parser.XML.Tree.Node n)
 {
-  switch (n->get_tag_name())
+  switch (lower_case(n->get_tag_name()))
   {
     case "any":            return Any;
     case "all":            return All;
-    case "complexType":    return ComplexType;
+    case "complextype":    return ComplexType;
     case "choise":         return Choise;
     case "element":        return Element;
     case "sequence":       return Sequence;
-    case "complexContent": return ComplexContent;
+    case "complexcontent": return ComplexContent;
     case "attribute":      return Attribute;
     case "restriction":    return Restriction;
-    case "simpleType":     return SimpleType;
-    default:               return Type;	
+    case "simpletype":     return SimpleType;
+    default:               return Type;
   }
 }
 
 //! Cache of namespaces resolved from 
-//! @[Standards.WSDL.BaseObject()->owner_document] which is an instance of 
+//! @[Standards.WSDL.BaseObject()->owner_document] which is an instance of
 //! @[Standards.WSDL.Definitions]
 protected mapping(string:QName) ns_cache = ([]);
 
@@ -92,31 +89,32 @@ class Type
 
   //! Type of node
   int TYPE = TYPE_CONTENT;
-  
+
   //! The id attribute of the node, if any
   string id;
-  
+
   //! The name attribute of the node
   string name;
-  
+
   //! The minOccures attribute
   string minoccures = "1";
-  
+
   //! The maxOccures attribute
   string maxoccures = "1";
-  
+
   //! Child elements
   array(object) elements = ({});
-  
+
   //! Add a child element
   //!
   //! @param element
+  //!  Any of the type classes in @[Standards.WSDL.Types]
   void add_element(object /* Standards.WSDL.Types.* */ element)
   {
     elements += ({ element });
   }
   
-  //! Returns the @tt{element@} elements.
+  //! Returns the @[Element] elements.
   array(Element) get_element_elements()
   {
     return low_find_children(elements, TYPE_ELEMENT);
@@ -125,7 +123,7 @@ class Type
   //! Find child of type @[type]
   //! 
   //! @param type
-  //!  Any of the @tt{TYPE_*@} constants
+  //!  Any of the @tt{TYPE_*@} constants in @[Standards.WSDL.Types].
   array(Type) find_children(int type)
   {
     return low_find_children(elements, type);
@@ -173,7 +171,7 @@ class Type
   {
     foreach (n->get_children(), Node cn) {
       if (cn->get_node_type() == XML_ELEMENT)
-	elements += ({ resolv_class(cn)(cn, owner_document) }); 
+	elements += ({ resolve_class(cn)(cn, owner_document) }); 
     }
   }
 
@@ -211,7 +209,7 @@ class Attribute
   QName ref;
   
   //! The @tt{arrayType@} attribute, if any.
-  QName array_type;   
+  QName array_type;
 }
 
 //! Class representing a @tt{<choise/>@} node
@@ -233,16 +231,13 @@ class ComplexType
 {
   inherit Type;
   int TYPE = TYPE_COMPLEX_TYPE;
-  
+
   //! Attribute @tt{mixed@}
   int(0..1) is_mixed = 0;
-  
+
   //! Attribute @tt{abstract@}
   int(0..1) is_abstract = 0;
-  
-  //! Decodes the node
-  //!
-  //! @param n
+
   protected void decode(Node n)
   {
     mapping a = n->get_attributes();
@@ -273,7 +268,7 @@ class Element
     set_defaults(a);
     type = a->type && QName("", a->type);
     nillable = a->nillable && a->nillable == "true";
-    
+
     if (type) {
       QName nsq;
       if ( nsq = ns_cache[type->get_prefix()] )
@@ -286,7 +281,7 @@ class Element
 	}
       }
     }
-    
+
     set_children(n);
   }
 }
@@ -332,7 +327,7 @@ class Sequence
   {
     foreach (n->get_children(), Node cn) {
       if (cn->get_node_type() == XML_ELEMENT) {
-	object o = resolv_class(cn)(cn, owner_document);
+	object o = resolve_class(cn)(cn, owner_document);
 	order += ({ o->name||o->get_node_name() });
 	elements += ({ o }); 
       }

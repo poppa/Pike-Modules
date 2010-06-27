@@ -1,25 +1,22 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Association.pike@}
-//!
 //! This class creates an association between a requester and an operator.
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Association.pike is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Association.pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License along 
-//! with Association.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Association.pike is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Association.pike is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License along 
+//| with Association.pike. If not, see <http://www.gnu.org/licenses/>.
 
 //! Session type constant
 constant SESSION_TYPE_NO_ENCRYPTION = "no-encryption";
@@ -107,6 +104,8 @@ void set_max_age(int seconds)
 }
 
 //! Sets the expiration time of the association, seconds from the epoch.
+//!
+//! @param seconds
 void set_expiration(int seconds)
 {
   expired = seconds;
@@ -118,18 +117,22 @@ int(0..1) is_expired()
   return time() >= expired;
 }
 
+//! Set namespace
+//!
+//! @param ns
 void set_namespace(string ns)
 {
   namespace = ns;
 }
 
+//! Getter for the namespace
 string get_namespace()
 {
   return namespace;
 }
 
 //! Turns the object members into a mapping and encodes it with Pike's 
-//! @[predef::encode_value()]
+//! @tt{predef::encode_value()@}
 string encode_cookie()
 {
   return encode_value(to_mapping());
@@ -137,6 +140,8 @@ string encode_cookie()
 
 //! Populates the object with the values from a cookie created with 
 //! @[encode_cookie()]
+//!
+//! @param cookie
 object_program decode_cookie(string cookie)
 {
   mixed e = catch {
@@ -164,6 +169,18 @@ object_program decode_cookie(string cookie)
 //! Casting method. Only supports @tt{mapping@}.
 //!
 //! @param how
+//!
+//! @returns
+//!  A mapping with the following members
+//!  @mapping
+//!   @member string "session_type"
+//!   @member string "assoc_type"
+//!   @member string "assoc_handle"
+//!   @member string "mac_key"
+//!   @member string "raw_mac_key"
+//!   @member int(0..1) "expired"
+//!   @member string "ns"
+//!  @endmapping
 mixed cast(string how)
 {
   if (how == "mapping")

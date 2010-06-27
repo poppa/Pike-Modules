@@ -1,8 +1,7 @@
-//! @author Johan Sundström
+// author Johan Sundström
+// intended for use by inheritance
 
-//! intended for use by inheritance
-
-//! decode @[input] into native pike types
+// decode @[input] into native pike types
 mixed decode_json( string|Stdio.File input ) {
   if( stringp( input ) )
     input = Stdio.FakeFile( input );
@@ -201,3 +200,4 @@ mixed decode( PeekReader f )
       error("Illegal token %O\n", t);
   }
 }
+

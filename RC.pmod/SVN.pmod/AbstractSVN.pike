@@ -1,35 +1,7 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{AbstractSVN@}
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
 //! This is the base class which pretty much all other SVN related modules and
 //! programs inherits.
-//|
-//| ============================================================================
-//|
-//|     GNU GPL version 3
-//|
-//! ============================================================================
-//|
-//| This file is part of SVN.pmod
-//|
-//| SVN.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| SVN.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with SVN.pmod. If not, see <http://www.gnu.org/licenses/>.
-
-#include "svn.h"
-import Parser.XML.Tree;
-
+//!
 //! @note
 //!  Some members here are probably named badly since their names doesn't fit 
 //!  in inheriting classes - or maybe the shouldn't be here at all.
@@ -52,26 +24,59 @@ import Parser.XML.Tree;
 //!  </code>@}
 //!
 //!  So it is up to the sub class to collect the contents of the XML tree.
+//|
+//| ============================================================================
+//|
+//|     GNU GPL version 3
+//|
+//| ============================================================================
+//|
+//| Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
+//|
+//| This file is part of SVN.pmod
+//|
+//| SVN.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| SVN.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with SVN.pmod. If not, see <http://www.gnu.org/licenses/>.
+
+#include "svn.h"
+import Parser.XML.Tree;
 
 protected int revision; /* Not always needed */
 protected string file;  /* Should probably be "path" instead */
 protected array(object_program) revisions = ({}); /* Same as revision */
 
+//! Returns the revision, if any
 int get_revision()
 {
   return revision;
 }
 
+//! Returns the array of revisions, if any
 array(object_program) get_revisions()
 {
   return revisions;
 }
 
+//! Retrurns the revision.
+//!
+//! @seealso
+//!  @[get_revisions()]
 array(object_program) _values()
 {
   return revisions;
 }
 
+//! Returns the paths of the revised file
 string get_path()
 {
   return file;
@@ -82,6 +87,10 @@ string _sprintf(int t)
   return sprintf("%O(rev:%d)", object_program(this), revision);
 }
 
+// Hidden constructor. This class must be inherited
+//
+// @param _revision
+// @param _file
 protected void create(void|int _revision, void|string _file) 
 {
   revision = _revision;
@@ -113,8 +122,17 @@ protected void parse_xml(string|Node xml)
   }
 }
 
-//! Executes a Subversion command
-protected string exec(string cmd, void|string file, void|int|string rev, 
+// Executes a Subversion command
+//
+// @param cmd
+//  The subversion command to execute
+// @param file
+//  The file to execute the command on
+// @param rev
+//  Revision
+// @param args
+//  Abritrary number of SVN arguments
+protected string exec(string cmd, void|string file, void|int|string rev,
                       mixed ... args)
 {
   ASSERT_BASE_SET();

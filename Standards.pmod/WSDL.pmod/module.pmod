@@ -1,25 +1,22 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Standards.WSDL.Binding@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
 //! WSDL.pmod decodes (eventually perhaps also encodes) a WSDL document
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! WSDL.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! WSDL.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with WSDL.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| WSDL.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| WSDL.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with WSDL.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 #if constant(Crypto.MD5)
 # define MD5(S) String.string2hex(Crypto.MD5.hash((S)))
@@ -37,6 +34,10 @@ private int(0..1) disk_cache = 1;
 //! enabled. This director will be put in the systems temporary directory
 private string dcache_location = "pike-wsdl-cache";
 
+//! User defined connection object to use when fetching the WSDL
+private Protocols.HTTP.Query con;
+
+#ifdef WSDL_DEBUG
 // Debugging only method
 void dtrace(mixed ... args)
 {
@@ -50,6 +51,9 @@ void dtrace(mixed ... args)
   fh->write(@args);
   fh->close();
 }
+#else
+# define dtrace(args...) 0
+#endif
 
 //! Store fetched WSDL files on disk or not.
 //!
@@ -68,19 +72,33 @@ void add_cache(string|Standards.URI url, string wsdl_xml)
   cache[(string)url] = wsdl_xml;
 }
 
+//! Set a user defined connection object to use when fetching the WSDL
+//!
+//! @param q
+void set_connection(Protocols.HTTP.Query q)
+{
+  con = q;
+}
+
 //! Fetches the WSDL file at @[url] and returns a @[Definitions] object
 //!
 //! @param url
-.Definitions get_url(string|Standards.URI url)
+//! @param username
+//! @param password
+.Definitions get_url(string|Standards.URI url, void|string username,
+                     void|string password)
 {
-  return .Definitions(get_cache(url));
+  return .Definitions(get_cache(url, username, password));
 }
 
 //! Checks if @[url] exists in the caches, if not fetches it, and returns the
 //! raw XML of the WSDL file
 //!
 //! @param url
-string get_cache(string|Standards.URI url)
+//! @param username
+//! @param password
+string get_cache(string|Standards.URI url, void|string username,
+                 void|string password)
 {
   string file, data;
   url = String.trim_all_whites((string)url);
@@ -90,21 +108,60 @@ string get_cache(string|Standards.URI url)
   if (disk_cache) {
     mapping env = getenv();
     string tmpdir = combine_path(env->TEMP||env->TMP||"/tmp", dcache_location);
+
     if (!Stdio.exist(tmpdir)) {
       if (mixed err = catch(Stdio.mkdirhier(tmpdir, 00777))) {
-	werror("Unable to create wsdl cache dir %O!\N", tmpdir);
+	werror("Unable to create wsdl cache dir %O!\n", tmpdir);
 	return 0;
       }
     }
 
     file = combine_path(tmpdir, MD5(url) + ".wsdl");
+
     if (Stdio.exist(file))
       cache[url] = data = Stdio.read_file(file);
   }
-  
+
   if (data) return data;
-  
-  Protocols.HTTP.Query q = Protocols.HTTP.get_url(url);
+
+  mapping headers = ([]);
+
+  if (username && password) {
+    headers["Authorization"] = 
+      "Basic " + MIME.encode_base64(username+":"+password);
+  }
+  else if (sscanf(url, "%s://%s:%s@%s", string a, string b,
+                                        string c, string d) == 4) 
+  {
+    headers["Authorization"] = "Basic " + MIME.encode_base64(b+":"+c);
+    url = a + "://" + d;
+  }
+
+  dtrace("Connection object: %O\n", con && con->con);
+
+  Protocols.HTTP.Query q;
+
+  if (con) {
+    if (stringp(url)) url = Standards.URI(url);
+    string host;
+    if (con->con->query_address())
+      host = (con->con->query_address()/" ")[0];
+    else
+      host = url->host;
+
+    string query = url->path;
+    if (url->query) query += "?" + url->query;
+    query = sprintf("GET %s HTTP/1.0", query);
+    headers = headers;
+    dtrace("+++ con->sync_request(%O,%d,%O,%O)\n",
+           host, url->port, query, headers);
+    q = con->sync_request(host, url->port, query, headers);
+  }
+  else {
+    q = Protocols.HTTP.get_url(url, 0, headers);
+  }
+
+  dtrace("%O\n", q->headers);
 
   if (q->status == 200) {
     cache[url] = q->data();

@@ -1,29 +1,29 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{OpenID@}
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! OpenID is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! OpenID is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with OpenID. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! OpenID module
+//|
+//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| OpenID is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| OpenID is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with OpenID. If not, see <http://www.gnu.org/licenses/>.
 
 #include "openid.h"
 
 import Parser.XML.Tree;
 
-public constant DEFAULT_ENDPOINT_ALIAS = "ext1";
+//! Default endpoint alias
+constant DEFAULT_ENDPOINT_ALIAS = "ext1";
 
 //! Cache storage for @[.Endpoint]s
 private mapping(string:.Endpoint) _endpoint_cache = ([]);
@@ -32,9 +32,6 @@ private mapping(string:.Endpoint) _endpoint_cache = ([]);
 private mapping(string:.Association) _assoc_cache = ([]);
 
 //! Getter/setter for the endpoint cache.
-//!
-//! @decl endpoint_cache(string key)
-//! @decl endpoint_cache(string key, .Endpoint ep)
 //!
 //! @param key
 //!  Cache key, most likely the endpoint URL
@@ -52,9 +49,6 @@ private mapping(string:.Association) _assoc_cache = ([]);
 
 //! Getter/setter for the association cache.
 //!
-//! @decl association_cache(string key)
-//! @decl association_cache(string key, .Endpoint ep)
-//!
 //! @param key
 //!  Cache key, most likely the association URL
 //! @param as
@@ -70,7 +64,7 @@ private mapping(string:.Association) _assoc_cache = ([]);
 }
 
 //! Default OpenID providers
-private mapping(string:.Provider) providers = ([
+mapping(string:.Provider) providers = ([
   "google" : .Provider("google", "https://www.google.com/accounts/o8/id",
                        "ext1"),
   "yahoo"  : .Provider("yahoo", "http://open.login.yahooapis.com/openid20/"

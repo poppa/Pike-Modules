@@ -1,27 +1,24 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{WS.Google.Weather class@}
-//!
 //! Fetches weather forecast from Google for a given location.
-//!
-//! Copyright © 2009, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! This file is part of Google.pmod
-//!
-//! Google.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Google.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Google.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| This file is part of Google.pmod
+//|
+//| Google.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Google.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Google.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 #define DEBUG
 
@@ -36,14 +33,13 @@
 
 import Parser.XML.Tree;
 
-//! The URL to the forecast RSS
+// The URL to the forecast RSS
 private constant base_uri = "http://www.google.com/ig/api?weather=%s";
 
-//! User agent of this class is using
+// User agent of this class is using
 private constant user_agent = "Google Weather Client (Pike "+__VERSION__+")";
 
-//! Information about the current forecast. The the @[Information] class
-//! for more info
+//! Information about the current forecast. See @[Information].
 Information info;
 
 //! The current weather condition. See @[CurrentCondition].
@@ -52,7 +48,7 @@ CurrentCondition current;
 //! Forecast conditions. The next four days. See @[ForecastCondition].
 array(ForecastCondition) forecast = ({});
 
-//! Default locales
+// Default locales
 private multiset(string) locale = (< "en", "en-us" >);
 
 //! Creates a new @[Weather] object
@@ -75,6 +71,7 @@ void create(string city, void|string _locale)
 //!
 //! @throws
 //!  An error if the HTTP request fails or if the XML parsing fails
+//!
 //! @param city
 private void parse(string city)
 {
@@ -130,9 +127,10 @@ private void parse_xml(string xml)
   }
 }
 
-private class Base
+//! Abstract base class
+class Base
 {
-  void create(Node n)
+  protected void create(Node n)
   {
     n && n->iterate_children(
       lambda (Node cn) {
@@ -154,82 +152,122 @@ private class Base
   }
 }
 
+//! Withholds information about a forecast
 class Information
 {
   inherit Base;
 
+  //! The name of the city the forecast is from
   string city;
+  
+  //! The postal code of the city
   string postal_code;
-  float  latitude;
-  float  longitude;
+  
+  //! The city's latitude
+  float latitude;
+  
+  //! The city's longitude
+  float longitude;
+  
+  //! The date and time of the forecast
   Calendar.Second date;
+  
+  //! The current date and time
   Calendar.Second current_date;
+  
+  //! Unit system used in the foreceast
   string unit_system;
 
+  // Callback for the date node
   void parse_forecast_date(Node n)
   {
     date = Calendar.parse("%Y-%M-%D", GET_DATA(n));
   }
 
+  // Callback for the current date node
   void parse_current_date_time(Node n)
   {
     current_date = Calendar.parse("%Y-%M-%D %h:%m:%s %z", GET_DATA(n));
   }
 
+  // Callback for the longitude node
   void parse_longitude_e6(Node n)
   {
     longitude = (float)GET_DATA(n);
   }
 
+  // Cllback for the latitude node
   void parse_latitude_e6(Node n)
   {
     latitude = (float)GET_DATA(n);
   }
 }
 
-private class Condition
+//! Base class for a condition
+class Condition
 {
   inherit Base;
 
+  //! The condition
   string condition;
+
+  //! Icon representing the condition
   string icon;
-  
+
+  //! Returns the name of the icon
   string get_icon_name()
   {
     return icon && basename(icon);
   }
 }
 
+//! Class representing the current conditions
 class CurrentCondition
 {
   inherit Condition;
 
+  //! Temperature in fahrenheit
   int temp_f;
+  
+  //! Temperature in celcius
   int temp_c;
+  
+  //! Current humidity
   string humidity;
+  
+  //! Current wind speed
   string wind;
 
+  // Callback for the fahrenheit node
   void parse_temp_f(Node n)
   {
     temp_f = (int)GET_DATA(n);
   }
 
+  // Callback for the celsius node
   void parse_temp_c(Node n)
   {
     temp_c = (int)GET_DATA(n);
   }
 
+  // Callback for the wind node
   void parse_wind_condition(Node n)
   {
     wind = (string)GET_DATA(n);
   }
 }
 
+//! Conditions of a forecast
 class ForecastCondition
 {
   inherit Condition;
 
+  //! Highest temperature
   int high;
+
+  //! Lowest temperature
   int low;
+
+  //! Week day
   string day_of_week;
 }

@@ -1,28 +1,10 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{OAuth module@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! OAuth.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! OAuth.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with OAuth.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! OAuth module
 //!
 //! @b{Example@}
 //!
 //! @xml{<code lang="pike" detab="2" tabsize="2">
-//!  import Social.OAuth;
+//!  import Security.OAuth;
 //!
 //!  string endpoint = "http://twitter.com/users/show.xml";
 //!
@@ -39,6 +21,23 @@
 //!
 //!  werror("Data is: %s\n", query->data());
 //! </code>@}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| OAuth.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| OAuth.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with OAuth.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 //! Verion
 constant VERSION = "1.0";
@@ -76,16 +75,18 @@ constant UNRESERVED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV"
 
 #include "oauth.h"
 
-//! Helper method to create a @[Request]
+//! Helper method to create a @[Request] object
+//!
+//! @throws
+//!  An error if @[consumer] is null
 //!
 //! @param consumer
 //! @param token
 //! @param uri
-//!  A @tt{string@} or @[Standards.URI]
 //! @param params
 //! @param http_method
 //!  Defaults to GET
-Request request(STRURI uri, Consumer consumer, Token token,
+Request request(string|Standards.URI uri, Consumer consumer, Token token,
                 void|Params params, void|string http_method)
 {
   if (!consumer)
@@ -121,7 +122,7 @@ Params get_default_params(Consumer consumer, Token token)
 //! Converts a query string, or a mapping, into a @[Params] object.
 //!
 //! @param q
-Params query_to_params(STRURI|mapping q)
+Params query_to_params(string|Standards.URI|mapping q)
 {
   if (objectp(q))
     q = (string)q;
@@ -168,12 +169,16 @@ class Request
 
   //! Creates a new @[Request]
   //!
+  //! @seealso
+  //!  @[request()]
+  //!
   //! @param _uri
-  //!  A @tt{string@} or @[Standards.URI]
+  //!  The uri to request
   //! @param _http_method
   //!  The HTTP method to use. Either @[Request.GET] or @[Request.POST]
   //! @param _params
-  void create(STRURI _uri, string http_method, void|Params _params)
+  void create(string|Standards.URI _uri, string http_method,
+              void|Params _params)
   {
     uri    = ASSURE_URI(_uri);
     method = upper_case(http_method);
@@ -188,14 +193,11 @@ class Request
 
   //! Add a param
   //!
-  //! add_param(Param parameter)
-  //! add_param(string name, string value)
-  //!
   //! @param name
   //! @param value
   //!
   //! @returns
-  //!  The instance of self.
+  //!  The object being called
   object add_param(Param|string name, void|string value)
   {
     if (objectp(name))
@@ -278,6 +280,9 @@ class Request
   }
 
   //! Casting method
+  //!
+  //! @param how
+  //!  Only supports @tt{string@}
   mixed cast(string how)
   {
     if (how != "string") {
@@ -306,22 +311,21 @@ class Consumer
   string secret;
 
   //! Callback url that the remote verifying page will return to.
-  STRURI callback;
+  string|Standards.URI callback;
 
-  //! Creates a new @[Consumer]
+  //! Creates a new @[Consumer] object
   //!
   //! @param _key
   //! @param _secret
   //! @param _callback
-  //!  Can be a @tt{string@} or a @[Standards.URI]
-  void create(string _key, string _secret, void|STRURI _callback)
+  //!  NOTE: Has no effect in this implementation
+  void create(string _key, string _secret, void|string|Standards.URI _callback)
   {
     key      = _key;
     secret   = _secret;
     callback = ASSURE_URI(_callback);
   }
 
-  //! String format.
   string _sprintf(int t)
   {
     return t == 'O' && sprintf("%O(%O, %O, %O)", object_program(this),
@@ -332,7 +336,10 @@ class Consumer
 //! Token class.
 class Token
 {
+  //! The token key
   string key;
+  
+  //! The token secret
   string secret;
   
   //! Creates a new @[Token]
@@ -345,7 +352,12 @@ class Token
     secret = _secret;
   }
 
-  mixed cast(string how) 
+  //! Casting method.
+  //! NOTE! Only supports casting to string wich will return a query string
+  //! of the object
+  //!
+  //! @param how
+  mixed cast(string how)
   {
     switch (how) {
       case "string":
@@ -436,7 +448,6 @@ class Param
     return 0;
   }
 
-  //! Formatting method
   string _sprintf(int t) 
   {
     return t == 'O' && sprintf("%O(%O, %O)", object_program(this), name, value);
@@ -451,6 +462,9 @@ class Params
   private array(Param) params;
   
   //! Create a new @[Params]
+  //!
+  //! @param _params
+  //!  Arbitrary number of @[Param] objects
   void create(Param ... _params)
   {
     params = _params||({});
@@ -512,7 +526,7 @@ class Params
     return sort(params)->get_signature()*"&";
   }
 
-  //! Casting method
+  //! Casting method. Only supports casting to @tt{mapping@}.
   //!
   //! @param how
   mixed cast(string how)
@@ -534,16 +548,21 @@ class Params
   //! @param args
   //!
   //! @returns
-  //!  The current instance
+  //!  The object being called
   object add_mapping(mapping args)
   {
     foreach (args; string k; string v)
       params += ({ Param(k, v) });
+
+    return this_object;
   }
 
   //! Append @[p] to the internal array
   //!
   //! @param p
+  //!
+  //! @returns
+  //!  The object being called
   object `+(Param|Params p)
   {
     params += object_program(p) == Params ? values(p) : ({ p });
@@ -553,6 +572,9 @@ class Params
   //! Removes @[p] from the internal array
   //!
   //! @param p
+  //!
+  //! @returns
+  //!  The object being called
   object `-(Param p)
   {
     foreach (params, Param pm) {
@@ -630,7 +652,7 @@ string uri_encode(string s)
 //!
 //! @param uri
 //!  A @tt{string@} or @[Standards.URI]
-string normalize_uri(STRURI uri)
+string normalize_uri(string|Standards.URI uri)
 {
   uri = ASSURE_URI(uri);
   string nuri = sprintf("%s://%s", uri->scheme, uri->host);
@@ -650,3 +672,4 @@ string nonce()
   return (string)time();
 #endif
 }
+

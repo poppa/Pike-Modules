@@ -1,27 +1,24 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Forecast class@}
-//!
 //! This class fetches weather forecast from Yahoo.
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! This file is part of Yahoo.pmod
-//!
-//! Yahoo.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Yahoo.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Yahoo.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| This file is part of Yahoo.pmod
+//|
+//| Yahoo.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Yahoo.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Yahoo.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 import Parser.XML.Tree;
 
@@ -192,7 +189,7 @@ string _sprintf(int t)
   return t == 'O' && sprintf("Forecast(%O, %O)", location, unit);
 }
 
-//! Parses the RSS feed and populates the @[weather] object
+// Parses the RSS feed and populates the @[weather] object
 private void parse_xml(string xml)
 {
   Node root = parse_input(xml);
@@ -263,6 +260,12 @@ int is_night()
 }
 
 //! Turns the stupid pm/am into 24h format
+//!
+//! @param t
+//!  Time as string @tt{hh:mm [am/pm]@}.
+//! @param retobj
+//!  if @tt{1@} the @tt{Calendar.Minute@} object will be returned. Else
+//!  a 24h string representation will be returned.
 string|Calendar.Minute normalize_time(string t, void|int(0..1) retobj)
 {
   Calendar.Minute c;
@@ -276,11 +279,12 @@ string|Calendar.Minute normalize_time(string t, void|int(0..1) retobj)
 //! @param date
 //!   A string reprsentation of a date.
 //! @param retobj
-//!   If 1 the @[Calendar.Second()] object will be returned
+//!   If @tt{1@} the @tt{Calendar.Second@} object will be returned
 //!
 //! @returns
-//!   Either an ISO formatted date string or the @[Calendar.Second()] object if
-//!   @[retobj] is 1. If no conversion can be made @[date] will be returned.
+//!  Either an ISO formatted date string or the @tt{Calendar.Second@} object if
+//!  @[retobj] is @tt{1@}. If no conversion can be made @[date] will be 
+//!  returned.
 string|Calendar.Second strtotime(string date, int|void retobj) // {{{
 {
   if (!date || !sizeof(date))

@@ -1,15 +1,15 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Diff@}
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! This module executes the @tt{svn cat@} command.
+//! This module executes the @tt{svn cat@} command which returns the content
+//! of a version controlled file.
+//|
+//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
+//|
 //|
 //| ============================================================================
 //|
 //|     GNU GPL version 3
 //|
-//! ============================================================================
+//| ============================================================================
 //|
 //| This file is part of SVN.pmod
 //|
@@ -30,13 +30,19 @@ inherit .AbstractSVN;
 
 private string contents;
 
+//! Constructor
+//!
+//! @param path
+//! @param revision
 void create(string path, void|int revision)
 {
   ::create(revision, path);
   contents = exec("cat", path, revision);
 }
 
+//! Returns the file contents
 string get_contents()
 {
   return contents;
 }
+

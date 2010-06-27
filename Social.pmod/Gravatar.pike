@@ -1,26 +1,6 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Gravatar class@}
-//!
 //! This class generates an URL to a Gravatar image.
 //! @url{http://www.gravatar.com@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Gravatar.pike is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Gravatar.pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Gravatar.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
 //!
 //! @b{Example@}
 //!
@@ -29,6 +9,23 @@
 //!  Social.Gravatar g = Social.Gravatar("me@@domain.com");
 //!  string url = (string)g;
 //! </code>@}
+//|
+//| Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//|
+//| License GNU GPL version 3
+//|
+//| Gravatar.pike is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Gravatar.pike is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Gravatar.pike. If not, see <http://www.gnu.org/licenses/>.
 
 //! G rated gravatar is suitable for display on all websites with any
 //! audience type.
@@ -52,13 +49,13 @@ protected local string gravatar_url = "http://www.gravatar.com/avatar.php?";
 //! Avilable ratings
 protected multiset ratings = (< RATING_G, RATING_PG, RATING_R, RATING_X >);
 
-//! Default fallback image.
+//! Default fallback image. This is a URI and should contain the schema as well.
 string image;
 
 //! The email the Gravatar account is registered with
 string email;
 
-//! The Gravatar rating
+//! The Gravatar rating. Default is @tt{RATING_G@}
 string rating = RATING_G;
 
 //! The size of the Gravatar to display

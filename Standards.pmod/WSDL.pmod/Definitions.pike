@@ -1,33 +1,31 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Standards.WSDL.Definitions@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
-//! This class represents be root of a WSDL file
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Definitions.pike is part of WSDL.pmod
-//!
-//! WSDL.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! WSDL.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with WSDL.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! This class represents the root of a WSDL file
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Definitions.pike is part of WSDL.pmod
+//|
+//| WSDL.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| WSDL.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with WSDL.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 #define TRACE_DEBUG
 #include "wsdl.h"
 
 // Contains QName
 import Standards.XML.Namespace;
+
 import Standards.Constants;
 import Parser.XML.Tree;
 import ".";
@@ -43,11 +41,11 @@ protected string wsdl_xml;
 
 //! Namespace container. The key is the local name of the namespace attribute.
 //! I.e. @tt{xmlns:tns="someNsURI"@} will have the key @tt{tns@}.
-protected mapping(string:QName) ns        = ([]);
+protected mapping(string:QName) ns = ([]);
 
 //! Container for the WSDL messages
 //! The key is the name attribute of the message node.
-protected mapping(string:Message) messages  = ([]);
+protected mapping(string:Message) messages = ([]);
 
 //! Container for the WSDL port types.
 //! The key is the name attribute of the porttype node
@@ -55,18 +53,18 @@ protected mapping(string:PortType) porttypes = ([]);
 
 //! Container for the WSDL bindings
 //! The key is the name attribute of the binding node
-protected mapping(string:Binding) bindings  = ([]);
+protected mapping(string:Binding) bindings = ([]);
 
 //! Container for the WSDL services (in most cases only one)
 //! The key is the name attribute of the service node
-protected mapping(string:Service) services  = ([]);
+protected mapping(string:Service) services = ([]);
 
 //! Container for the WSDL imports (only the imports directly under the 
 //! definitions node, not eventuals imports in the schema node)
-protected mapping(string:Import) imports   = ([]);
+protected mapping(string:Import) imports = ([]);
 
 //! Container for the WSDL scemas
-protected array(Schema) schemas   = ({});
+protected array(Schema) schemas = ({});
 
 //! Creates a new Definitions object
 //!
@@ -93,7 +91,7 @@ void set_target_namespace(string|QName namespace)
 {
   if (objectp(namespace))
     target_namespace = namespace;
-  else 
+  else
     target_namespace = QName(namespace, "targetNamespace");
 }
 

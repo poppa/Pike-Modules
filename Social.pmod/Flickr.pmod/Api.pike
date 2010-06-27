@@ -1,23 +1,22 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Api@}
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Api.pike is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! Api.pike is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with Api.pike. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//! Flickr service API
+//|
+//| Copyright © 2010, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Api.pike is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| Api.pike is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with Api.pike. If not, see <http://www.gnu.org/licenses/>.
 
 #include "flickr.h"
 import ".";
@@ -26,14 +25,17 @@ protected multiset all_perms = (< PERM_READ, PERM_WRITE, PERM_DELETE >);
 protected string key;
 protected string secret;
 protected string token;
-
 protected string endpoint = ENDPOINT_URL;
 protected string response_format = "rest";
 protected string permission = PERM_READ;
 protected int bit_permission = BIT_PERM_READ;
-
 protected User user;
 
+//! Creates a new instance of @[Api].
+//!
+//! @param api_key
+//! @param api_secret
+//! @param api_token
 void create(string api_key, string api_secret, void|string api_token)
 {
   key = api_key;
@@ -41,26 +43,36 @@ void create(string api_key, string api_secret, void|string api_token)
   token = api_token;
 }
 
+//! Returns an identifier of this instance. This can be used as a cache key or
+//! something similar.
 string get_identifer()
 {
   return key + secret + (token||"") + (user && user->username || "");
 }
 
+//! Setter for the API token
+//!
+//! @param api_token
 void set_token(string api_token)
 {
   token = api_token;
 }
 
+//! Getter for the API token
 string get_token()
 {
   return token;
 }
 
+//! Setter for the user object
+//!
+//! @param _user
 void set_user(User _user)
 {
   user = _user;
 }
 
+//! Getter for the @[User] object.
 User get_user()
 {
   if (user) return user;
@@ -74,26 +86,37 @@ User get_user()
   return 0;
 }
 
+//! Returns true if the current instance is authenticated.
 int(0..1) is_authenticated()
 {
   return !!get_user();
 }
 
+//! Getter for the reponse format being used
 string get_response_format()
 {
   return response_format;
 }
 
+//! Returns the permissions
 string get_permission()
 {
   return permission;
 }
 
+//! Returns the permissions as bit flags
 int get_bit_permission()
 {
   return bit_permission;
 }
 
+//! Setter for the permissions
+//!
+//! @throws
+//!  An error if @[perm] is unknown
+//!
+//! @param perm
+//!  See the @tt{PERM_*@} constants in @[Flickr].
 void set_permission(string perm)
 {
   if ( !all_perms[perm] ) {
@@ -105,6 +128,11 @@ void set_permission(string perm)
   bit_permission = BIT_PERM_MAP[perm];
 }
 
+//! Returns the authorization url.
+//!
+//! @param perm
+//!  What permission to give to the authenticated user. This overrides the
+//!  global value of the object.
 string get_auth_url(void|string perm)
 {
   if (perm) set_permission(perm);
@@ -119,6 +147,11 @@ string get_auth_url(void|string perm)
   return AUTH_ENDPOINT_URL + "?" + p->to_query();
 }
 
+//! Request an API token. Calls @tt{flickr.auth.getToken@}.
+//!
+//! @param frob
+//!  A frob is given back after a successful authentication. 
+//!  See @[get_auth_url()].
 int(0..1) request_token(string frob)
 {
   Params p = Params(Param(FROB, frob));
@@ -133,6 +166,20 @@ int(0..1) request_token(string frob)
   return 0;
 }
 
+//! Calls a Flickr web service and returns the raw response
+//!
+//! @throws
+//!  An error if the HTTP status isn't 200
+//!  An error if the response is unparsable.
+//!  An error if the response status isn't OK and @[dont_throw_error] isn't
+//!  @tt{1@}.
+//!
+//! @param api_method
+//!  The method to call: @tt{flickr.auth.getToken, flickr.photos.getInfo@}
+//!  for instance.
+//! @param _params
+//! @param dont_throw_error
+//!  If @tt{1@} an error won't be thrown when the reponse status isn't OK.
 string call_xml(string api_method, void|mapping|Params _params,
                 void|int(0..1) dont_throw_error)
 {
@@ -178,6 +225,13 @@ string call_xml(string api_method, void|mapping|Params _params,
   return data;
 }
 
+//! Calls a Flickr web service
+//!
+//! @seealso
+//!  @[call_xml()]
+//!
+//! @param api_method
+//! @param params
 Response call(string api_method, void|mapping|Params params)
 {
   return Response(call_xml(api_method, params));

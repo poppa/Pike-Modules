@@ -1,15 +1,13 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Diff@}
-//!
-//! Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//!
 //! This module executes the @tt{svn diff@} command.
+//|
+//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
 //|
 //| ============================================================================
 //|
 //|     GNU GPL version 3
 //|
-//! ============================================================================
+//| ============================================================================
 //|
 //| This file is part of SVN.pmod
 //|
@@ -28,14 +26,22 @@
 
 import Parser.XML.Tree;
 
+// Hidden module constructor
 protected local void create(mixed ... args) {}
 
-Diff `()(void|string file, void|int|string old_revision, 
+//! Constructor for the @[Diff] object
+//!
+//! @param file
+//! @param old_revision
+//! @param new_revision
+Diff `()(void|string file, void|int|string old_revision,
          void|int|string new_revision)
 {
   return Diff(file, old_revision, new_revision);
 }
 
+// Resolves the revision numbers of the last and next last revision for
+// @[path].
 protected array parse_revision(string path, array args)
 {
   // Only do this check when running agains the archive since that doesn't
@@ -55,21 +61,30 @@ protected array parse_revision(string path, array args)
     for (int i; i < sizeof(args); i++) {
       string arg = lower_case( args[i] );
       if (search(arg, "prev") > -1)
-      	args[i]= replace(arg, "prev", (string)prev);
+      	args[i] = replace(arg, "prev", (string)prev);
       else if (search(arg, "committed") > -1)
-      	args[i]= replace(arg, "committed", (string)prev);
+      	args[i] = replace(arg, "committed", (string)prev);
     }
   }
 
   return args;
 }
 
+//! SVN diff class
 class Diff
 {
   inherit .AbstractSVN;
 
   protected array(Index) indexes = ({});
 
+  //! Creates a new @[Diff] object
+  //!
+  //! @seealso
+  //!  @[`()].
+  //!
+  //! @param file
+  //! @param old_revision
+  //! @param new_revision
   void create(void|string file, void|int|string old_revision, 
               void|int|string new_revision)
   {
@@ -98,11 +113,13 @@ class Diff
           file);
   }
 
+  //! Returns the array of @[Index] objects.
   array _values()
   {
     return indexes;
   }
 
+  // Parse the diff
   private void parse(string s)
   {
     Index idx;
@@ -128,27 +145,36 @@ class Diff
   }
 }
 
+//! This class contains the diff lines for a given path
 class Index
 {
   protected string path;
   protected array(string) diff = ({});
   
+  //! Creates a new @[Index] object
+  //!
+  //! @param _path
   void create(string _path)
   {
     path = _path; //_path[sizeof(.get_repository_base())..];
   }
 
+  //! Getter for the path
   string get_path()
   {
     return path;
   }
 
+  //! Appends @[s] to the internal array of diff lines.
+  //!
+  //! @param s
   object_program `+(string s)
   {
     diff += ({ s });
     return this;
   }
   
+  //! Returns the array of diff lines
   array(string) _values()
   {
     return diff;
@@ -160,6 +186,21 @@ class Index
   }
 }
 
+//! Creates a side-by-side comparison of a @[Diff]
+//!
+//! @param diff
+//!  A @[Diff] object
+//!
+//! @returns 
+//!  An array of two indices where the first is the old revision and the
+//!  second is the new revision. Each array row is a mapping with the following
+//!  indices:
+//!  @mapping
+//!   @member string "line"
+//!    The actual diff line
+//!   @member string "type"
+//!    Which can be @tt{normal, none, del, new or break@}
+//!  @endmapping
 array table(object_program diff)
 {
   array old = ({});

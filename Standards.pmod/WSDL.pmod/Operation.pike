@@ -1,27 +1,24 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! @b{Standards.WSDL.Binding@}
-//!
-//! Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//!
 //! This class represents an operation node of a WSDL document
-//!
-//! @pre{@b{License GNU GPL version 3@}
-//!
-//! Operation.pike is part of WSDL.pmod
-//!
-//! WSDL.pmod is free software: you can redistribute it and/or modify
-//! it under the terms of the GNU General Public License as published by
-//! the Free Software Foundation, either version 3 of the License, or
-//! (at your option) any later version.
-//!
-//! WSDL.pmod is distributed in the hope that it will be useful,
-//! but WITHOUT ANY WARRANTY; without even the implied warranty of
-//! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//! GNU General Public License for more details.
-//!
-//! You should have received a copy of the GNU General Public License
-//! along with WSDL.pmod. If not, see <@url{http://www.gnu.org/licenses/@}>.
-//! @}
+//|
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| License GNU GPL version 3
+//|
+//| Operation.pike is part of WSDL.pmod
+//|
+//| WSDL.pmod is free software: you can redistribute it and/or modify
+//| it under the terms of the GNU General Public License as published by
+//| the Free Software Foundation, either version 3 of the License, or
+//| (at your option) any later version.
+//|
+//| WSDL.pmod is distributed in the hope that it will be useful,
+//| but WITHOUT ANY WARRANTY; without even the implied warranty of
+//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//| GNU General Public License for more details.
+//|
+//| You should have received a copy of the GNU General Public License
+//| along with WSDL.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 import Parser.XML.Tree;
 import Standards.XML.Namespace;
@@ -63,6 +60,8 @@ Output output;
 Fault fault;
 
 //! Decodes an operation node
+//!
+//! @param n
 protected void decode(Node n)
 {
   string wsdl, soap, http;
@@ -110,16 +109,27 @@ protected void decode(Node n)
 }
 
 //! Class representing an input node
+//!
+//! TODO: Document this better!
 class Input
 {
   inherit .BaseObject;
+
+  //! The message
   QName message;
-  //string prefix;
   
+  //string prefix;
+
   //! The use attribute
   string use;
+  
+  //! The body prefix
   string body_prefix;
+  
+  //! The encoding style
   string encoding_style;
+  
+  //! The namespace
   string namespace;
 
   protected void decode(Node n)

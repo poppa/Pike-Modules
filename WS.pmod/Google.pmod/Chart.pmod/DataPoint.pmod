@@ -1,3 +1,5 @@
+//! Class representing a DataPoint
+
 constant TYPE_FLAG    = 0;
 constant TYPE_TEXT    = 1;
 constant TYPE_NUMERIC = 2;
