@@ -63,7 +63,6 @@ class JSMin
   private int lookahead = EOF;
   private Stdio.FakeFile input;
   private String.Buffer output;
-  private function _add;
 
 #define add(C) output->add(sprintf("%c", (C)))
 
@@ -75,7 +74,6 @@ class JSMin
       input = data;
 
     output = String.Buffer();
-    _add = output->add;
   }
 
   string minify()
