@@ -25,7 +25,7 @@
 //!  An error if the parsing fails
 //!
 //! @param data
-string minify(string data)
+string minify(Stdio.File|string data)
 {
   return JSMin(data)->minify();
 }
@@ -61,17 +61,19 @@ class JSMin
   private int a;
   private int b;
   private int lookahead = EOF;
-
   private Stdio.FakeFile input;
   private String.Buffer output;
   private function _add;
 
-#define add(C) _add(sprintf("%c", (C)))
+#define add(C) output->add(sprintf("%c", (C)))
 
-  void create(string data)
+  void create(Stdio.File|string data)
   {
-    data = replace(data, "\r\n", "\n");
-    input = Stdio.FakeFile(data);
+    if (stringp(data))
+      input = Stdio.FakeFile(data);
+    else
+      input = data;
+
     output = String.Buffer();
     _add = output->add;
   }
@@ -88,21 +90,15 @@ class JSMin
     int c = lookahead;
     lookahead = EOF;
 
-    if (c == EOF)
-      sscanf(input->read(1), "%c", c);
+    c == EOF && sscanf(input->read(1), "%c", c);
 
     if (c >= ' ' || c == '\n' || c == EOF)
       return c;
 
-    if (c == '\r') return '\n';
-
-    return ' ';
+    return c == '\r' && '\n' || ' ';
   }
 
-  private int peek()
-  {
-    return lookahead = get();
-  }
+#define peek() (lookahead = get())
 
   private int next()
   {
@@ -111,16 +107,14 @@ class JSMin
       switch (peek())
       {
       	case '/':
-	  for (;;) {
-	    c = get();
+	  while (c = get())
 	    if (c <= '\n')
 	      return c;
-	  }
 	  break;
 
 	case '*':
 	  get();
-	  for (;;) {
+	  while (1) {
 	    switch (get())
 	    {
 	      case '*':
@@ -144,64 +138,56 @@ class JSMin
     return c;
   }
 
-  void action(int d)
-  {
-    switch (d)
-    {
-      case 1: add(a);
-      case 2:
-	a = b;
-	if (a == '"' || a == '\'') {
-	  for (;;) {
-	    add(a);
-	    a = get();
-	    if (a == b)
-	      break;
+#define action(d)                                                          \
+  do {                                                                     \
+    switch ((int)d)                                                        \
+    {                                                                      \
+      case 1:                                                              \
+	add(a);                                                            \
+      case 2:                                                              \
+	a = b;                                                             \
+	if (a == '"' || a == '\'') {                                       \
+	  while (1) {                                                      \
+	    add(a);                                                        \
+	    a = get();                                                     \
+	    if (a == b)                                                    \
+	      break;                                                       \
+	    if (a == '\\') {                                               \
+	      add(a);                                                      \
+	      a = get();                                                   \
+	    }                                                              \
+	    if (a == EOF)                                                  \
+	      error("Unterminated string literal! ");                      \
+	  }                                                                \
+	}                                                                  \
+      case 3:                                                              \
+	b = next();                                                        \
+	if (b == '/' &&                                                    \
+	   (< '(',',','=',':','[','!','&','|','?','{','}',';','\n' >)[a] ) \
+	{                                                                  \
+	  add(a);                                                          \
+	  add(b);                                                          \
+	  while (1) {                                                      \
+	    a = get();                                                     \
+	    if (a == '/')                                                  \
+	      break;                                                       \
+	    if (a == '\\') {                                               \
+	      add(a);                                                      \
+	      a = get();                                                   \
+	    }                                                              \
+	    if (a == EOF)                                                  \
+	      error("Unterminated regular expression literal");            \
+	    add(a);                                                        \
+	  }                                                                \
+	  b = next();                                                      \
+	}                                                                  \
+	break;                                                             \
+    }                                                                      \
+  } while(0)
 
-	    if (a == '\\') {
-	      add(a);
-	      a = get();
-	    }
-
-	    if (a == EOF)
-	      error("Unterminated string literal! ");
-	  }
-	}
-
-      case 3:
-	b = next();
-	if (b == '/' &&
-	   (< '(',',','=',':','[','!','&','|','?','{','}',';','\n' >)[a] )
-	{
-	  add(a);
-	  add(b);
-	  for (;;) {
-	    a = get();
-	    if (a == '/')
-	      break;
-
-	    if (a == '\\') {
-	      add(a);
-	      a = get();
-	    }
-	    if (a == EOF)
-	      error("Unterminated regular expression literal");
-
-	    add(a);
-	  }
-
-	  b = next();
-	}
-	break;
-    }
-  }
-
-  private int(0..1) is_alnum(int c)
-  {
-    return ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
-            (c >= 'A' && c <= 'Z') || c == '_' || c == '$' || c == '\\' ||
-             c > 126);
-  }
+#define is_alnum(c) ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || \
+                     (c >= 'A' && c <= 'Z') || c == '_' || c == '$' ||   \
+                      c == '\\' || c > 126)
 
   private void jsmin()
   {
@@ -213,7 +199,7 @@ class JSMin
       	case ' ':
 	  if (is_alnum(b))
 	    action(1);
-	  else
+	  else 
 	    action(2);
 	  break;
 
@@ -267,18 +253,13 @@ class JSMin
 		    action(1);
 		  else
 		    action(3);
-
-		  break;
 	      }
 	      break;
 
 	    default:
 	      action(1);
-	      break;
 	  }
-	  break;
       }
     }
   }
 }
-
