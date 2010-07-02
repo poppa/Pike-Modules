@@ -2,24 +2,7 @@
  * Codify
  *
  * This module provide a tag to syntax highlight source code.
- *
- * -----------------------------------------------------------------------------
- *
  * Copyright © 2007 Pontus Östlund <pontus@poppa.se>
- *
- * The Codify module is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * The Codify module is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- * Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include <config.h>
@@ -80,7 +63,9 @@ class TagCodify
   mapping(string:RXML.Type) opt_arg_types = ([
     "language"      : RXML.t_text(RXML.PEnt),
     "tabsize"       : RXML.t_text(RXML.PEnt),
-    "html-embedded" : RXML.t_text(RXML.PEnt)
+    "html-embedded" : RXML.t_text(RXML.PEnt),
+    "html-decode"   : RXML.t_text(RXML.PEnt),
+    "preparse"      : RXML.t_text(RXML.PEnt)
   ]);
 
   class Frame
@@ -106,6 +91,12 @@ class TagCodify
         s->html_embedded = (int)v;
       }
 
+      if (args->preparse)
+	content = Roxen.parse_rxml(content, id);
+      
+      if ( args["html-decode"] )
+	content = Roxen.html_decode_string(content);
+
       vars["source"]   = s->parse(String.trim_all_whites(content));
       vars["lines"]    = s->get_lines();
       vars["language"] = s->get_title() || "Unknown";
@@ -122,6 +113,53 @@ class TagCodify
       vars = ([]);
       return 0;
     }
+  }
+}
+
+class TagEmitCodify
+{
+  inherit RXML.Tag;
+  constant name = "emit";
+  constant plugin_name = "codify";
+
+  mapping(string:RXML.Type) req_arg_types = ([
+    "code"          : RXML.t_text(RXML.PEnt),
+    "language"      : RXML.t_text(RXML.PEnt),
+  ]);
+
+  mapping(string:RXML.Type) opt_arg_types = ([
+    "tabsize"       : RXML.t_text(RXML.PEnt),
+    "html-embedded" : RXML.t_text(RXML.PEnt),
+    "html-decode"   : RXML.t_text(RXML.PEnt)  
+  ]);
+  
+  array get_dataset(mapping args, RequestID id)
+  {
+    Syntaxer.Hilite s = Syntaxer.get_parser(args->language||"");
+
+    if (args->tabsize)
+      s->tabsize = (int)args->tabsize;
+
+    if (line_wrapper)
+      s->line_wrap = line_wrapper;
+
+    if ( string v = args["html-embedded"] ) {
+      if ( !(< "0","1" >)[v] )
+	RXML.parse_error("Illegal value to argument \"html-embedded\". "
+			 "Must be \"0\" or \"1\"");
+      s->html_embedded = (int)v;
+    }
+
+    if ( args["html-decode"] )
+      args->code = Roxen.html_decode_string(args->code);
+
+    mapping ret = ([]);
+
+    ret->source   = s->parse(String.trim_all_whites(args->code));
+    ret->lines    = s->get_lines();
+    ret->language = s->get_title() || "Unknown";
+    
+    return ({ ret });
   }
 }
 

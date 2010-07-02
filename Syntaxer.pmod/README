@@ -18,9 +18,9 @@ syntax map you can easily create support for any language you like.
 
 Each supported language is represented by a corresponding Pike class - we have
 for instance Pike.pike, Python.pike, Java.pike and so on - that inherits the
-main class Hilite in module.pike. Worth noticing is that tag based languages
-like XML, XSL, RXML and so on is inheriting the class HTML in Markup.pike 
-(which it self inherits Hilite).
+main parser class Parser. Worth noticing is that tag based languages like XML,
+XSL, RXML and so on is inheriting the class HTML in Markup.pmod (which it self
+inherits Parser).
 
 ================================================================================
 
@@ -35,11 +35,11 @@ If you want to implement support for your own language do the following
      They'r called "{language-mostly}.stx".
 
   2. Use "stxparser" to generate a Pike representation of the ada.stx file.
-     I have "cd":ed to Syntaxer.pmod
+     I have "cd":ed to Syntaxer.pmod/Stx.pmod
 
 	 my-computer:~$ ./stxparser ~/Desktop/ada.stx -o Ada.pike
 
-     Now I have Ada.pike in Syntaxer.pmod
+     Now I have Ada.pike in Syntaxer.pmod/Stx.pmod
 
   3. Open up Ada.pike in your prefered editor and make sure that the "title"
      variable looks OK. Some authors of *.stx files write essays in this 
@@ -53,15 +53,15 @@ If you want to implement support for your own language do the following
      You will need to remove the comments there if you want macros to be 
      highlighted.
 
-  4. Almost done! Open up module.pike and scroll down to the bottom of the
-     file. There in Syntaxer.get_parser() you need to add a "case" statement
+  4. Almost done! Open up Hilite.pike and scroll down to the bottom of the
+     file. There in get_parser() you need to add a "case" statement
      for your language.
 
        switch(lower_case(type)) {
 	 ...
   
 	 case "ada":
-	   o = .Ada();
+	   cls = "Ada";
 	   break;
        }
 
@@ -78,9 +78,15 @@ This will create a HTML file named "source.ada.html" in my desktop directory.
 If you wan't to use the module code-wise you use it like this (assuming you
 have put Syntaxer.pmod in your PIKE_MODULE_PATH)
 
+  // The file to highlight
+  string file = "/path/to/source.ada";
+
   // Retrieve a parser object. If no one is found a "generic" parser will be
   // returned wich pretty much does nothing.
   Syntaxer.Hilite stx = Syntaxer.get_parser("ada");
+
+  // In this case, since we're working on a file we could do:
+  // Syntaxer.Hilite stx = Syntaxer.get_parser_from_file(file);
 
   // You can set the tabsize if you wish. Default is 4, but can also be
   // overridden in easch sub class.
@@ -97,8 +103,6 @@ have put Syntaxer.pmod in your PIKE_MODULE_PATH)
   // wish to wrap the code in a pair of <pre></pre>.
   // The below will add a newline to the end of every line.
   stx->line_wrap = ({ "", "\n" });
-  
-  string file = "/path/to/source.ada";
   
   // Lets parse the damn thing!
   string hicode = stx->parse(Stdio.read_file(file);

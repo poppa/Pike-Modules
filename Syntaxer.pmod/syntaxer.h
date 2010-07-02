@@ -9,9 +9,10 @@
 #define IS_MACRO()  macro_continue || ((macro && (char == macro_char) && \
                     (macro_indent || (!macro_indent && line == ""))))
 
+#define add(S) buffer->add((S))
 #define APPEND_LINE(S) do{              \
-          lines++;                      \
-          add(line_wrap * (S + SPACE)); \
+	  lines++;                      \
+	  add(line_wrap * (S + SPACE)); \
         } while (0)
 
 #define TRIM(x)  String.trim_all_whites(x)

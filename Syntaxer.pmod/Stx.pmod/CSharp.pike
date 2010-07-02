@@ -1,4 +1,4 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "CSharp";
 
@@ -25,7 +25,7 @@ protected mapping(string:multiset(string)) keywords = ([
    *
    * There's simply to much overload activating this stuff...
    *
-  *
+   *
   "methods" : (<
     "Abandon","Abort","Aborted","AbortRecord","Abs","Accept","AcceptChanges",
     "AcceptSocket","AcceptTcpClient","AccessRuleFactory","Acos",
@@ -6791,10 +6791,9 @@ protected mapping(string:string) _colors = ([
 
 void create()
 {
-  ::create();
-
   colors += _colors;
   styles += ([ "datatypes" : ({ "<b>", "</b>" }),
                "classes"   : ({ "<b>", "</b>" }),
                "methods"   : ({ "<b>", "</b>" }) ]);
+  ::create();
 }

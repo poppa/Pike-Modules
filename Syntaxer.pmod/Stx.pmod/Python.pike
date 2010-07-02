@@ -1,4 +1,4 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "Pyhton";
 
@@ -540,9 +540,10 @@ private mapping(string:array(string)) _styles = ([
 
 void create()
 {
-  ::create();
   keywords = _keywords;
   colors += _colors;
   styles += _styles;
   quotes += ({ "\"\"\"" });
+
+  ::create();
 }

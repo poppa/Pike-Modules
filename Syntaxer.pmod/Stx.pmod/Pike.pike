@@ -1,7 +1,6 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "Pike";
-
 private mapping(string:multiset(string)) _keywords = ([
   "keywords" : (<
     "if","else","switch","case","default","break","class","continue","import",
@@ -90,10 +89,12 @@ protected int(0..1) macro = 1;
 
 void create()
 {
-  ::create();
+  werror("Init Pike parser\n");
   keywords += _keywords;
   colors += _colors;
   styles += ([ "keywords1"     : ({ "<b>", "</b>" }),
                "keywords2"     : ({ "<b>", "</b>" }),
 	       "special_funcs" : ({ "<b>", "</b>" }) ]);
+
+  ::create();
 }

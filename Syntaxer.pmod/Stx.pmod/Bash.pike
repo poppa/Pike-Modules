@@ -2,7 +2,7 @@
 //|
 //| Inherit main class. If you'r creating a tag based syntax file inherit
 //| HTML in Markup.pmod instead.
-inherit .Hilite;
+inherit "../Parser.pike";
 
 //! The name of the language
 public string title = "BASH";
@@ -175,8 +175,6 @@ protected mapping(string:multiset(string)) _keywords = ([
 //! in front of =.
 void create()
 {
-  ::create();
-
   linecomments   = _linecomments;
   delimiters     = _delimiters;
   blockcomments  = _blockcomments;
@@ -189,4 +187,6 @@ void create()
   escape         = _escape;
   quotes         = _quotes;
   keywords       = _keywords;
+
+  ::create();
 }

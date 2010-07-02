@@ -1,6 +1,7 @@
+/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! Generic syntax highlighting
 //!
-//! To add support for a new language just inherit the Hilite class and see
+//! To add support for a new language just inherit the Parser class and see
 //! how the other extensions are made.
 //|
 //| This is in part a Pike port of my generic styntax highlighting script
@@ -11,6 +12,9 @@
 //| Edit+ (http://editplus.com) to create the syntax maps, but since Pike
 //| isn't as a dynamic language like PHP I decided to skip that path for this
 //| solution.
+//|
+//| But still: The script "stxparser" will parse a stx file for Edit+ and
+//| generate a Pike stub.
 //|
 //| ============================================================================
 //|
@@ -39,95 +43,27 @@
 //! @param type
 .Hilite get_parser(string type)
 {
-  .Hilite o;
+  return .Hilite(type);
+}
 
-  switch (lower_case(type||"")) {
-    //| General C like languages
-    case "c-like":
-      o = .Hilite();
-      break;
+.Hilite get_parser_from_file(string path)
+{
+  if (!Stdio.exist(path))
+    error("\"%s\" doesn't exist! ", path);
 
-    case "css":
-      o = .Css();
-      break;
-
-    case "pike": case "pmod":
-      o = .Pike();
-      break;
-
-    case "xml": 
-      o = .Markup.XML();
-      break;
-
-    case "htm": case "html": case "wsdl":
-      o = .Markup.HTML();
-      break;
-
-    case "xsl": case "xslt":
-      o = .Markup.XSL();
-      break;
-
-    case "c":
-      o = .C();
-      break;
-
-    case "h":
-      o = .C();
-      o->title = "Header file";
-      break;
-
-    case "java":
-      o = .Java();
-      break;
-
-    case "javascript": case "js":
-      o = .JavaScript();
-      break;
-
-    case "cpp": case "cc": case "c++":
-      o = .Cpp();
-      break;
-
-    case "c#": case "cs": case "csharp":
-      o = .CSharp();
-      break;
-
-    case "rxml":
-      o = .Markup.RXML();
-      break;
-
-    case "pl": case "pm": case "perl":
-      o = .Perl();
-      break;
-
-    case "python": case "py":
-      o = .Python();
-      break;
-
-    case "ruby": case "rb": case "rbw":
-      o = .Ruby();
-      break;
-
-    case "actionscript": case "as":
-      o = .ActionScript();
-      break;
-
-    case "php": case "php3": case "php4": case "php5":
-      o = .PHP();
-      break;
-
-    case "bash": case "sh":
-      o = .Bash();
-      break;
-
-    case "ada":
-      o = .Ada();
-      break;
-
-    default:
-      o = .Generic();
-      break;
+  string ext;
+  array(string) p = path/".";
+  if (sizeof(p) > 1)
+    ext = p[-1];
+  else {
+    Stdio.File f = Stdio.File(path, "r");
+    string s = f->read(32);
+    f->close();
+    if (sscanf(s, "#!%*[a-zA-Z0-9/] %s\n", ext) == 2){}
+    else if (sscanf(s, "#!%[a-zA-Z0-9/]\n", ext) == 1)
+      ext = basename(ext);
   }
 
-  return o;
+  return get_parser(ext);
 }
+

@@ -1,4 +1,4 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "ActionScript";
 
@@ -304,6 +304,6 @@ protected array linecomments  = ({ "//" });
 
 void create()
 {
-  ::create();
   colors += _colors;
+  ::create();
 }

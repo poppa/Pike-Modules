@@ -1,4 +1,4 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "Ruby";
 
@@ -58,11 +58,11 @@ protected array linecomments  = ({ "#" });
 
 void create()
 {
-  ::create();
   tabsize = 2;
   quotes += ({ "`" });
   keywords  = _keywords;
   colors += _colors;
   styles += _styles;
   case_sensitive = 1;
+  ::create();
 }

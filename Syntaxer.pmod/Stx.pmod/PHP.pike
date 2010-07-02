@@ -1,4 +1,4 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "PHP: Hypertext Preprocessor";
 
@@ -797,7 +797,6 @@ private mapping(string:array(string)) _styles = ([
 
 void create()
 {
-  ::create();
   keywords->keywords += _keywords;
   keywords->math = _math_const;
   keywords->functions = _functions;
@@ -806,4 +805,6 @@ void create()
   styles += _styles;
   html_embedded = 1;
   case_sensitive = 0;
+
+  ::create();
 }

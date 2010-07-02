@@ -1,4 +1,4 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "JavaScript";
 
@@ -50,7 +50,8 @@ protected mapping(string:multiset(string)) keywords = ([
     "select","setAttribute","setDate","setHours","setInterval","setMinutes",
     "setMonth","setSeconds","setTime","setYear","ShellExecute","sin","small",
     "split","sqrt","Stop","strike","sub","submit","substr","substring","sup",
-    "tan","target","test","toGMTString","toLocaleString","toLowerCase" >),
+    "tan","target","test","toGMTString","toLocaleString","toLowerCase",
+    "push" >),
 		
   "attributes" /* Object and Vars */ : (<
     "action","alt","align","alignment","appCodeName","appName","appVersion",
@@ -73,13 +74,13 @@ protected mapping(string:multiset(string)) keywords = ([
     "pixelDepth","pixelHeight","pixelLeft","pixelTop","pixelWidth","port",
     "protocol","scrollLeft","scrollTop","search","selected","selectedIndex",
     "selectorText","SQRT2","SQRT1_2","src","srcElement","status","tagName",
-    "target","text","title","top","type","uniqueID","userAgent","value" >)
+    "target","text","top","type","uniqueID","userAgent","value" >)
 ]);
 
 private mapping(string:string) _colors = ([
   "classes"    : "#973",
   "objects"    : "#55C",
-  "methods"    : "#C0A",
+  "methods"    : "#C00",
   "attributes" : "#958"
 ]);
 
@@ -87,6 +88,6 @@ protected array linecomments  = ({ "//" });
 
 void create()
 {
-  ::create();
   colors += _colors;
+  ::create();
 }

@@ -2,15 +2,15 @@
 //|
 //| Inherit main class. If you'r creating a tag based syntax file inherit
 //| HTML in Markup.pmod instead.
-inherit .Hilite;
+inherit .Markup.HTMLParser;
 
 //! The name of the language
-public string title = "Ada";
+public string title = "SVG";
 
 //! Is the language case sensitive or not?
 //!
 //! @appears case_sensitive
-protected int(0..1) _case_sensitive = 0;
+protected int(0..1) _case_sensitive = 1;
 
 //! Is the language HTML embedded or not?
 //!
@@ -25,17 +25,17 @@ protected string _escape = "";
 //! Delimiters like (, ), ; and so on
 //!
 //! @appears delimiters
-protected multiset(string) _delimiters = (< "&","'","(",")","*","+",",","\226",".","/",":",";","<","=",">","|" >);
+protected multiset(string) _delimiters = (< "<",">","/","=","\"","'","%","(",")","{","}","[","]","-","+","*" >);
 
 //! Array of chars defining strings
 //!
 //! @appears quotes
-protected array(string) _quotes = ({ "'","\"" });
+protected array(string) _quotes = ({ "\"","'" });
 
 //! What's a line comment. Like for PHP: ({ "//", "#" })
 //!
 //! @appears linecomment
-protected array(string) _linecomments = ({ "#","--" });
+protected array(string) _linecomments = ({ "//" });
 
 //! The colors mapping defines how things should be colorized. Each index should
 //! correspond to either the name of a base class variable containing some syntax
@@ -75,10 +75,13 @@ protected mapping(string:string) _colors = ([
 
   //| NOTE!!! The ones below is auto generated. Check that they correspond to
   //| the indices in "_keywords". And you might want to change the colors!
-  "keyword-4"                 : "#8a0e0e",
-  "keyword-3"                 : "#049a04",
-  "keyword-2"                 : "#0000aa",
-  "keyword-1"                 : "#0d0dba"
+  "xml-keyword"               : "#8a0e0e",
+  "xml-attribute-types"       : "#049a04",
+  "xml-pi-attribute"          : "#044",
+  "xml-attribute-defaults"    : "#0d0dba",
+  "svg-attributes"            : "#ca0f0f",
+  "xml-declearation"          : "#da0a0a",
+  "svg-elements"              : "#006"
 ]);
 
 //! Definitions for stuff that you want to add extra HTML around.
@@ -93,13 +96,7 @@ protected mapping(string:string) _colors = ([
 //! The indices works in the same way as for colors.
 //!
 //! @appears styles
-protected mapping(string:array(string)) _styles = ([
-  "keyword-1" : ({ "<b>", "</b>" }),
-  "keyword-2" : ({ "<b>", "</b>" }),
-  "keyword-3" : ({ "<b>", "</b>" }),
-  "keyword-4" : ({ "<b>", "</b>" }),
-  "prefix"    : ({ "<b>", "</b>" })
-]);
+protected mapping(string:array(string)) _styles = ([]);
 
 //! Some languages like PHP, Perl, Ruby has some variable prefixes
 //! like $, @, % so we can use them to highlight these variables
@@ -120,7 +117,7 @@ protected mapping(string:array(string)) _styles = ([
 //!   ]);
 //!
 //! @appears prefixes
-protected mapping(string:string|array) _prefixes = ([ "prefix" : ({ ":","@","%","/" }) ]);
+protected mapping(string:string|array) _prefixes = ([ "prefix" : ({ "<![CDATA[" }) ]);
 
 //! Definition of blockcomments. This should be an array if arrays where the
 //! second array should contain two values: The first the pattern that starts
@@ -128,7 +125,7 @@ protected mapping(string:string|array) _prefixes = ([ "prefix" : ({ ":","@","%",
 //! Example: ({ ({ "/*", "*/" }) })
 //!
 //! @appears blockcomments
-protected array(array(string)) _blockcomments = ({  });
+protected array(array(string)) _blockcomments = ({ ({ "<!--","-->" }), ({ "/*","*/" }) });
 
 //! HTML embedded languages use preprocessor instructions to tell when
 //! the actual program code starts and ends. Add them here...
@@ -161,63 +158,59 @@ protected array(array(string)) _preprocs = ({  });
 //!
 //! @appears keywords
 protected mapping(string:multiset(string)) _keywords = ([
-  "keyword-4" : (<
-    "constraint_error","data_error","device_error","end_error",
-    "layout_error","mode_error","name_error","numeric_error","program_error",
-    "status_error","storage_error","tasking_error","use_error" >),
+  "xml-keyword" : (<
+    "INCLUDE","IGNORE","SYSTEM","PUBLIC","NDATA","^#PCDATA","EMPTY",
+    "ANY","UTF-8","utf-8","utf-16","UTF-16","ISO-10646-UCS-2",
+    "ISO-10646-UCS-4","ISO-8859-1","ISO-8859-2","ISO-8859-9","ISO-2022-JP",
+    "Shift_JIS","EUC-JP","euc-kr","EUC-KR" >),
 
-  "keyword-3" : (<
-    "arithmetic","ascii","assertions","boolean","character",
-    "complex_arrays","complex_io","directories","doubly_linked_lists",
-    "duration","edf","environment_variables","false","float","formatting",
-    "generic_complex_arrays","generic_real_arrays","group_budgets",
-    "hashed_maps","hashed_sets","indefinite_doubly_linked_lists",
-    "indefinite_hashed_maps","indefinite_hashed_sets",
-    "indefinite_ordered_maps","indefinite_ordered_sets","indefinite_vectors",
-    "integer","long_float","long_long_float","natural","ordered_maps",
-    "ordered_sets","positive","real_arrays","round_robin","string",
-    "task_termination","time_zones","timers","timing_events","true",
-    "unbounded_io","vectors","wide_character","wide_string" >),
+  "xml-attribute-types" : (<
+    "CDATA","ID","IDREF","IDREFS","ENTITY","ENTITIES","NMTOKEN",
+    "NMTOKENS" >),
 
-  "keyword-2" : (<
-    "all_calls_remote","assert","assertion_policy","asynchronousatomic",
-    "atomic_components","attach_handler","controlled","convention",
-    "detect_blocking","elaborate","elaborate_all","elaborate_body","export",
-    "import","inline","inspection_point","interrupt_handler",
-    "interrupt_priority","license","linker_options","list","locking_policy",
-    "no_return","normalize_scalars","optimize","pack","page","piority",
-    "preelaborable_initialization","preelaborate",
-    "priority_specific_dispatching","profile","pure","pure_function",
-    "queueing_policy","remote_call_interface","remote_types","restrictions",
-    "reviewable","shared_passive","storage_size","task_dispatching",
-    "unchecked_union","unreferenced","unsuppress","volatile",
-    "volatile_components" >),
+  "xml-pi-attribute" : (<
+    "version","encoding","standalone","type","href","title","media",
+    "charset","alternate","xml:space","preserve","default","xml:lang",
+    "xmlns","xmlns:xlink","xmlns:svg" >),
 
-  "keyword-1" : (<
-    "abort","abs","abstract","accept","access","address","adjacent",
-    "aft","aliased","alignment","all","and","array","at","base","begin",
-    "bit_order","body","body_version","callable","caller","case","ceiling",
-    "class","component_size","compose","constant","constrained","copy_sign",
-    "count","declare","definite","delay","delta","denorm","digits","do",
-    "else","elsif","end","entry","exception","exit","exponent",
-    "external_tag","first","first_bit","floor","for","fore","fraction",
-    "function","generic","goto","identity","if","image","in","input",
-    "interface","is","last","last_bit","leading_part","length","limited",
-    "loop","machine","machine_emax","machine_emin","machine_mantissa",
-    "machine_overflow","machine_radix","machine_rounding","machine_rounds",
-    "max","max_size_in_storage_elements","min","mod","model","model_emin",
-    "model_epsilon","model_manitssa","model_small","modulus","new","not",
-    "null","of","or","others","out","output","overriding","package",
-    "partition_id","pos","position","pragma","pred","priority","private",
-    "procedure","protected","raise","range","read","record","rem",
-    "remainder","renames","requeue","return","reverse","round","rounding",
-    "safe_first","safe_last","scale","scaling","select","separate",
-    "signed_zeros","size","small","storage_pool","storage_size","subtype",
-    "succ","synchronized","tag","tagged","task","terminate","terminated",
-    "then","truncation","type","unbiased_rounding","unchecked_access",
-    "until","use","val","valid","value","version","when","while",
-    "wide_image","wide_value","wide_wide_image","wide_wide_value",
-    "wide_wide_width","wide_width","width","with","write","xor" >)
+  "xml-attribute-defaults" : (<
+    "^#REQUIRED","^#IMPLIED","^#FIXED" >),
+
+  "svg-attributes" : (<
+    "accumulate","additive","amplitude","attributeName","attributeType",
+    "azimuth","baseFrequency","begin","by","calcMode","class",
+    "clipPathUnits","cx","cy","d","diffuseConstant","dur","dx","dy",
+    "elevation","enableZoomAndPanControls","end","exponent","fill",
+    "filterUnits","from","fx","fy","gradientTransform","gradientUnits",
+    "height","id","transform","in","in2","intercept","k1","k2","k3","k4",
+    "keyPoints","keySplines","keyTimes","lightColor","maskUnits","mode",
+    "numOctaves","offset","onabort","onblur","onchange","onclick",
+    "ondblclick","onerror","onfocus","onkeydown","onkeypress","onkeyup",
+    "onload","onmousedown","onmousemove","onmouseout","onmouseover",
+    "onmouseup","onreset","onselect","onsubmit","onunload","operator",
+    "origin","path","points","pointsAtX","pointsAtY","pointsAtZ",
+    "preserveAspectRatio","r","radius","repeatCount","repeatDur","restart",
+    "result","resultScale","rotate","rx","ry","scale","slope",
+    "specularConstant","specularExponent","stdDeviation","style",
+    "surfaceScale","tableValues","to","type","values","viewBox","width","x",
+    "x1","x2","xChannelSelector","xlink:href","xml:space","y","y1","y2",
+    "yChannelSelector","z","stop-color","spreadmethod","font-family",
+    "font-size", "font-weight","stop-opacity" >),
+
+  "xml-declearation" : (<
+    "?xml","?xml-stylesheet","!DOCTYPE","!ENTITY","!ELEMENT","!ATTLIST",
+    "!NOTATION" >),
+
+  "svg-elements" : (<
+    "a","animate","animateColor","animateMotion","animateTransform",
+    "circle","clipPath","defs","ellipse","feBlend","feComponentTransfer",
+    "feComposite","feDiffuseLighting","feDisplacementMap","feDistantLight",
+    "feFlood","feFuncA","feFuncB","feFuncG","feFuncR","feGaussianBlur",
+    "feMerge","feMergeNode","feMorphology","feOffset","fePointLight",
+    "feSpecularLighting","feSpotLight","feTurbulence","filter","g","image",
+    "line","linearGradient","mask","path","polygon","polyline",
+    "radialGradient","rect","script","set","stop","svg","text","textPath",
+    "textRef","tspan","use","?xml","?","<","/",">" >)
 ]);
 
 //! Constructor
@@ -227,8 +220,6 @@ protected mapping(string:multiset(string)) _keywords = ([
 //! in front of =.
 void create()
 {
-  ::create();
-
   linecomments   = _linecomments;
   delimiters     = _delimiters;
   blockcomments  = _blockcomments;
@@ -241,4 +232,9 @@ void create()
   escape         = _escape;
   quotes         = _quotes;
   keywords       = _keywords;
+
+  ::create();
+  
+  kw_order = indices(keywords) - ({ "svg-elements" }) - ({ "svg-attributes " });
+  kw_order = ({ "svg-elements", "svg-attributes" }) + kw_order;
 }

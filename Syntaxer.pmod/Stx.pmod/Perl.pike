@@ -1,4 +1,4 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "Perl";
 
@@ -63,10 +63,10 @@ protected array linecomments  = ({ "#" });
 
 void create()
 {
-  ::create();
   keywords->keywords  = _keywords;
   keywords->functions = _functions;
   colors += _colors;
   styles += _styles;
   case_sensitive = 1;
+  ::create();
 }

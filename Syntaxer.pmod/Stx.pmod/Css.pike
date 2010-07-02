@@ -1,4 +1,4 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "Cascading Stylesheet";
 
@@ -97,6 +97,6 @@ protected mapping(string:array(string)) styles = ([
 
 void create()
 {
-  ::create();
   case_sensitive = 0;
+  ::create();
 }

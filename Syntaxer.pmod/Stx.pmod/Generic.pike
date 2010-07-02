@@ -1,8 +1,7 @@
 //! Used when no matching subclass is found.
 //! This will pretty much only indent palin text.
 
-#include "syntaxer.h"
-inherit .Hilite;
+inherit "../Parser.pike";
 
 protected mapping(string:multiset(string)) keywords = ([]);
 protected multiset(string) delimiters = (<>);
@@ -12,5 +11,6 @@ protected array blockcomments = ({});
 
 void create()
 {
+  title = "Text";
   ::create();
 }

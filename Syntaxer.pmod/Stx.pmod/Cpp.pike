@@ -1,4 +1,4 @@
-inherit .Hilite;
+inherit "../Parser.pike";
 
 public string title = "C++";
 
@@ -25,7 +25,8 @@ protected array(string) linecomments = ({ "//" });
 
 void create()
 {
-  ::create();
   colors += ([ "compiler" : "#060" ]);
   styles += ([ "compiler" : ({ "<b>", "</b>" }) ]);
+
+  ::create();
 }
