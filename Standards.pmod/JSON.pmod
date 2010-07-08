@@ -1,7 +1,7 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! JSON.pmod is simply a JSON encoder/decoder
 //|
-//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//| Copyright Â© 2010, Pontus Ã–stlund - www.poppa.se
 //|
 //| License GNU GPL version 3
 //|
@@ -39,7 +39,7 @@ string encode(mixed pike_data, void|int(0..1) readable)
   return __encoder->encode(pike_data, readable);
 }
 
-//! Decodes unicode escaped characters. Like @tt{\\u00e5@} becomes @tt{å@}.
+//! Decodes unicode escaped characters. Like @tt{\\u00e5@} becomes @tt{Ã¥@}.
 //!
 //! @param s
 string decode_unicode_chars(string s)
