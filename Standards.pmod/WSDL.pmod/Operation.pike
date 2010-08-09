@@ -60,8 +60,6 @@ Output output;
 Fault fault;
 
 //! Decodes an operation node
-//!
-//! @param n
 protected void decode(Node n)
 {
   string wsdl, soap, http;
@@ -109,27 +107,16 @@ protected void decode(Node n)
 }
 
 //! Class representing an input node
-//!
-//! TODO: Document this better!
 class Input
 {
   inherit .BaseObject;
-
-  //! The message
   QName message;
-  
   //string prefix;
-
+  
   //! The use attribute
   string use;
-  
-  //! The body prefix
   string body_prefix;
-  
-  //! The encoding style
   string encoding_style;
-  
-  //! The namespace
   string namespace;
 
   protected void decode(Node n)

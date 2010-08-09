@@ -34,6 +34,8 @@ mapping(string:.Port) ports = ([]);
 .Port get_soap_port()
 {
   return get_port_by_type(owner_document->get_wsdl_soap_namespace()
+                                        ->get_local_name()) ||
+         get_port_by_type(owner_document->get_wsdl_soap12_namespace()
                                         ->get_local_name());
 }
 
@@ -49,6 +51,12 @@ mapping(string:.Port) ports = ([]);
       return p;
 }
 
+//! Returns all ports
+mapping(string:.Port) get_ports()
+{
+  return ports;
+}
+
 //! Returns the port with the name attribute value @[name]
 //!
 //! @param name
@@ -57,6 +65,9 @@ mapping(string:.Port) ports = ([]);
   return ports[name];
 }
 
+//! Decodes the service node
+//!
+//! @param n
 protected void decode(Node n)
 {
   name = n->get_attributes()->name;

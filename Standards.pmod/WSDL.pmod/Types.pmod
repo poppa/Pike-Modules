@@ -56,29 +56,33 @@ constant TYPE_SEQUENCE = 1<<9;
 //! Node is @tt{<simpleType/>@}
 constant TYPE_SIMPLE_TYPE = 1<<10;
 
+//! Node is @tt{<schema/>@}
+constant TYPE_SCHEMA = 1<<11;
+
 //! Resolves the class that should be used to decode the node @[n]
 //!
 //! @param n
-protected object resolve_class(Parser.XML.Tree.Node n)
+protected object resolv_class(Parser.XML.Tree.Node n)
 {
-  switch (lower_case(n->get_tag_name()))
+  switch (n->get_tag_name())
   {
     case "any":            return Any;
     case "all":            return All;
-    case "complextype":    return ComplexType;
+    case "complexType":    return ComplexType;
     case "choise":         return Choise;
     case "element":        return Element;
     case "sequence":       return Sequence;
-    case "complexcontent": return ComplexContent;
+    case "complexContent": return ComplexContent;
     case "attribute":      return Attribute;
     case "restriction":    return Restriction;
-    case "simpletype":     return SimpleType;
-    default:               return Type;
+    case "simpleType":     return SimpleType;
+    case "schema":         return Schema;
+    default:               return Type;	
   }
 }
 
 //! Cache of namespaces resolved from 
-//! @[Standards.WSDL.BaseObject()->owner_document] which is an instance of
+//! @[Standards.WSDL.BaseObject()->owner_document] which is an instance of 
 //! @[Standards.WSDL.Definitions]
 protected mapping(string:QName) ns_cache = ([]);
 
@@ -108,13 +112,12 @@ class Type
   //! Add a child element
   //!
   //! @param element
-  //!  Any of the type classes in @[Standards.WSDL.Types]
   void add_element(object /* Standards.WSDL.Types.* */ element)
   {
     elements += ({ element });
   }
   
-  //! Returns the @[Element] elements.
+  //! Returns the @tt{element@} elements.
   array(Element) get_element_elements()
   {
     return low_find_children(elements, TYPE_ELEMENT);
@@ -123,7 +126,7 @@ class Type
   //! Find child of type @[type]
   //! 
   //! @param type
-  //!  Any of the @tt{TYPE_*@} constants in @[Standards.WSDL.Types].
+  //!  Any of the @tt{TYPE_*@} constants
   array(Type) find_children(int type)
   {
     return low_find_children(elements, type);
@@ -171,7 +174,7 @@ class Type
   {
     foreach (n->get_children(), Node cn) {
       if (cn->get_node_type() == XML_ELEMENT)
-	elements += ({ resolve_class(cn)(cn, owner_document) }); 
+	elements += ({ resolv_class(cn)(cn, owner_document) }); 
     }
   }
 
@@ -231,13 +234,16 @@ class ComplexType
 {
   inherit Type;
   int TYPE = TYPE_COMPLEX_TYPE;
-
+  
   //! Attribute @tt{mixed@}
   int(0..1) is_mixed = 0;
-
+  
   //! Attribute @tt{abstract@}
   int(0..1) is_abstract = 0;
-
+  
+  //! Decodes the node
+  //!
+  //! @param n
   protected void decode(Node n)
   {
     mapping a = n->get_attributes();
@@ -268,7 +274,7 @@ class Element
     set_defaults(a);
     type = a->type && QName("", a->type);
     nillable = a->nillable && a->nillable == "true";
-
+    
     if (type) {
       QName nsq;
       if ( nsq = ns_cache[type->get_prefix()] )
@@ -281,7 +287,7 @@ class Element
 	}
       }
     }
-
+    
     set_children(n);
   }
 }
@@ -327,7 +333,7 @@ class Sequence
   {
     foreach (n->get_children(), Node cn) {
       if (cn->get_node_type() == XML_ELEMENT) {
-	object o = resolve_class(cn)(cn, owner_document);
+	object o = resolv_class(cn)(cn, owner_document);
 	order += ({ o->name||o->get_node_name() });
 	elements += ({ o }); 
       }
@@ -340,4 +346,16 @@ class SimpleType
 {
   inherit Type;
   int TYPE = TYPE_SIMPLE_TYPE;
+}
+
+class Schema
+{
+  inherit Type;
+//  inherit Standards.WSDL.Schema;
+  int TYPE = TYPE_SCHEMA;
+  
+  protected void decode(Node n)
+  {
+    error("Decode schema type\n");
+  }
 }

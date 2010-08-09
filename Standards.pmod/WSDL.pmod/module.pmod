@@ -3,6 +3,8 @@
 //|
 //| Copyright © 2009, Pontus Östlund - www.poppa.se
 //|
+//| WSDL.pmod decodes (eventually perhaps also encodes) a WSDL document
+//|
 //| License GNU GPL version 3
 //|
 //| WSDL.pmod is free software: you can redistribute it and/or modify
@@ -16,7 +18,10 @@
 //| GNU General Public License for more details.
 //|
 //| You should have received a copy of the GNU General Public License
-//| along with WSDL.pmod. If not, see <http://www.gnu.org/licenses/>.
+//| along with WSDL.pmod. If not, see <http://www.gnu.org/licenses/>
+
+#define WSDL_DEBUG
+#include "wsdl.h"
 
 #if constant(Crypto.MD5)
 # define MD5(S) String.string2hex(Crypto.MD5.hash((S)))
@@ -32,28 +37,22 @@ private int(0..1) disk_cache = 1;
 
 //! Sub directory in which to put fetched wsdl files if disk cache is 
 //! enabled. This director will be put in the systems temporary directory
-private string dcache_location = "pike-wsdl-cache";
+private string dcache_location;
 
-//! User defined connection object to use when fetching the WSDL
-private Protocols.HTTP.Query con;
-
-#ifdef WSDL_DEBUG
-// Debugging only method
-void dtrace(mixed ... args)
+void set_cache_location(string path)
 {
-#ifdef __NT__
-  mapping env = getenv();
-  string p = combine_path(env->TEMP||env->TMP||"\\Temp", "wsdl.log");
-  Stdio.File fh = Stdio.File(p, "wac");
-#else
-  Stdio.File fh = Stdio.File("/tmp/wsdl.log", "wac", 00666);
-#endif
-  fh->write(@args);
-  fh->close();
+  if (!path) {
+    mapping env = getenv();
+    path = combine_path(env->TEMP||env->TMP||"/tmp","pike-wsdl-cache");
+    if (!Stdio.exist(path))
+      Stdio.mkdirhier(path, 00777);
+  }
+
+  if (!Stdio.exist(path))
+    error("\"%s\" doesn't exist! ", path);
+
+  dcache_location = path;
 }
-#else
-# define dtrace(args...) 0
-#endif
 
 //! Store fetched WSDL files on disk or not.
 //!
@@ -72,23 +71,16 @@ void add_cache(string|Standards.URI url, string wsdl_xml)
   cache[(string)url] = wsdl_xml;
 }
 
-//! Set a user defined connection object to use when fetching the WSDL
-//!
-//! @param q
-void set_connection(Protocols.HTTP.Query q)
-{
-  con = q;
-}
-
 //! Fetches the WSDL file at @[url] and returns a @[Definitions] object
 //!
 //! @param url
 //! @param username
 //! @param password
 .Definitions get_url(string|Standards.URI url, void|string username,
-                     void|string password)
+                     void|string password,
+		     void|Protocols.HTTP.Query con)
 {
-  return .Definitions(get_cache(url, username, password));
+  return .Definitions(get_cache(url, username, password, con));
 }
 
 //! Checks if @[url] exists in the caches, if not fetches it, and returns the
@@ -98,7 +90,7 @@ void set_connection(Protocols.HTTP.Query q)
 //! @param username
 //! @param password
 string get_cache(string|Standards.URI url, void|string username,
-                 void|string password)
+                 void|string password, void|Protocols.HTTP.Query con)
 {
   string file, data;
   url = String.trim_all_whites((string)url);
@@ -106,17 +98,22 @@ string get_cache(string|Standards.URI url, void|string username,
     return data;
 
   if (disk_cache) {
-    mapping env = getenv();
-    string tmpdir = combine_path(env->TEMP||env->TMP||"/tmp", dcache_location);
+    if (!dcache_location) 
+      set_cache_location(0);
 
-    if (!Stdio.exist(tmpdir)) {
-      if (mixed err = catch(Stdio.mkdirhier(tmpdir, 00777))) {
-	werror("Unable to create wsdl cache dir %O!\n", tmpdir);
-	return 0;
-      }
+    sscanf(url, "%*s://%[^?]?%[^=&]=%s", string lurl, string ext, string tail);
+    if (tail) {
+      tail = replace(tail, ({ "=","&" }), ({ "_","_" }));
+      lurl += "-" + tail;
     }
 
-    file = combine_path(tmpdir, MD5(url) + ".wsdl");
+    lurl += "." + (ext||"wsdl");
+    array(string) parts = lurl/"/";
+    string dir = combine_path( dcache_location, @parts[0..sizeof(parts)-2] );
+    if (!Stdio.exist(dir))
+      Stdio.mkdirhier(dir);
+
+    file = combine_path( dir, parts[-1] );
 
     if (Stdio.exist(file))
       cache[url] = data = Stdio.read_file(file);
@@ -131,13 +128,11 @@ string get_cache(string|Standards.URI url, void|string username,
       "Basic " + MIME.encode_base64(username+":"+password);
   }
   else if (sscanf(url, "%s://%s:%s@%s", string a, string b,
-                                        string c, string d) == 4) 
+                                        string c, string d) == 4)
   {
     headers["Authorization"] = "Basic " + MIME.encode_base64(b+":"+c);
     url = a + "://" + d;
   }
-
-  dtrace("Connection object: %O\n", con && con->con);
 
   Protocols.HTTP.Query q;
 
@@ -153,15 +148,12 @@ string get_cache(string|Standards.URI url, void|string username,
     if (url->query) query += "?" + url->query;
     query = sprintf("GET %s HTTP/1.0", query);
     headers = headers;
-    dtrace("+++ con->sync_request(%O,%d,%O,%O)\n",
-           host, url->port, query, headers);
+    TRACE("+++ con->sync_request(%O,%d,%O,%O)\n", host, url->port, query, headers);
     q = con->sync_request(host, url->port, query, headers);
   }
   else {
     q = Protocols.HTTP.get_url(url, 0, headers);
   }
-
-  dtrace("%O\n", q->headers);
 
   if (q->status == 200) {
     cache[url] = q->data();
@@ -169,7 +161,7 @@ string get_cache(string|Standards.URI url, void|string username,
     return cache[url];
   }
 
-  error("Bad HTTP status (%d) when trying to fetch %O\n", q->status, url);
+  werror("Bad HTTP status (%d) when trying to fetch %O\n", q->status, url);
 }
 
 //! Finds the root node of an XML document.
@@ -180,6 +172,12 @@ Parser.XML.Tree.Node find_root(Parser.XML.Tree.Node n)
   foreach (n->get_children(), Parser.XML.Tree.Node c)
     if (c->get_node_type() == Parser.XML.Tree.XML_ELEMENT)
       return c;
-  
+
   return 0;
+}
+
+string get_ns_from_uri(string uri)
+{
+  if (uri[-1] != '/') uri += "/";
+  return Standards.Constants.URI_TO_NS[uri];
 }

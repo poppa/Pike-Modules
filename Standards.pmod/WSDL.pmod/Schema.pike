@@ -37,16 +37,16 @@ string element_form_default;
 string attribute_form_default;
 
 //! Complex types
-array complex_types = ({});
+array  complex_types = ({});
 
 //! Simple types
-array simple_types = ({});
+array  simple_types = ({});
 
 //! Elements
-array elements = ({});
+array  elements = ({});
 
 //! Imports
-array imports = ({});
+array  imports = ({});
 
 //! Returns the type with name @[name]
 object get_element(string name)
@@ -67,11 +67,13 @@ array(object) get_all_elements()
 
 //! Decodes the schema node
 //!
-//! TODO: Handle @tt{<import/>@} nodes.
+//! TODO: Handle @tt{<import/>} nodes.
 protected void decode(Node n)
 {
   mapping a = n->get_attributes();
 
+//  werror("%O\n", n);
+  
   if (a) {
     target_namespace = QName(a->targetNamespace, "targetNamespace");
     element_form_default = a->elementFormDefault;
@@ -95,6 +97,10 @@ protected void decode(Node n)
 
 	case "simpleType":
 	  simple_types += ({ .Types.SimpleType(cn, owner_document) });
+	  break;
+
+	case "import":
+	  imports += ({ .Import(cn, owner_document) });
 	  break;
 
 	default:

@@ -1,7 +1,9 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! This class represents the root of a WSDL file
 //|
-//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//| Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//|
+//| This class represents be root of a WSDL file
 //|
 //| License GNU GPL version 3
 //|
@@ -25,7 +27,6 @@
 
 // Contains QName
 import Standards.XML.Namespace;
-
 import Standards.Constants;
 import Parser.XML.Tree;
 import ".";
@@ -70,11 +71,14 @@ protected array(Schema) schemas = ({});
 //!
 //! @param xml
 //!  The raw XML of a WSDL file
-void create(void|string xml)
+void create(void|string|Node xml)
 {
   if (xml) {
-    wsdl_xml = xml;
-    parse(wsdl_xml);
+    if (stringp(xml)) {
+      wsdl_xml = xml;
+      parse(wsdl_xml);
+    }
+    else low_parse(xml);
   }
 }
 
@@ -91,7 +95,7 @@ void set_target_namespace(string|QName namespace)
 {
   if (objectp(namespace))
     target_namespace = namespace;
-  else
+  else 
     target_namespace = QName(namespace, "targetNamespace");
 }
 
@@ -222,6 +226,14 @@ QName get_wsdl_soap_namespace()
          QName(WSDLSOAP_NAMESPACE_URI, WSDLSOAP_NAMESPACE_PREFIX, "xmlns");
 }
 
+//! Returns the WSDL SOAP 1.2 namespace used in the WSDL document or the 
+//! standard namespace if none is found.
+QName get_wsdl_soap12_namespace()
+{
+  return get_namespace_from_uri(WSDLSOAP12_NAMESPACE_URI)||
+         QName(WSDLSOAP12_NAMESPACE_URI, WSDLSOAP12_NAMESPACE_PREFIX, "xmlns");
+}
+
 //! Returns the SOAP namespace used in the WSDL document or the standard
 //! namespace if none is found.
 QName get_soap_namespace()
@@ -303,7 +315,7 @@ QName get_namespace_from_local_name(string name)
 //! Parses a raw WSDL document
 //!
 //! @param xml
-void parse(string xml)
+void parse(string|Node xml)
 {
   Node root = parse_input(xml);
 
@@ -365,6 +377,10 @@ protected void low_parse(Node n)
     case "import":
       imports[n->get_attributes()->namespace] = Import(n, this);
       return;
+      
+    default:
+      TRACE("Unhandled node found: %O\n", n); 
+    
   }
 
   foreach (n->get_children(), Node cn)
