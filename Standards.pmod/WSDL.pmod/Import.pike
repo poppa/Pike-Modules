@@ -33,20 +33,39 @@ Standards.URI location;
 //! The imported schema
 .Schema schema;
 
+.Definitions definitions;
+
 //! Decodes an import node
 protected void decode(Node n)
 {
   mapping a = n->get_attributes();
   namespace = a->namespace;
-  if (a->location) {
+  string loc = a->location || a->schemaLocation;
+  if (loc) {
     string xml;
-    if (!catch(location = Standards.URI(a->location))) {
+    if (!catch(location = Standards.URI(loc))) {
       if (mixed e = catch(xml = .get_cache(location)))
 	werror("Import error: %s\n", describe_error(e));
       else {
 	if (!catch(Node n = parse_input(xml))) {
-	  if (n = .find_root(n))
-	    schema = .Schema(n, owner_document);
+	  if (n = .find_root(n)) {
+	    switch (n->get_tag_name())
+	    {
+	      case "schema":
+		schema = .Schema(n, owner_document);
+		break;
+
+	      case "definitions":
+		definitions = Standards.WSDL.Definitions(n);
+		break;
+
+	      default:
+		error("Unhandled node in %O->decode()\n", object_program(this));
+	    }
+	  }
+	}
+	else {
+	  error("Failed parsing XML input\n");
 	}
       }
     }

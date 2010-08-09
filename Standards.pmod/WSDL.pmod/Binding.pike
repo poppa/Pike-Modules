@@ -1,7 +1,9 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
 //! This class represents a binding node of a WSDL document
 //|
-//| Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| This class represents a binding node of a WSDL document
 //|
 //| License GNU GPL version 3
 //|
@@ -53,6 +55,17 @@ string style;
 //! The operations of the binding
 mapping(string:.Operation) operations = ([]);
 
+string get_transport_type()
+{
+  werror("get_transport_type(%O)\n", type);
+  switch (binding_type)
+  {
+    case WSDL: return "WSDL";
+    case SOAP: return "SOAP";
+    case HTTP: return "HTTP/S";
+  }
+}
+
 //! Decodes a binding node
 protected void decode(Node n)
 {
@@ -60,13 +73,6 @@ protected void decode(Node n)
   wsdl = owner_document->get_wsdl_namespace()->get_local_name();
   soap = owner_document->get_wsdl_soap_namespace()->get_local_name();
   http = owner_document->get_wsdl_http_namespace()->get_local_name();
-
-  if (ns_name == wsdl)
-    binding_type = WSDL;
-  else if (ns_name == soap)
-    binding_type = SOAP;
-  else if (ns_name == http)
-    binding_type = HTTP;
 
   mapping a = n->get_attributes();
   name = a->name;
@@ -91,6 +97,13 @@ protected void decode(Node n)
 	  style = ca->style;
 	  transport = ca->transport;
 	  verb = ca->verb;
+	  string _ns = .get_ns_from_uri(transport);
+	  if (_ns == wsdl)
+	    binding_type = WSDL;
+	  else if (_ns == soap)
+	    binding_type = SOAP;
+	  else if (_ns == http)
+	    binding_type = HTTP;
 	  break;
       }
     }

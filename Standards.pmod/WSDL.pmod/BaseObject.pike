@@ -2,7 +2,9 @@
 //! This is the base class that all classes implementing a WSDL node (or type)
 //! should inherit from.
 //|
-//| Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
+//| Copyright © 2009, Pontus Östlund - www.poppa.se
+//|
+//| This is the base class of all (most) parts of a WSDL document
 //|
 //| License GNU GPL version 3
 //|

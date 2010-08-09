@@ -22,11 +22,12 @@
 //| <http://www.gnu.org/licenses/>.
 
 //#define SOAP_DEBUG
+//#define SOAP_TRACE
 
 import Standards.WSDL;
 import Parser.XML.Tree;
 
-private constant VERSION = "0.1";
+constant VERSION = "0.1";
 
 //! SOAP parameter class
 class Param
@@ -46,19 +47,19 @@ class Param
     name = _name;
     value = _value;
   }
-
+  
   //! Returns the paramter name
   string get_name()
   {
     return name;
   }
-
+  
   //! Returns the parameter value
   string get_value()
   {
     return value;
   }
-
+  
   //! Sets the name of the parameter
   //!
   //! @param _name
@@ -66,7 +67,7 @@ class Param
   {
     name = _name;
   }
-
+  
   //! Sets the value of the paramter
   //!
   //! @param _value
@@ -74,7 +75,7 @@ class Param
   {
     value = _value;
   }
-
+  
   //! Serializes the value and creates an XML representation of the parameter
   string to_xml()
   {
@@ -147,6 +148,7 @@ class Param
     return s;
   }
 
+  //! String format
   string _sprintf(int t)
   {
     return t == 'O' && sprintf("%O(%O, %O)", object_program(this), name, value);
@@ -159,7 +161,7 @@ class Param
 //! @[Client()->username] and  @[Client()->password].
 class Client // {{{
 {
-  //! The parsed WSDL. @[Standards.WSDL.Definitions]
+  //! The parsed WSDL. @[Standards.WSLD.Definition]
   protected Definitions wsdl;
 
   //! Username for a basic authentication
@@ -169,7 +171,7 @@ class Client // {{{
   string password;
 
   //! Set to use another query object for the request
-  protected Protocols.HTTP.Query con;
+  //protected Protocols.HTTP.Query con;
 
   //! Invoke the SOAP call.
   //!
@@ -180,22 +182,11 @@ class Client // {{{
   //!  The SOAP operation to invoke. This is the name of an @tt{operation@}
   //!  element in a @tt{binding@} element in the WSDL file.
   //! @param params
-  //!
-  //! @returns
-  //!  A @[Response] object on success. A @[Fault] object otherwise.
-  Response|Fault invoke(string|Standards.URI url, string operation,
-                        array(Param) params)
+  Response invoke(string|Standards.URI url, string operation,
+                  array(Param) params,
+		  void|Protocols.HTTP.Query con)
   {
-    return load_wsdl(url, operation, params);
-  }
-
-  //! Set a given HTTP query object to use for the request. Can be useful if
-  //! another query object contains an authentication for instance
-  //!
-  //! @param q
-  void set_connection(Protocols.HTTP.Query q)
-  {
-    con = q;
+    return load_wsdl(url, operation, params, con);
   }
 
   //! Loads the WSDL file
@@ -203,20 +194,19 @@ class Client // {{{
   //! @param url
   //! @param method
   //! @param p
-  protected Response|Fault load_wsdl(string|Standards.URI url, string method,
-                                     array(Param) p)
+  protected Response load_wsdl(string|Standards.URI url, string method,
+                               array(Param) p, void|Protocols.HTTP.Query con)
   {
     url = (string)url;
     if ( wsdl = wsdl_cache[url] )
-      return send_soap_request(url, method, p);
+      return send_soap_request(url, method, p, con);
 
-    if (con)
-      Standards.WSDL.set_connection(con);
+    //if (con) Standards.WSDL.set_connection(con);
+    wsdl = get_url(url, username, password, con);
 
-    wsdl = get_url(url, username, password);
     if (wsdl) {
       wsdl_cache[url] = wsdl;
-      return send_soap_request(url, method, p);
+      return send_soap_request(url, method, p, con);
     }
   }
 
@@ -226,9 +216,9 @@ class Client // {{{
   //! @param method
   //! @param p
   protected Response send_soap_request(string|Standards.URI url,
-                                       string method, array(Param) p)
+                                       string method, array(Param) p,
+				       void|Protocols.HTTP.Query con)
   {
-
 #ifdef SOAP_DEBUG
     werror("*** SOAP Request: %O, %s\n", url, method);
 #endif
@@ -241,7 +231,7 @@ class Client // {{{
     Port port = wsdl->get_first_soap_port();
     if (!port)
       error("Unable to resolv port from WSDL\n");
-
+    
     Binding binding = wsdl->get_binding(port->binding->get_local_name());
     if (!binding)
       error("Unable to resolv binding from WSDL port binding\n");
@@ -270,10 +260,6 @@ class Client // {{{
     Body body = Body(ns, in_msg->parts[0]->element->get_local_name(), p);
     Envelope env = Envelope();
 
-#ifdef SOAP_DEBUG
-    werror("Envelope XML:\n%s\n", env->to_xml(body));
-#endif
-
     mapping headers = ([]);
 
     if (username && password) {
@@ -293,33 +279,70 @@ class Client // {{{
 
     Protocols.HTTP.Query q;
 
+#define TRACE_MESSAGE() do                                         \
+  {                                                                \
+    String.Buffer b = String.Buffer();                             \
+    b->add("\n>> ",              endpoint,                  "\n"); \
+    b->add("> ",                 query,                     "\n"); \
+    b->add("> Host: ",           host,                      "\n"); \
+    b->add("> Content-Type: ",   headers["Content-Type"],   "\n"); \
+    b->add("> Content-Length: ", headers["Content-Length"], "\n"); \
+    b->add("> SOAPAction: ",     headers["SOAPAction"],  "\n>\n"); \
+    b->add(_wrap_xml(envelope),                             "\n"); \
+    werror(b->get());                                              \
+  } while (0)
+/* TRACE_MESSAGE() */
+
+    url = Standards.URI(endpoint);
+
+    string host = url->host;
+    string query = url->path;
+    if (url->query) query += "?" + url->query;
+    string envelope = env->to_xml(body);
+    headers["Content-Length"] = (string)sizeof(envelope);
+
     if (con) {
-      Standards.URI url = Standards.URI(endpoint);
-      string host;
       if (con->con->query_address())
 	host = (con->con->query_address()/" ")[0];
-      else
-	host = url->host;
 
-      string query = url->path;
-      if (url->query) query += "?" + url->query;
       query = sprintf("POST %s HTTP/1.0", query);
 #ifdef SOAP_DEBUG
-      werror("+++ SimpleSOAP()->Client()->con->sync_request(%O,%d,%O,%O)\n",
+      werror("+++ SimpleSOAP()->Client()->con->sync_request(%O,%d,%O,%O)\n", 
              host, url->port, query, headers);
 #endif
-      q = con->sync_request(host, url->port, query, headers, env->to_xml(body));
+
+#ifdef SOAP_TRACE
+      TRACE_MESSAGE();
+#endif
+
+      q = con->sync_request(host, url->port, query, headers, envelope);
     }
     else {
-      q = Protocols.HTTP.do_method("POST", endpoint, 0, headers, 0,
-                                   env->to_xml(body));
+#ifdef SOAP_TRACE
+      TRACE_MESSAGE();
+#endif
+      q = Protocols.HTTP.do_method("POST", endpoint, 0, headers, 0, envelope);
     }
 
-    if (q->status != 200)
+    if (q->status != 200) {
       werror("Bad status (%d) in SOAP call %O\n", q->status, (string)url);
+      if (q->status != 500)
+	return 0;
+    }
 
     return Response(wsdl, out_msg, q->data());
   }
+
+#ifdef SOAP_TRACE
+  private string _wrap_xml(string xml) {
+    xml = String.trim_all_whites(Standards.XML.indent(xml));
+    String.Buffer b = String.Buffer();
+    foreach (xml/"\n", string l)
+      b->add("> ", l, "\n");
+
+    return b->get();
+  }
+#endif
 } // }}}
 
 //! Class representing a response from a SOAP call
@@ -349,7 +372,7 @@ class Response // {{{
   //! The end result
   protected mapping(string:mixed) result;
 
-  //! Creats a new @[Response] object
+  //! Creats a new Result object
   //!
   //! @param _wsdl
   //! @param out
@@ -446,7 +469,7 @@ class Response // {{{
       }
     }
 
-    result = extract(res, ([]));
+    result = res && extract(res, ([]));
   }
 
   //! Tries to find the name of the result node from the types resolved from
@@ -520,15 +543,14 @@ class Response // {{{
     return nds;
   }
 
-  //! Resolve result types
+  //! Resolv result types
   protected void get_wsdl_types()
   {
-
     array(Node) nds;
     if (find_node_by_name(response, "schema"))
       nds = get_nodes_by_tag_name(response, "element");
 
-    // Resolve types from response
+    // Resolv types from response
     if (nds && sizeof(nds)) {
       foreach (nds, Node n) {
 	mapping attr = shorten_attributes(n->get_attributes());
@@ -536,7 +558,7 @@ class Response // {{{
 	  wsdl_types[attr->name] = attr->type;
       }
     }
-    // Resolve types from WSDL
+    // Resolv types from WSDL
     else {
       array(Types.Type) els = response_element->get_element_elements();
       foreach (els||({}), Types.Type t) {
@@ -678,8 +700,7 @@ class Fault // {{{
   //! Create a new SOAP Fault object
   //!
   //! @param code
-  //! @param message
-  //! @param details
+  //! @param
   void create(string code, string message, void|mixed details)
   {
     faultcode = code;
@@ -889,3 +910,4 @@ protected mapping shorten_attributes(mapping m) // {{{
 
   return out;
 } // }}}
+

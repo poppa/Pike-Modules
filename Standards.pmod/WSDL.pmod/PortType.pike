@@ -29,6 +29,7 @@ string name;
 //! The operations. The key is the name attribute of the operation node
 mapping(string:.Operation) operations = ([]);
 
+//! Decodes the porttype node
 protected void decode(Node n)
 {
   mapping a = n->get_attributes();

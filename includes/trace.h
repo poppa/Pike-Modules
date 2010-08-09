@@ -24,7 +24,7 @@
 #ifdef TRACE_DEBUG
 # define TRACE(X...) werror("### %s:%d: %s", WHEREARG, sprintf(X))
 #else
-# define TRACE(S...)
+# define TRACE(S...) 0
 #endif
 
 #endif /* TRACE_H */

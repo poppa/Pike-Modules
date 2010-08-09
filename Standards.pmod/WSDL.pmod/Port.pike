@@ -3,7 +3,6 @@
 //|
 //| Copyright © 2009, Pontus Östlund - www.poppa.se
 //|
-//|
 //| License GNU GPL version 3
 //|
 //| Port.pike is part of WSDL.pmod
@@ -26,14 +25,15 @@ import Standards.XML.Namespace;
 inherit .BaseObject;
 
 //! The name attribute of the node
-string  name;
+string name;
 
 //! The corresponding WSDL bidning
-QName   binding;
+QName binding;
 
 //! The port address
 Address address;
 
+//! Decodes the port node
 protected void decode(Node n)
 {
   mapping a = n->get_attributes();
@@ -54,6 +54,7 @@ class Address
   //! The service endpoint
   string location;
 
+  //! Decodes the address node
   protected void decode(Node n)
   {
     location = n->get_attributes()->location;

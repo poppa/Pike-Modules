@@ -33,6 +33,7 @@ QName type;
 //! Corresponding element
 QName element;
 
+//! Decodes the part node
 protected void decode(Node n)
 {
   mapping a = n->get_attributes();
