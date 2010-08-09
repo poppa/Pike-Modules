@@ -35,6 +35,7 @@
 "\n  -o --output   <dir|file> : Output file. See examples for an explaination" \
 "\n  -t --tabsize  <number>   : The width of a tab"                            \
 "\n  -l --language <string>   : What syntax to use for highlighting"           \
+"\n  -n --no-lines            : If set no line numbers will be displayed"      \
 "\n  -h --help                : Shows this message"                            \
 "\n"                                                                           \
 "\n  BBLACK:Examples:CLEAR:"                                                   \
@@ -76,30 +77,31 @@ constant html_template = #"
   <head>
     <style type='text/css'>
     BODY { font: 80%%/120%% verdana, sans-serif; }
-    OL LI { font: 11.5px/100%% monospace }
+    PRE, OL LI { font: 11px/120%% 'dejavu sans mono','liberation mono',monospace }
     </style>
   </head>
   <body>
     <h1>%s</h1>
     <p><strong>%d</strong> lines of <strong>%s</strong> code</p>
-    <ol>%s</ol>
+    <%s>%s</%[3]s>
   </body>
 </html>";
 
 int main(int argc, array(string) argv)
 {
-  string language, outfile;
-  int    tabsize = 8, outfile_is_dir = 0;
+  string language, outfile, wtag = "ol";
+  int    tabsize = 8, outfile_is_dir = 0, lnr = 1;
 
   if (mixed e = catch {
       foreach (Getopt.find_all_options(argv, ({
 	({ "tabsize",  Getopt.HAS_ARG, ({ "--tabsize",  "-t" }) }),
 	({ "language", Getopt.HAS_ARG, ({ "--language", "-l" }) }),
 	({ "output",   Getopt.HAS_ARG, ({ "--output",   "-o" }) }),
+	({ "nolines",  Getopt.NO_ARG,  ({ "--no-lines", "-n" }) }),
 	({ "help",     Getopt.NO_ARG,  ({ "--help",     "-h" }) })
       }), 0, 1),  array opt) {
 
-	if (has_index(opt, 1) && opt[1][0] == '=')
+	if (has_index(opt, 1) && stringp( opt[1] ) && opt[1][0] == '=')
 	  opt[1] = opt[1][1..];
 
 	switch ( opt[0] )
@@ -107,6 +109,7 @@ int main(int argc, array(string) argv)
 	  case "help":     DIE(0, HELP);
 	  case "tabsize":  tabsize  = (int)opt[1]; break;
 	  case "language": language = opt[1];      break;
+	  case "nolines":  lnr      = 0;           break;
 	  case "output":
 	    outfile = opt[1];
 	    if (Stdio.is_dir(outfile))
@@ -138,10 +141,15 @@ int main(int argc, array(string) argv)
     language = reverse(in_file);
     language = reverse( language[..search(language, ".")-1] );
   }
-
+  
   Syntaxer.Hilite s = Syntaxer.get_parser(language);
   s->tabsize = tabsize;
 
+  if (!lnr) {
+    wtag = "pre";
+    s->line_wrap = ({ "", "\n" });
+  }
+  
   string source;
 
 #ifdef DEBUG
@@ -155,6 +163,7 @@ int main(int argc, array(string) argv)
     basename(in_file),
     s->get_lines(),
     s->get_title(),
+    wtag,
     source
   );
 

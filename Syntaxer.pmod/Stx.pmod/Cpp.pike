@@ -5,7 +5,7 @@ public string title = "C++";
 protected int(0..1) macro = 1;
 
 //| Override the keywords mapping
-private mapping(string:multiset(string)) keywords = ([
+protected mapping(string:multiset(string)) keywords = ([
   "keywords" : (<
     "auto","bool","break","case","catch","char","cerr","cin","class","const",
     "continue","cout","default","delete","do","double","else","enum",

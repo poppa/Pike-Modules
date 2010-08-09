@@ -97,14 +97,7 @@ protected mapping(string:array(string)) styles = ([
   "preprocessor" : ({ "<b style='background: black;'>", "</b>" }),
   "macro"        : ({ "<b>", "</b>" })
 ]);
-protected mapping(string:multiset(string)) keywords = ([
-  //| Default keywords for C/C++ like languages, give and take
-  "keywords"  : (<
-    "break","case","catch","class","continue","default","do",
-    "else","final","for","if","private","protected","public","return",
-    "static","switch","this","throw","try","void","while","new",
-    "namespace","using","get","set","true","false" >)
-]);
+protected mapping(string:multiset(string)) keywords = ([]);
 
 //| Order of keywords. Default is by calling indices(keywords) but this can
 //| be set manually in derrived classes
@@ -478,7 +471,7 @@ protected string|int get_color_key(string word)
   if (!case_sensitive) word = lower_case(word);
 
   foreach (kw_order||indices(keywords), string key)
-    if ( keywords[key][word] )
+    if ( keywords[key] && keywords[key][word] )
       return key;
 
   return 0;
