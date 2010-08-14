@@ -31,7 +31,7 @@
 
 #define TRIM(S) String.trim_all_whites((S))
 
-#if constant(GTK2)
+#if constant(GTK2) && constant(GTK2.gtk_init)
 # define Gtk GTK2
 #endif
 
