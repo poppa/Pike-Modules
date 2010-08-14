@@ -31,7 +31,7 @@
 
 #define TRIM(S) String.trim_all_whites((S))
 
-#if constant(GTK2)
+#if constant(GTK2) && constant(GTK2.gtk_init)
 # define Gtk GTK2
 #endif
 
@@ -92,7 +92,7 @@ enum {
   LIC_GPL3,
   LIC_LGPL21,
   LIC_LGPL3
-}
+};
 
 private mapping(int:string) licenses = ([
   LIC_GPL2   : "GNU General Public License, version 2 or later",
@@ -543,15 +543,15 @@ class MainWindow // {{{
   } // }}}
   
   private int prev_dot = 1;
-  private void on_proj_name_key_release_event(Gtk.Widget widget, 
-                                              Gtk.GdkEvent event) // {{{
+  private mixed on_proj_name_key_release_event(Gtk.Widget widget, 
+                                               Gtk.GdkEvent event) // {{{
   {
     string buf = widget->get_text();
     int len = sizeof(buf);
     if (len == 0) {
       ok->set_sensitive(0);
       proj_location_entry->set_text("");
-      return;
+      return 0;
     }
 
     int c = buf[-1];
@@ -567,13 +567,13 @@ class MainWindow // {{{
 	update_location(0);
       }
       else update_location(1);
-      return;
+      return 0;
     }
     
     if (prev_dot && ((c >= '0' && c <= '9') || c == '.')) {
       widget->set_text( buf[0..sizeof(buf)-2] );
       widget->set_position(-1);
-      return;
+      return 0;
     }
 
     if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
@@ -581,7 +581,7 @@ class MainWindow // {{{
     {
       widget->set_text( buf[0..sizeof(buf)-2] );
       widget->set_position(-1);
-      return;
+      return 0;
     }
 
     if (c == '.') {
@@ -592,6 +592,8 @@ class MainWindow // {{{
       ok->set_sensitive(1);
       update_location(1);
     }
+    
+    return 1;
   } // }}}
 
   private void update_location(int isok) // {{{
