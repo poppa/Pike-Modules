@@ -102,6 +102,10 @@ private .Parser low_get_parser()
       cls = "Pike";
       break;
 
+    case "cmod":
+      cls = "CMod";
+      break;
+
     case "xml": case "wsdl":
       cls = "XML";
       mod = .Stx.Markup;
@@ -181,7 +185,6 @@ private .Parser low_get_parser()
   }
 
   object klass = mod[cls];
-  werror("%O\n", klass);
   return klass && klass () || .Stx.Generic();
 }
 
