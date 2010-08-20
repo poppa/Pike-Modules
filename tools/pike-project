@@ -74,7 +74,7 @@ constant HELP =
 // module_path:     Public.System
 // module_tar_name: Public_System_Module
 private string  module, module_name, module_dir, module_path, module_tar_name,
-                author, license;
+                author, license, init_dir;
 private mapping variables;
 private int     module_type, license_type;
 #ifdef Gtk
@@ -173,6 +173,9 @@ int main(int argc, array(string) argv)
 
 #ifdef Gtk
   if (gtk) {
+    if (sizeof(argv) > 1 && Stdio.is_dir( argv[1] ))
+      init_dir = argv[1];
+
     Gtk.gtk_init(argv);
     win = MainWindow(Gtk.WINDOW_TOPLEVEL);
     win->signal_connect( "destroy", lambda() { exit(0); } );
@@ -267,7 +270,7 @@ int run(array(string) argv) // {{{
   Stdio.write_file("COPYING",   license);
   Stdio.write_file("ChangeLog", "");
   Stdio.write_file("README",    "");
-  Stdio.write_file("INSTALL",   "");
+  Stdio.write_file("INSTALL",   MIME.decode_base64(INSTALL_TEXT));
   cd(cp);
   write("...done and all done!\n");
 
@@ -390,9 +393,10 @@ class MainWindow // {{{
       Stdio.write_file(settings_file, "");
     }
 
-    if (!author)       author       = settings->author || def_author;
-    if (!module_type)  module_type  = settings->type;
-    if (!license_type) license_type = settings->license;
+    if (!author)       author        = settings->author || def_author;
+    if (!module_type)  module_type   = settings->type;
+    if (!license_type) license_type  = settings->license;
+    if (init_dir)      settings->dir = init_dir;
   } // }}}
 
   private void save_settings() // {{{
@@ -414,6 +418,8 @@ class MainWindow // {{{
     set_title("Pike module creator");
     set_icon(pixbuf_from_base64_string(PIKE_LOGO));
 
+    Gtk.Tooltips tt = Gtk.Tooltips();
+    
     VBOX vbox = VBOX(0,0);
     add(vbox);
 
@@ -454,6 +460,9 @@ class MainWindow // {{{
                                     on_proj_name_key_release_event);
     if (module)
       proj_name_entry->set_text(module);
+
+    tt->set_tip(proj_name_entry, "Like: Public.Module.MyModule");
+    tt->set_tip(proj_name->left, "Like: Public.Module.MyModule");
 
     proj_name->set_widget(proj_name_entry);
 
@@ -678,7 +687,7 @@ class Alert // {{{
   }
 } // }}}
 
-// Tricky ;)
+// Sneaky ;)
 class MyFCB // {{{
 {
   inherit Gtk.FileChooser : chooser;
@@ -729,6 +738,12 @@ private Gtk.GdkPixbuf pixbuf_from_base64_string(string s) // {{{
   rm(file);
   return pb;
 } // }}}
+
+constant INSTALL_TEXT = // {{{
+#"VHlwaWNhbGx5IHlvdSBpbnN0YWxsIGEgUGlrZSBtb2R1bGUgbGlrZSB0aGlzOgoKCXBpa2UgLXgg
+bW9kdWxlICAgICAgICAgICAgIyBDb21waWxlcyB0aGUgbW9kdWxlCglwaWtlIC14IG1vZHVsZSBp
+bnN0YWxsICAgICMgSW5zdGFsbHMgdGhlIG1vZHVsZQoJCkZvciBmdXJ0aGVyIG9wdGlvbnMgcnVu
+CgoJcGlrZSAteCBtb2R1bGUgLS1oZWxwCg=="; // }}}
 
 // A base64 encoded PNG file.
 constant PIKE_LOGO = // {{{
