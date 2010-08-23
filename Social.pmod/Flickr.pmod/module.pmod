@@ -137,3 +137,11 @@ string get_src(.Response photo)
   return "http://" + url;
 }
 
+//! Checks if a response is OK or not
+//!
+//! @param r
+int(0..1) is_ok(.Response r)
+{
+  return r->get_attributes()->stat == "ok";
+}
+

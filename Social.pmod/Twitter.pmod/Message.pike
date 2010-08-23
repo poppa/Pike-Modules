@@ -43,10 +43,10 @@ public string in_reply_to_status_id = NULL;
 public string in_reply_to_user_id = NULL;
 
 //! @tt{true@} if this message is a favourite of the authenticating user
-public bool   favorited;
+public bool favorited;
 
 //! @tt{true@} if the message has been truncated
-public bool   truncated;
+public bool truncated;
 
 //! The user who created the message
 public User user;

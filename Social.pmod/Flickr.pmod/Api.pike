@@ -166,6 +166,63 @@ int(0..1) request_token(string frob)
   return 0;
 }
 
+//! Async upload method
+//!
+//! @param image_path
+//!  Local file system path to image to upload
+//! @param _params
+int upload(string image_path, void|mapping|Params _params)
+{
+  Params params = Params();
+  if ( objectp(_params) )  params = _params;
+  if ( mappingp(_params) ) params->add_mapping(_params);
+  if ( !params[API_KEY] )  params += Param(API_KEY, key);
+  if ( !params[FORMAT] )   params += Param(FORMAT, response_format);
+  if ( !params[PERMS] )    params += Param(PERMS, permission);
+  if ( token && !params[AUTH_TOKEN] ) params += Param(AUTH_TOKEN, token);
+
+  string ext = lower_case( (basename(image_path)/".")[-1] );
+
+  if (ext == "jpg")
+    ext = "jpeg";
+  else if (ext == "tif")
+    ext = "tiff";
+
+  mapping vars = params->to_mapping();
+  vars->api_sig = params->sign(secret);
+
+  string ct = "image/" + ext;
+  string bound = Standards.UUID.make_version4()->str()-"-";
+  mapping h = ([ "Content-Type" : "multipart/form-data; boundary=" + bound ]);
+  string m = "";
+
+  foreach (vars; string k; string v) {
+    Multipart mp = Multipart(v);
+    mp->set_boundary(bound);
+    mp->set_content_disposition("form-data; name=\"" + k + "\"");
+
+    m += (string)mp;
+  }
+
+  Multipart m4 = Multipart(Stdio.read_file(image_path));
+  m4->set_boundary(bound);
+  m4->set_content_type(ct);
+  m4->set_content_disposition("form-data; name=\"photo\"; filename=\"" +
+                              combine_path(getcwd(), image_path) + "\"");
+
+  m += String.trim_all_whites((string)m4) + "--\r\n";
+  m = "--" + bound + "\r\n" + m;
+
+  Protocols.HTTP.Query q;
+  q = Protocols.HTTP.do_method("POST", UPLOAD_ENDPOINT_URL, 0, h, 0, m);
+
+  Response rsp = Response(q->data());
+  if (rsp->get_attributes()->stat == "ok")
+    return (int)rsp->photoid->get_value();
+
+  error("Upload error: %s! ", rsp->err->get_attributes()->msg);
+}
+
 //! Calls a Flickr web service and returns the raw response
 //!
 //! @throws
@@ -195,7 +252,7 @@ string call_xml(string api_method, void|mapping|Params _params,
   if ( token && !params[AUTH_TOKEN] ) params += Param(AUTH_TOKEN, token);
 
   mapping vars = params->to_mapping() + ([ API_SIG : params->sign(secret) ]);
-  
+
   //TRACE("call(%O, %O)\n", api_method, vars);
   
   Protocols.HTTP.Query q = Protocols.HTTP.post_url(endpoint,vars,HTTP_HEADERS);
@@ -236,3 +293,4 @@ Response call(string api_method, void|mapping|Params params)
 {
   return Response(call_xml(api_method, params));
 }
+
