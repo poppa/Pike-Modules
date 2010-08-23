@@ -80,9 +80,6 @@ private int     module_type, license_type;
 #ifdef Gtk
 private MainWindow win;
 private int gtk = 1;
-# if constant(thread_create)
-private Thread backend = Thread.this_thread();
-# endif
 #else  /* Gtk */
 private int gtk = 0;
 #endif /* Gtk */
@@ -142,7 +139,7 @@ int main(int argc, array(string) argv)
 	  case "modname":  module  = opt[1]; break;
 	  case "author":   author  = opt[1]; break;
 	  case "type":     
-	    switch ( upper_case( opt[1] ))
+	    switch (upper_case( opt[1] ))
 	    {
 	      case "PMOD": module_type = PMOD; break;
 	      case "CMOD": module_type = CMOD; break;
@@ -151,7 +148,7 @@ int main(int argc, array(string) argv)
 	    break;
 
 	  case "license":
-	    switch ( upper_case( opt[1] ))
+	    switch (upper_case( opt[1] ))
 	    {
 	      case "GPL2":   license = GPL2;   license_type = LIC_GPL2;   break;
 	      case "GPL3":   license = GPL3;   license_type = LIC_GPL3;   break;
