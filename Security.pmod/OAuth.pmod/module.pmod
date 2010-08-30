@@ -631,10 +631,8 @@ class Params
 //! @param s
 string uri_encode(string s)
 {
-  if (String.width(s) < 8) {
-    werror("Non UTF8-encoded value: %s\n", s);
+  if (String.width(s) < 8)
     s = string_to_utf8(s);
-  }
 
   String.Buffer b = String.Buffer();
   function add = b->add;
