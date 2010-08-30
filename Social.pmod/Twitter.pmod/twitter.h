@@ -1,7 +1,7 @@
 #ifndef TWITTER_H
 #define TWITTER_H
 
-#define TWITTER_DEBUG
+//#define TWITTER_DEBUG
 
 #ifdef TWITTER_DEBUG
 # define TRACE(X...) werror("# %s:%d: %s", basename(__FILE__), __LINE__, sprintf(X))

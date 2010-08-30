@@ -18,6 +18,7 @@
 //| You should have received a copy of the GNU General Public License
 //| along with [PROG-NAME].pike. If not, see <http://www.gnu.org/licenses/>.
 
+#define TWITTER_DEBUG
 #include "twitter.h"
 
 import ".";
@@ -302,7 +303,7 @@ string call(string|Standards.URI url, void|mapping|Params args,
   }
 
   Request r = request(url, consumer, token, args, method);
-  TRACE("Request: %O\n", r);
+  // TRACE("Request: %O\n", r);
   r->sign_request(Signature.HMAC_SHA1, consumer, token);
 
   Protocols.HTTP.Query q = r->submit();

@@ -266,6 +266,9 @@ class Request
   Protocols.HTTP.Query submit(void|mapping extra_headers)
   {
     mapping args = params->get_variables();
+    foreach (args; string k; string v)
+      if (String.width(v) == 8)
+	args[k] = utf8_to_string(v);
 
     if (!extra_headers)
       extra_headers = ([]);
@@ -628,8 +631,10 @@ class Params
 //! @param s
 string uri_encode(string s)
 {
-  if (String.width(s) < 8)
+  if (String.width(s) < 8) {
+    werror("Non UTF8-encoded value: %s\n", s);
     s = string_to_utf8(s);
+  }
 
   String.Buffer b = String.Buffer();
   function add = b->add;
