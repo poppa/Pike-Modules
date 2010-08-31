@@ -268,7 +268,7 @@ class Request
     mapping args = params->get_variables();
     foreach (args; string k; string v)
       if (String.width(v) == 8)
-	args[k] = utf8_to_string(v);
+	catch(args[k] = utf8_to_string(v));
 
     if (!extra_headers)
       extra_headers = ([]);

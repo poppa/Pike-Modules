@@ -131,10 +131,10 @@ protected class HmacSha1
     string key = sprintf("%s&%s", uri_encode(consumer->secret),
 				  uri_encode(token->secret||""));
     return MIME.encode_base64(
-#if constant(Crypto.HMAC)
+#if constant(Crypto.HMAC) && constant(Crypto.SHA1)
       Crypto.HMAC(Crypto.SHA1)(key)(sigbase)
-#else /* Compat for Pike 7.4 */
-      Crypto.hmac(Crypto.sha)(key)(sigbase)
+#else
+      MY_HMAC_SHA1(Crypto.sha)(key)(sigbase)
 #endif
     );
   }
@@ -157,3 +157,50 @@ protected class RsaSha1
     error("%s is not implemented.\n", CLASS_NAME(this));
   }
 }
+
+#if !(constant(Crypto.HMAC) && constant(Crypto.SHA1))
+// Compat class for Pike 7.4
+// This is a mashup of the 7.4 Crypto.hmac and 7.8 Crypto.HMAC
+class MY_HMAC_SHA1
+{
+  function H;
+  int B;
+  
+  void create(function h, int|void b)
+  {
+    H = h;
+    B = b || 64;
+  }
+
+  string raw_hash(string s)
+  {
+    return H()->update(s)->digest();
+  }
+
+  string pkcs_digest(string s)
+  {
+    return Standards.PKCS.Signature.build_digestinfo(s, H());
+  }
+
+  class `()
+  {
+    string ikey, okey;
+
+    void create(string passwd)
+    {
+      if (sizeof(passwd) > B)
+	passwd = raw_hash(passwd);
+      if (sizeof(passwd) < B)
+	passwd = passwd + "\0" * (B - sizeof(passwd));
+
+      ikey = passwd ^ ("6" * B);
+      okey = passwd ^ ("\\" * B);
+    }
+
+    string `()(string text)
+    {
+      return raw_hash(okey + raw_hash(ikey + text));
+    }
+  }
+}
+#endif
