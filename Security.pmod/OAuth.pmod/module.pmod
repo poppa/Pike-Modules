@@ -643,7 +643,7 @@ string uri_encode(string s)
 #if constant(String.string2hex)
       add("%" + upper_case(String.string2hex(c)));
 #else /* Pike 7.4 compat cludge */
-      add("%" + upper_case(String.string_to_hex(c)));
+      add("%" + upper_case(Crypto.string_to_hex(c)));
 #endif
     }
   }
