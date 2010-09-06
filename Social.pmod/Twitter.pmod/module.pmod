@@ -36,9 +36,9 @@ constant user_timeline_url    = TURL("statuses/user_timeline");
 constant retweeted_by_me_url  = TURL("statuses/retweeted_by_me");
 constant retweeted_to_me_url  = TURL("statuses/retweeted_to_me");
 constant retweets_of_me_url   = TURL("statuses/retweets_of_me");
-constant request_token_url    = "https://twitter.com/oauth/request_token";
-constant access_token_url     = "https://twitter.com/oauth/access_token";
-constant user_auth_url        = "http://twitter.com/oauth/authorize";
+constant request_token_url    = SURL("oauth/request_token");
+constant access_token_url     = SURL("oauth/access_token");
+constant user_auth_url        = SURL("oauth/authorize");
 
 //! Parses Twitter dates into a @[Calendar.Second] object
 //!

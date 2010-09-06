@@ -9,7 +9,8 @@
 # define TRACE(X...) 0
 #endif
 
-#define TURL(X) "http://twitter.com/" X ".xml"
+#define TURL(X) "http://api.twitter.com/" X ".xml"
+#define SURL(X) "https://api.twitter.com/" X
 #define AURL(X) "http://api.twitter.com/1/" X ".xml"
 #define ASSERT_AUTHED(X) \
   is_authenticated || error("The method \"" X "\" requires authentication!");

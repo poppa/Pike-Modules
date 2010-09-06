@@ -77,9 +77,23 @@ void set_is_authenticated(int(0..1) ok)
 }
 
 //! Fetches a request token
-Token get_request_token()
+//!
+//! @param callback_uri
+//!  Overrides the callback uri in the application settings
+//! @param force_login
+//!  If @tt{1@} forces the user to provide its credentials at the Twitter
+//!  login page.
+Token get_request_token(void|string|Standards.URI callback_uri,
+                        void|int(0..1) force_login)
 {
-  string ctoken = call(request_token_url);
+  mapping p = ([]);
+  if (callback_uri)
+    p->oauth_callback = (string)callback_uri;
+
+  if (force_login)
+    p->force_login = "true";
+
+  string ctoken = call(request_token_url, p, "POST");
   mapping res = ctoken && (mapping)query_to_params(ctoken);
   token = Token( res[TOKEN_KEY], res[TOKEN_SECRET_KEY] );
   return token;
@@ -97,23 +111,25 @@ Token get_access_token(void|string oauth_verifier)
   if (oauth_verifier)
     pm = Params(Param("oauth_verifier", oauth_verifier));
 
-  string ctoken = call(access_token_url, pm);
+  string ctoken = call(access_token_url, pm, "POST");
   mapping p = (mapping)query_to_params(ctoken);
   token = Token( p[TOKEN_KEY], p[TOKEN_SECRET_KEY] );
   return token;
 }
 
 //! Returns the authorization URL.
-final string get_auth_url()
+final string get_auth_url(void|string|Standards.URI callback_uri,
+                          void|int(0..1) force_login)
 {
-  if (!token || !token->key || !token->secret)
-    get_request_token();
-
+  get_request_token(callback_uri, force_login);
   return sprintf("%s?%s=%s", user_auth_url, TOKEN_KEY,
 		 (token&&token->key)||"");
 }
 
 //! Use this method to test if supplied user credentials are valid.
+//!
+//! @returns
+//!  Returns @tt{0@} if verification fails
 User verify_credentials()
 {
   mixed e = catch {
@@ -164,8 +180,7 @@ Message retweet(string|int status_id)
 //!public_timeline@}
 array(Message) get_public_timeline()
 {
-  string resp = call(public_timeline_url, 0);
-  return parse_status_xml(resp);
+  return parse_status_xml(call(public_timeline_url, 0));
 }
 
 //! Returns the 20 most recent statuses, including retweets, posted by the
@@ -202,7 +217,6 @@ array(Message) get_home_timeline(void|mapping params)
   ASSERT_AUTHED("get_home_timeline()");
   string resp = call(home_timeline_url, params);
   if (!resp) error("Fix this error!\n");
-  //werror("Home timeline XML:\n%s\n\n--------\n\n", resp);
   return sizeof(resp) && parse_status_xml(resp) || ({});
 }
 
@@ -303,13 +317,16 @@ string call(string|Standards.URI url, void|mapping|Params args,
   }
 
   Request r = request(url, consumer, token, args, method);
-  // TRACE("Request: %O\n", r);
   r->sign_request(Signature.HMAC_SHA1, consumer, token);
 
   Protocols.HTTP.Query q = r->submit();
 
-  if (q->status != 200)
-    error("Bad status, %d, from HTTP query!\n", q->status);
+  if (q->status != 200) {
+    if (mapping e = parse_error_xml(q->data())) 
+      error("Error in %O: %s\n", e->request, e->error);
+    else
+      error("Bad status, %d, from HTTP query!\n", q->status);
+  }
 
   return q->data();
 }
@@ -324,6 +341,30 @@ protected string normalize_method(string method)
     error("HTTP method must be GET, POST, PUT or DELETE! ");
 
   return method;
+}
+
+//! Parses an error xml tree
+//!
+//! @param xml
+//!
+//! @returns
+//!  A mapping:
+//!  @mapping
+//!   @member string "request"
+//!   @member string "error"
+//!  @endmapping
+mapping parse_error_xml(string xml)
+{
+  mapping m;
+  if (Node n = get_xml_root(xml)) {
+    m = ([]);
+    foreach (n->get_children(), Node cn) {
+      if (cn->get_node_type() == XML_ELEMENT)
+      	m[cn->get_tag_name()] = cn->value_of_node();
+    }
+  }
+
+  return m;
 }
 
 //! Parses an XML response from the Twitter API method returning
@@ -408,10 +449,10 @@ User parse_user_xml(string xml)
 //!  Either an XML tree as a string or a node object.
 private Node get_xml_root(string|Node xml)
 {
-  if (stringp(xml))
-    xml = parse_input(xml);
-
   catch {
+    if (stringp(xml))
+      xml = parse_input(xml);
+
     foreach (xml->get_children(), Node n) {
       if (n->get_node_type() == XML_ELEMENT) {
 	xml = n;

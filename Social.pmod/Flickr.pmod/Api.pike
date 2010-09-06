@@ -278,6 +278,8 @@ string call_xml(string api_method, void|mapping|Params _params,
 	error("Unknown Flickr API error: %s\n", q->data());
     }
   }
+  
+  werror("%s\n", data);
 
   return data;
 }
