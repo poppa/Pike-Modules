@@ -195,7 +195,7 @@ private class Decoder
 	  ret += ({ parse() });
 	}
 	break;
-
+	
       // Object
       case '{':
       	ret = ([]);
@@ -220,7 +220,7 @@ private class Decoder
 	      break;
 
 	    case ':':
-	      ++p;
+	      p++;
 	      ret[key] = parse();
 	      key = "";
 	      break;
@@ -236,6 +236,7 @@ private class Decoder
       // Numerics
       case '-':
       case '0'..'9':
+	p -= 1;
 	if (search(buf, ".") > -1 || buf[-1] == 'e' || buf[-1] == 'E')
 	  return (float)buf;
 	return (int)buf;
@@ -274,7 +275,7 @@ private class Decoder
 	error("Illegal character \"%c\" at byte %d\n", buf[0], p);
 
       default:
-	error("Illegal character \"%c\" at byte %d!\n", buf[0], p);
+	error("Illegal character \"%c\" at byte %d (%d)!\n", buf[0], p, len);
     }
 
     return ret;
@@ -282,6 +283,7 @@ private class Decoder
 
   mixed decode(string _data)
   {
+    p = -1;
     len = sizeof(_data);
     if (len == 0) return UNDEFINED;
     // Pad for peeking so that we don't run out of offset

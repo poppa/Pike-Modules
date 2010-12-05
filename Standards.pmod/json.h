@@ -31,11 +31,13 @@ private Encoder __encoder = Encoder();
     int char = (int)CHR;                                                       \
     while (++p < len) {                                                        \
       if (data[p] == '\\' && data[p+1] == 'u') {                               \
+      	/* U escaped string */                                                 \
 	sscanf(data[p+2..p+5], "%4x", int uc);                                 \
 	BUF += sprintf("%c", uc);                                              \
 	p += 5;                                                                \
 	continue;                                                              \
       }                                                                        \
+      /* Escaped quote */                                                      \
       if (data[p] == char && data[p-1] != '\\')                                \
 	break;                                                                 \
       if (BUF) BUF += data[p..p];                                              \
@@ -71,6 +73,7 @@ private Encoder __encoder = Encoder();
 	  STR = c;                                                             \
 	  break lblgetc;                                                       \
 	default:                                                               \
+	  werror("DEFAULT CHAR: %s\n", c);                                     \
 	  STR = c;                                                             \
 	  break lblgetc;                                                       \
       }                                                                        \

@@ -253,11 +253,9 @@ string call_xml(string api_method, void|mapping|Params _params,
 
   mapping vars = params->to_mapping() + ([ API_SIG : params->sign(secret) ]);
 
-  //TRACE("call(%O, %O)\n", api_method, vars);
+  TRACE("call(%O, %O)\n", api_method, vars);
   
   Protocols.HTTP.Query q = Protocols.HTTP.post_url(endpoint,vars,HTTP_HEADERS);
-
-  //TRACE("Data: %s\n", q->data());
 
   if (q->status != 200)
     error("Bad status \"%d\" in HTTP response! ", q->status);
@@ -279,7 +277,7 @@ string call_xml(string api_method, void|mapping|Params _params,
     }
   }
   
-  werror("%s\n", data);
+  TRACE("%s\n", data);
 
   return data;
 }

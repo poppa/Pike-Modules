@@ -202,7 +202,7 @@ class Field // {{{
       return other == value;
     }
 
-    return 0;
+    return other == value;
   }
 
   string _sprintf(int t)

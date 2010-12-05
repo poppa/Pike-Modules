@@ -1,7 +1,7 @@
 #ifndef FLICKR_H
 #define FLICKR_H
 
-#define FLICKR_DEBUG
+//#define FLICKR_DEBUG
 #define NULL "\0"
 #define NULLIFY(STR) STR && sizeof(STR) && STR
 
