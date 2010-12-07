@@ -73,7 +73,6 @@ private Encoder __encoder = Encoder();
 	  STR = c;                                                             \
 	  break lblgetc;                                                       \
 	default:                                                               \
-	  werror("DEFAULT CHAR: %s\n", c);                                     \
 	  STR = c;                                                             \
 	  break lblgetc;                                                       \
       }                                                                        \
