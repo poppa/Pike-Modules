@@ -1,3 +1,6 @@
+//! Python syntax highlighter
+
+//!
 inherit "../Parser.pike";
 
 public string title = "Pyhton";

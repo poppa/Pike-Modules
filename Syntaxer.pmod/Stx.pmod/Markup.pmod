@@ -1,10 +1,14 @@
+//! Markup syntax parser
+
 #include "../syntaxer.h"
 #define HAS_NEWLINE(X) (search(X, "\n") > -1)
 
 import Parser.HTML;
 
+//! Parser for paring markup languages
 class HTMLParser
 {
+  //!
   inherit "../Parser.pike";
 
   protected string line = "";

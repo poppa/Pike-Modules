@@ -1,3 +1,6 @@
+//! CSS syntax highlighter
+
+//!
 inherit "../Parser.pike";
 
 public string title = "Cascading Stylesheet";

@@ -1,3 +1,6 @@
+//! Pike syntax highlighter
+
+//!
 inherit "../Parser.pike";
 
 public string title = "Pike";
@@ -89,7 +92,6 @@ protected int(0..1) macro = 1;
 
 void create()
 {
-  werror("Init Pike parser\n");
   keywords += _keywords;
   colors += _colors;
   styles += ([ "keywords1"     : ({ "<b>", "</b>" }),

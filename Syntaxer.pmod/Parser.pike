@@ -1,11 +1,11 @@
-//| Generic syntax highlighting
+//! Generic syntax highlighting
 //|
 //| This is in part a Pike port of my generic styntax highlighting script
-//| Syntaxer [http://plib.poppa.se/doc/index.php?__plibmodule=Parser.Syntaxer
-//| .Syntaxer] written in PHP.
+//| Syntaxer [@url{http://plib.poppa.se/doc/index.php?__plibmodule=@
+//|Parser.Syntaxer.Syntaxer@}] written in PHP.
 //|
 //| The biggest difference is that the PHP version uses the syntax files from
-//| Edit+ (http://editplus.com) to create the syntax maps, but since Pike
+//| Edit+ (@url{http://editplus.com@) to create the syntax maps, but since Pike
 //| isn't as a dynamic language like PHP I decided to skip that path for this
 //| solution.
 //|
@@ -477,14 +477,22 @@ protected string|int get_color_key(string word)
   return 0;
 }
 
+//! Returns the title
 public string get_title()
 {
   return title;
 }
 
+//! Returns the number of lines of code parsed
 public int get_lines()
 {
   return lines;
+}
+
+//! Returns the keywords
+public mapping(string:multiset(string)) get_keywords()
+{
+  return keywords;
 }
 
 public string object_name()

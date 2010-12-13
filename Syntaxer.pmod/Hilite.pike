@@ -61,6 +61,7 @@ string parse(string data)
   return parser->parse(data);
 }
 
+//! Returns the parser object
 .Parser get_parser()
 {
   return parser;

@@ -27,7 +27,7 @@
 
 // Contains QName
 import Standards.XML.Namespace;
-import Standards.Constants;
+import Standards.SOAP.Constants;
 import Parser.XML.Tree;
 import ".";
 

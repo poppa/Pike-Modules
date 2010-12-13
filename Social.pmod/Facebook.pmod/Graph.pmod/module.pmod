@@ -58,7 +58,7 @@
 #define FB_DEBUG
 
 #ifdef FB_DEBUG
-# define TRACE(X...) werror("%s:%d: %s", basename(__FILE__),__LINE__, X)
+# define TRACE(X...) werror("%s:%d: %s",basename(__FILE__),__LINE__,sprintf(X))
 #else
 # define TRACE(X...) 0
 #endif
@@ -69,17 +69,19 @@ constant API_URI = "https://graph.facebook.com";
 //! User Agent string for this API implementation
 constant USER_AGENT = "Pike Facebook Graph Client 0.1 (Pike "+__VERSION__+")";
 
-//! @decl constant PRIVACY_EVERYONE
-//! @decl constant PRIVACY_CUSTOM
-//! @decl constant PRIVACY_ALL_FRIENDS
-//! @decl constant PRIVACY_NETWORK_FRIENDS
-//! @decl constant PRIVACY_FRIENDS_OF_FRIENDS
-//!
-//! Available privacies. Determines who can see what's published.
+//! No privacy, available to everyone
 constant PRIVACY_EVERYONE = "EVERYONE";
+
+//! Custom privacy
 constant PRIVACY_CUSTOM = "CUSTOM";
+
+//! Available to all friends
 constant PRIVACY_ALL_FRIENDS = "ALL_FRIENDS";
+
+//! Available to network friends
 constant PRIVACY_NETWORK_FRIENDS = "NETWORK_FRIENDS";
+
+//! Available to friends of friends
 constant PRIVACY_FRIENDS_OF_FRIENDS = "FRIENDS_OF_FRIENDS";
 
 #if constant(Standards.JSON.decode)
@@ -156,6 +158,16 @@ class Api
   void set_authorization(Authorization _auth)
   {
     auth = _auth;
+  }
+
+  //! Issues a call with a GET method
+  //!
+  //! @param fb_method
+  //!  The Facebook Graph API method to call
+  //! @param params
+  mixed get(string fb_method, void|mapping|Params params)
+  {
+    return call(fb_method, params);
   }
 
   //! Issues a call with a POST method
@@ -253,7 +265,16 @@ class Api
       error("Bad status (%d) in HTTP response! ", q->status);
     }
 
-    return json_decode(q->data());
+    string jdata = unescape_forward_slashes(q->data());
+
+    TRACE("Json result: %s\n", jdata||"");
+
+    return json_decode(jdata);
+  }
+
+  protected string unescape_forward_slashes(string s)
+  {
+    return replace(s, "\\/", "/");
   }
 }
 
@@ -282,30 +303,29 @@ class Api
 //! This is what a authorization could look like. Note! Much here is psuedo
 //! code just to show the idea.
 //!
-//! @example
-//!  @xml{<codify detab="3">
-//!   Api api = Api(MY_APP_ID, MY_APP_SECRET);
-//!   Authorization auth = Authorization(api, "http://domain.com/fb_callback/");
+//! @xml{<code detab="2">
+//!  Api api = Api(MY_APP_ID, MY_APP_SECRET);
+//!  Authorization auth = Authorization(api, "http://domain.com/fb_callback/");
 //!
-//!   if (id->cookie["my_fb_cookie"])
-//!     auth->set_from_cookie(id->cookie["my_fb_cookie"]);
-//!   else if (id->variables->code) {
-//!     string auth_value = auth->request_access_token(id->variables->code);
-//!     save_cookie("my_fb_cookie", auth_value);
-//!   }
-//!   else {
-//!     string login_url = auth->get_auth_uri("publish_stream,user_photos");
-//!     write("<a href='%s'>Log in with Facebook</a>", login_uri);
-//!     return;
-//!   }
+//!  if (id->cookie["my_fb_cookie"])
+//!    auth->set_from_cookie(id->cookie["my_fb_cookie"]);
+//!  else if (id->variables->code) {
+//!    string auth_value = auth->request_access_token(id->variables->code);
+//!    save_cookie("my_fb_cookie", auth_value);
+//!  }
+//!  else {
+//!    string login_url = auth->get_auth_uri("publish_stream,user_photos");
+//!    write("<a href='%s'>Log in with Facebook</a>", login_uri);
+//!    return;
+//!  }
 //!
-//!   if (auth->is_expired()) {
-//!     remove_cookie("my_fb_cookie");
-//!     redirect("/this/page");
-//!   }
+//!  if (auth->is_expired()) {
+//!    remove_cookie("my_fb_cookie");
+//!    redirect("/this/page");
+//!  }
 //!
-//!   api->set_authorization(auth);
-//!  </code>@}
+//!  api->set_authorization(auth);
+//! </code>@}
 class Authorization
 {
   //! The application ID
@@ -325,6 +345,9 @@ class Authorization
 
   //! When the authorization was created
   private int created;
+
+  //! The request token used to create the access token
+  private string code;
 
   //! Creates an Authorization object
   //!
@@ -352,15 +375,37 @@ class Authorization
     return app_secret;
   }
 
+  //! Returns the redirect uri
+  string get_redirect_uri()
+  {
+    return redirect_uri;
+  }
+
+  //! Setter for the redirect uri
+  //!
+  //! @param uri
+  void set_redirect_uri(string uri)
+  {
+    redirect_uri = uri;
+  }
+
+  int(0..1) is_renewable()
+  {
+    return !!code;
+  }
+
   //! Returns an authorization URI.
   //!
   //! @param extended_permissions
   //!  Extra permissions the user should be asked to give the application.
   //!  See @url{http://developers.facebook.com/docs/authentication/permissions@}
-  string get_auth_uri(void|string extended_permissions)
+  //! @param _redirect_uri
+  //!  Overrides the redirect uri object member
+  string get_auth_uri(void|string extended_permissions, 
+                      void|string _redirect_uri)
   {
     Params p = Params(Param("client_id", app_id),
-                      Param("redirect_uri", redirect_uri));
+                      Param("redirect_uri", _redirect_uri||redirect_uri));
 
     if (extended_permissions)
       p += Param("scope", extended_permissions);
@@ -391,6 +436,7 @@ class Authorization
   //!   @member string "access_token"
   //!   @member int    "expires"
   //!   @member int    "created"
+  //!   @member string "code"
   //!  @endmapping
   string request_access_token(void|string code)
   {
@@ -422,10 +468,21 @@ class Authorization
 
       return encode_value(([ "access_token" : access_token,
 			     "expires" : expires,
-			     "created" : created ]));
+			     "created" : created,
+			     "code" : code ]));
     }
     else
       error("Failed getting access token!");
+  }
+
+  string renew()
+  {
+    if (!code) {
+      error("Can't renew access token since there's no request token in "
+            "this object. ");
+    }
+
+    return request_access_token(code);
   }
 
   //! Checks if this authorization has expired
@@ -447,6 +504,7 @@ class Authorization
 	  case "access_token": access_token = v; break;
 	  case "expires": expires = v; break;
 	  case "created": created = v; break;
+	  case "code": code = v; break;
 	}
       }
     };
@@ -472,7 +530,17 @@ class Authorization
     if (upper_case(data->algorithm) != "HMAC-SHA256")
       error("Unknown algorithm. Expected HMAC-SHA256");
 
-    string expected_sig = Crypto.HMAC(Crypto.SHA256)(payload)(app_secret);
+    string expected_sig;
+    
+#if constant(Crypto.HMAC)
+# if constant(Crypto.SHA256)
+    expected_sig = Crypto.HMAC(Crypto.SHA256)(payload)(app_secret);
+# else
+    error("No Crypto.SHA256 available in this Pike build! ");
+# endif
+#else
+    error("Not implemented in this Pike version! ");
+#endif
 
     if (sig != expected_sig)
       error("Badly signed signature. ");
@@ -504,8 +572,8 @@ class Authorization
       default:
 	return sprintf("%O(%O, %O, %O, %O)", object_program(this), access_token,
                                              redirect_uri,
-					      Calendar.Second("unix", created),
-					      Calendar.Second("unix", expires));
+					     Calendar.Second("unix", created),
+					     Calendar.Second("unix", expires));
     }
   }
 }
@@ -539,3 +607,50 @@ class Param
     ::create(name, value);
   }
 }
+
+#if !(constant(Crypto.HMAC) && constant(Crypto.SHA256))
+// Compat class for Pike 7.4
+// This is a mashup of the 7.4 Crypto.hmac and 7.8 Crypto.HMAC
+class MY_HMAC
+{
+  function H;
+  int B;
+  
+  void create(function h, int|void b)
+  {
+    H = h;
+    B = b || 64;
+  }
+
+  string raw_hash(string s)
+  {
+    return H()->update(s)->digest();
+  }
+
+  string pkcs_digest(string s)
+  {
+    return Standards.PKCS.Signature.build_digestinfo(s, H());
+  }
+
+  class `()
+  {
+    string ikey, okey;
+
+    void create(string passwd)
+    {
+      if (sizeof(passwd) > B)
+	passwd = raw_hash(passwd);
+      if (sizeof(passwd) < B)
+	passwd = passwd + "\0" * (B - sizeof(passwd));
+
+      ikey = passwd ^ ("6" * B);
+      okey = passwd ^ ("\\" * B);
+    }
+
+    string `()(string text)
+    {
+      return raw_hash(okey + raw_hash(ikey + text));
+    }
+  }
+}
+#endif

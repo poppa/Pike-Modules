@@ -1,8 +1,8 @@
-import Standards.Constants;
 import Standards.XML.Namespace;
 
-protected QName encoding_style = QName(SOAP_ENCODING_URI,
-                                       SOAP_ENCODING_PREFIX, "xmlns");
+protected QName encoding_style = QName(.Constants.SOAP_ENCODING_URI,
+                                       .Constants.SOAP_ENCODING_PREFIX, 
+                                       "xmlns");
 
 QName get_encoding()
 {

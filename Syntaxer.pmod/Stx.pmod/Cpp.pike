@@ -1,3 +1,6 @@
+//! C++ syntax highlighter
+
+//!
 inherit "../Parser.pike";
 
 public string title = "C++";

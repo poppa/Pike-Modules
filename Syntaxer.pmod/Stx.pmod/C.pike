@@ -1,3 +1,6 @@
+//! C syntax highlighter
+
+//!
 inherit .Cpp;
 
 public string title = "C";

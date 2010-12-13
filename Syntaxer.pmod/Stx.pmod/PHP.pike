@@ -1,3 +1,6 @@
+//! PHP syntax highlighter
+
+//!
 inherit "../Parser.pike";
 
 public string title = "PHP: Hypertext Preprocessor";

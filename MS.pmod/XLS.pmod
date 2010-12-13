@@ -51,7 +51,8 @@ private multiset data_types = (< "Number","String","DateTime","Date","Time" >);
 //! @param type
 //!  An Excel datatype
 //!
-//! @seealso XLS.data_types 
+//! @seealso 
+//!  data_types 
 private string get_style(string type)
 {
   return ([ "DateTime" : "s22",

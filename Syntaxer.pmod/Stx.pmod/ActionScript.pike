@@ -1,3 +1,6 @@
+//! ActionScript syntax highlighter
+
+//!
 inherit "../Parser.pike";
 
 public string title = "ActionScript";

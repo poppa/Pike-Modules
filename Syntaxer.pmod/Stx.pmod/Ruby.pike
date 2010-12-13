@@ -1,3 +1,6 @@
+//! Ruby syntax highlighter
+
+//!
 inherit "../Parser.pike";
 
 public string title = "Ruby";

@@ -25,7 +25,7 @@ private constant METHOD_PING = "weblogUpdates.ping";
 private constant METHOD_EXTENDED_PING = "weblogUpdates.extendedPing";
 private int(0..1) print_error = 0;
 
-//! If set to @{1@} any XML-RPC fault will be printed to @{stderr@}.
+//! If set to @tt{1@} any XML-RPC fault will be printed to @tt{stderr@}.
 //!
 //! @param value
 void report_fault(int(0..1) value)

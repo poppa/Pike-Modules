@@ -1,3 +1,6 @@
+//! PERL syntax highlighter
+
+//!
 inherit "../Parser.pike";
 
 public string title = "Perl";

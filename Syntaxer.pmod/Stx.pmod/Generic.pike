@@ -1,6 +1,8 @@
+//! Generic syntax highlighter.
 //! Used when no matching subclass is found.
 //! This will pretty much only indent palin text.
 
+//!
 inherit "../Parser.pike";
 
 protected mapping(string:multiset(string)) keywords = ([]);

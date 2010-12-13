@@ -149,6 +149,8 @@ class Param
   }
 
   //! String format
+  //!
+  //! @param ts
   string _sprintf(int t)
   {
     return t == 'O' && sprintf("%O(%O, %O)", object_program(this), name, value);
@@ -161,7 +163,7 @@ class Param
 //! @[Client()->username] and  @[Client()->password].
 class Client // {{{
 {
-  //! The parsed WSDL. @[Standards.WSLD.Definition]
+  //! The parsed WSDL. @[Standards.WSLD.Definitions]
   protected Definitions wsdl;
 
   //! Username for a basic authentication
@@ -170,7 +172,7 @@ class Client // {{{
   //! Password for a basic authentication
   string password;
 
-  //! Set to use another query object for the request
+  // Set to use another query object for the request
   //protected Protocols.HTTP.Query con;
 
   //! Invoke the SOAP call.
@@ -194,6 +196,8 @@ class Client // {{{
   //! @param url
   //! @param method
   //! @param p
+  //! @param con
+  //!  HTTP connection object
   protected Response load_wsdl(string|Standards.URI url, string method,
                                array(Param) p, void|Protocols.HTTP.Query con)
   {
@@ -215,9 +219,11 @@ class Client // {{{
   //! @param url
   //! @param method
   //! @param p
+  //! @param con
+  //!  HTTP connection object
   protected Response send_soap_request(string|Standards.URI url,
                                        string method, array(Param) p,
-				       void|Protocols.HTTP.Query con)
+                                       void|Protocols.HTTP.Query con)
   {
 #ifdef SOAP_DEBUG
     werror("*** SOAP Request: %O, %s\n", url, method);
@@ -633,8 +639,9 @@ class Response // {{{
   //! Extracts the value from node @[n] and tries to encode the value to the
   //! proper Pike type.
   //!
-  //! TODO: Most XSI types are represented in @[Standards.XSD.Types], perhaps
-  //! implement that here
+  //! @note 
+  //!  Most XSI types are represented in @[Standards.XSD.Types], perhaps
+  //!  implement that here
   //!
   //! @param n
   protected mixed extract_value(Node n)
@@ -700,7 +707,8 @@ class Fault // {{{
   //! Create a new SOAP Fault object
   //!
   //! @param code
-  //! @param
+  //! @param message
+  //! @param details
   void create(string code, string message, void|mixed details)
   {
     faultcode = code;
@@ -769,6 +777,8 @@ class Envelope // {{{
 
   //! Turns the object into an XML representation of the envelope, i.e. what
   //! to send in a SOAP call.
+  //!
+  //! @param _body
   string to_xml(void|Body _body)
   {
     if (!_body && !body)
@@ -846,16 +856,16 @@ string pike_type_to_string(int t) // {{{
 {
   return ([ PIKE_STRING   : "string",
             PIKE_FLOAT    : "float",
-	    PIKE_INT      : "int",
-	    PIKE_MAPPING  : "mapping",
-	    PIKE_ARRAY    : "array",
-	    PIKE_MULTISET : "multiset",
-	    PIKE_OBJECT   : "object",
-	    PIKE_PROGRAM  : "program",
-	    PIKE_FUNCTION : "function",
-	    PIKE_CLASS    : "class",
-	    PIKE_DATE     : "DateTime",
-	    PIKE_NULL     : "undefined" ])[t]||PIKE_NULL;
+            PIKE_INT      : "int",
+            PIKE_MAPPING  : "mapping",
+            PIKE_ARRAY    : "array",
+            PIKE_MULTISET : "multiset",
+            PIKE_OBJECT   : "object",
+            PIKE_PROGRAM  : "program",
+            PIKE_FUNCTION : "function",
+            PIKE_CLASS    : "class",
+            PIKE_DATE     : "DateTime",
+            PIKE_NULL     : "undefined" ])[t]||PIKE_NULL;
 } // }}}
 
 //! Tries to find the Pike type of @[v]
@@ -910,4 +920,3 @@ protected mapping shorten_attributes(mapping m) // {{{
 
   return out;
 } // }}}
-

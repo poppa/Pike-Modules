@@ -1,5 +1,5 @@
 /* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! Consants
+//! Constants
 //|
 //| Copyright © 2009, Pontus Östlund - www.poppa.se
 //|
@@ -75,4 +75,3 @@ constant NS_TO_URI = ([
   SOAP_XSD_PREFIX             : SOAP_XSD_URI,
   SOAP_XSI_PREFIX             : SOAP_XSI_URI
 ]);
-

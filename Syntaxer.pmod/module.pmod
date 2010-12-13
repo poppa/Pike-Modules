@@ -46,6 +46,12 @@
   return .Hilite(type);
 }
 
+//! Returns a parser object suited for the file @[path]. This will try to find
+//! a parser based on the file extension. Of no extension exists it looks for
+//! a shebang (#!/bin/prog, #!/usr/bin/prog, #!/bin/env prog etc).
+//!
+//! @param path
+//!  A path to a source file
 .Hilite get_parser_from_file(string path)
 {
   if (!Stdio.exist(path))
@@ -66,4 +72,3 @@
 
   return get_parser(ext);
 }
-
