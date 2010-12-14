@@ -78,13 +78,11 @@ private Encoder __encoder = Encoder();
 	case ',':                                                              \
 	  STR = c;                                                             \
 	  break lblgetc;                                                       \
-	                                                                       \
 	case '-':                                                              \
 	case '0'..'9':                                                         \
 	  STR = c;                                                             \
 	  read_to_chars(({ ',', '\n','\t',' ', ':','}',']' }), STR);           \
 	  break lblgetc;                                                       \
-	                                                                       \
 	case '\'':                                                             \
 	case '"':                                                              \
 	  STR = c;                                                             \
@@ -115,7 +113,7 @@ string encode(mixed pike_data, void|int(0..1) readable)
   return __encoder->encode(pike_data, readable);
 }
 
-//! Decodes unicode escaped characters. Like @tt{\\u00e5@} becomes @tt{å@}.
+//! Decodes unicode escaped characters. Like @tt{\\u00e5@} becomes @tt{�@}.
 //!
 //! @param s
 string decode_unicode_chars(string s)
@@ -163,12 +161,40 @@ private class Encoder
     return buf->get();
   }
 
+  string escape_string(string s)
+  {
+    if (!sizeof(s))
+      return s;
+
+    String.Buffer b = String.Buffer();
+    function _add = b->add;
+
+    for (int i = 0; i < sizeof(s); i++) {
+      switch ( s[i] )
+      {
+	case 0..6: _add(sprintf("\\%d", s[i] )); break;
+	case    7: _add("\\a"); break;
+	case    8: _add("\\b"); break;
+	case    9: _add("\\t"); break;
+	case   10: _add("\\n"); break;
+	case   12: _add("\\f"); break;
+	case   13: _add("\\r"); break;
+	case   34: /* Fall through, double quote */
+	case   39: /* Fall through, single quote */
+	case   92: _add(sprintf("\\%c", s[i] )); break; /* Backslash */
+	default:   _add( s[i..i] );
+      }
+    }
+
+    return b->get();
+  }
+  
   void encode_value(mixed val)
   {
     if (zero_type(val))
       add("null");
     else if (stringp(val))
-      add("\"%s\"", replace(val, "\n","\\n")-"\r");
+      add("\"%s\"", escape_string(val));
     else if (intp(val))
       add("%d", val);
     else if (floatp(val))
@@ -207,7 +233,7 @@ private class Encoder
       	if (stringp(k))
 	  add("\"%s\":", k);
 	else 
-	  add("%d:", k);
+	  add("\"%d\":", k);
 
       	encode_value(v);
 

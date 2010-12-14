@@ -58,7 +58,7 @@
 #define FB_DEBUG
 
 #ifdef FB_DEBUG
-# define TRACE(X...) werror("%s:%d: %s",basename(__FILE__),__LINE__,sprintf(X))
+# define TRACE(X...) werror("%s:%d: %s", basename(__FILE__),__LINE__, sprintf(X))
 #else
 # define TRACE(X...) 0
 #endif
@@ -303,29 +303,31 @@ class Api
 //! This is what a authorization could look like. Note! Much here is psuedo
 //! code just to show the idea.
 //!
-//! @xml{<code detab="2">
-//!  Api api = Api(MY_APP_ID, MY_APP_SECRET);
-//!  Authorization auth = Authorization(api, "http://domain.com/fb_callback/");
+//! @example
+//!  @xml{<codify detab="3">
+//!   Authorization auth = Authorization(MY_APP_ID, MY_APP_SECRET,
+//!                                      "http://domain.com/fb_callback/",
+//!                                      "publish_stream,user_photos");
 //!
-//!  if (id->cookie["my_fb_cookie"])
-//!    auth->set_from_cookie(id->cookie["my_fb_cookie"]);
-//!  else if (id->variables->code) {
-//!    string auth_value = auth->request_access_token(id->variables->code);
-//!    save_cookie("my_fb_cookie", auth_value);
-//!  }
-//!  else {
-//!    string login_url = auth->get_auth_uri("publish_stream,user_photos");
-//!    write("<a href='%s'>Log in with Facebook</a>", login_uri);
-//!    return;
-//!  }
+//!   if (id->cookie["my_fb_cookie"])
+//!     auth->set_from_cookie(id->cookie["my_fb_cookie"]);
+//!   else if (id->variables->code) {
+//!     string auth_value = auth->request_access_token(id->variables->code);
+//!     save_cookie("my_fb_cookie", auth_value);
+//!   }
+//!   else {
+//!     string login_url = auth->get_auth_uri();
+//!     write("<a href='%s'>Log in with Facebook</a>", login_uri);
+//!     return;
+//!   }
 //!
-//!  if (auth->is_expired()) {
-//!    remove_cookie("my_fb_cookie");
-//!    redirect("/this/page");
-//!  }
+//!   if (auth->is_expired()) {
+//!     remove_cookie("my_fb_cookie");
+//!     redirect("/this/page");
+//!   }
 //!
-//!  api->set_authorization(auth);
-//! </code>@}
+//!   Api api = Api(auth);
+//!  </code>@}
 class Authorization
 {
   //! The application ID
@@ -346,17 +348,26 @@ class Authorization
   //! When the authorization was created
   private int created;
 
-  //! The request token used to create the access token
-  private string code;
+  //! The extended permissions
+  private string permissions;
 
   //! Creates an Authorization object
   //!
-  //! @param _api
+  //! @param client_id
+  //!  The Facebook application ID
+  //!
+  //! @param client_secret
+  //!  The Facebook application secret
   //!
   //! @param _redirect_uri
   //!  Where the authorization page should redirect back to. This must be
   //!  fully qualified domain name.
-  void create(string client_id, string client_secret, string _redirect_uri)
+  //!
+  //! @param _permissions
+  //!  Extended permissions to use for this authorization.
+  //!  @url{http://developers.facebook.com/docs/authentication/permissions@}.
+  void create(string client_id, string client_secret, string _redirect_uri,
+              void|string _permissions)
   {
     app_id = client_id;
     app_secret = client_secret;
@@ -389,26 +400,20 @@ class Authorization
     redirect_uri = uri;
   }
 
-  int(0..1) is_renewable()
-  {
-    return !!code;
-  }
-
   //! Returns an authorization URI.
   //!
-  //! @param extended_permissions
-  //!  Extra permissions the user should be asked to give the application.
-  //!  See @url{http://developers.facebook.com/docs/authentication/permissions@}
-  //! @param _redirect_uri
-  //!  Overrides the redirect uri object member
-  string get_auth_uri(void|string extended_permissions, 
-                      void|string _redirect_uri)
+  //! @param cancel_uri
+  //!  URI to redirect to when the user cancels the authorization process
+  string get_auth_uri(void|string cancel_uri)
   {
     Params p = Params(Param("client_id", app_id),
-                      Param("redirect_uri", _redirect_uri||redirect_uri));
+                      Param("redirect_uri", redirect_uri));
 
-    if (extended_permissions)
-      p += Param("scope", extended_permissions);
+    if (permissions)
+      p += Param("scope", permissions);
+
+    if (cancel_uri)
+      p += Param("cancel", cancel_uri);
 
     return get_uri("/oauth/authorize", p);
   }
@@ -442,13 +447,13 @@ class Authorization
   {
     Params p = Params(Param("client_id", app_id),
                       Param("redirect_uri", redirect_uri),
-		      Param("client_secret", app_secret),
-		      Param("code", code));
+                      Param("client_secret", app_secret),
+                      Param("code", code));
 
     Protocols.HTTP.Query q;
     q = Protocols.HTTP.get_url(get_uri("/oauth/access_token"),
                                p->to_mapping(),
-			       ([ "User-Agent" : USER_AGENT ]));
+                               ([ "User-Agent" : USER_AGENT ]));
 
     if (q->status != 200)
       error("Bad status (%d) in HTTP response! ", q->status);
@@ -467,22 +472,20 @@ class Authorization
       expires = v->expires && created + (int)v->expires;
 
       return encode_value(([ "access_token" : access_token,
-			     "expires" : expires,
-			     "created" : created,
-			     "code" : code ]));
+                             "expires"      : expires,
+                             "created"      : created ]));
     }
     else
       error("Failed getting access token!");
   }
 
-  string renew()
+  //! Checks if the authorization is renewable. This is true if the 
+  //! @[Authorization] object has been populated from 
+  //! @[Authorization()->set_from_cookie()], i.e the user has been authorized
+  //! but the session has expired.
+  int(0..1) is_renewable()
   {
-    if (!code) {
-      error("Can't renew access token since there's no request token in "
-            "this object. ");
-    }
-
-    return request_access_token(code);
+    return !!created;
   }
 
   //! Checks if this authorization has expired
@@ -501,16 +504,18 @@ class Authorization
       mapping m = decode_value(encoded_value);
       foreach (m; string k; mixed v) {
 	switch (k) {
-	  case "access_token": access_token = v; break;
-	  case "expires": expires = v; break;
-	  case "created": created = v; break;
-	  case "code": code = v; break;
+	  case "access_token" : access_token = v; break;
+	  case "expires"      : expires      = v; break;
+	  case "created"      : created      = v; break;
 	}
       }
     };
   }
 
   //! Parses a signed request
+  //!
+  //! @note
+  //!  This method is not tested yet!
   //!
   //! @throws
   //!  An error if the signature doesn't match the expected signature
@@ -571,9 +576,9 @@ class Authorization
 
       default:
 	return sprintf("%O(%O, %O, %O, %O)", object_program(this), access_token,
-                                             redirect_uri,
-					     Calendar.Second("unix", created),
-					     Calendar.Second("unix", expires));
+	                                     redirect_uri,
+	                                     Calendar.Second("unix", created),
+	                                     Calendar.Second("unix", expires));
     }
   }
 }
