@@ -179,5 +179,5 @@ Parser.XML.Tree.Node find_root(Parser.XML.Tree.Node n)
 string get_ns_from_uri(string uri)
 {
   if (uri[-1] != '/') uri += "/";
-  return Standards.Constants.URI_TO_NS[uri];
+  return Standards.SOAP.Constants.URI_TO_NS[uri];
 }

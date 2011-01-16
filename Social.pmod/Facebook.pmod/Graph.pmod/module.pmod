@@ -372,6 +372,7 @@ class Authorization
     app_id = client_id;
     app_secret = client_secret;
     redirect_uri = _redirect_uri;
+    permissions = _permissions;
   }
 
   //! Returns the application ID
@@ -402,18 +403,22 @@ class Authorization
 
   //! Returns an authorization URI.
   //!
-  //! @param cancel_uri
-  //!  URI to redirect to when the user cancels the authorization process
-  string get_auth_uri(void|string cancel_uri)
+  //! @param args
+  //!  Additional argument.
+  string get_auth_uri(void|mapping args)
   {
     Params p = Params(Param("client_id", app_id),
-                      Param("redirect_uri", redirect_uri));
+                      Param("redirect_uri", 
+                            args&&args->redirect_uri||redirect_uri));
+
+    if (args)
+      m_delete(args, "redirect_uri");
 
     if (permissions)
       p += Param("scope", permissions);
 
-    if (cancel_uri)
-      p += Param("cancel", cancel_uri);
+    if (args)
+      p->add_mapping(args);
 
     return get_uri("/oauth/authorize", p);
   }
@@ -504,18 +509,15 @@ class Authorization
       mapping m = decode_value(encoded_value);
       foreach (m; string k; mixed v) {
 	switch (k) {
-	  case "access_token" : access_token = v; break;
-	  case "expires"      : expires      = v; break;
-	  case "created"      : created      = v; break;
+	  case "access_token": access_token = v; break;
+	  case "expires": expires = v; break;
+	  case "created": created = v; break;
 	}
       }
     };
   }
 
   //! Parses a signed request
-  //!
-  //! @note
-  //!  This method is not tested yet!
   //!
   //! @throws
   //!  An error if the signature doesn't match the expected signature

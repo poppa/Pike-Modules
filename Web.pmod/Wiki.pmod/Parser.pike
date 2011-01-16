@@ -18,8 +18,15 @@
 //! You should have received a copy of the GNU General Public License
 //! along with Parser.pike. If not, see <http://www.gnu.org/licenses/>.
 
+#define WIKI_DEBUG
+
 #define TRIM String.trim_all_whites
-#define TRACE(X...) werror(X)
+
+#ifdef WIKI_DEBUG
+# define TRACE(X...) werror("%s:%-4d: %s", basename(__FILE__), __LINE__, sprintf(X))
+#else
+# define TRACE(X...) 0
+#endif
 
 #define PCRE_SW  Regexp.PCRE.StudiedWidestring
 #define PCRE_OPT Regexp.PCRE.OPTION
@@ -220,11 +227,15 @@ private string wiki_callack(string m)
   if (!word) return m;
   if (!text) word -= "]";
   
-  mapping args = ([ "href" : wiki_root + word ]);
+  string root = wiki_root[-1] == '/' ? wiki_root : wiki_root + "/";
+
+  mapping args = ([ "href" : root + word ]);
   if ( wiki_words[word] )
     args["class"] = "wiki";
   else
     args["class"] = "wiki no-wiki";
+  
+  TRACE("Wiki word: %O\n", args);
   
   return sprintf("<a%{ %s=%O%}>%s</a>", (array)args, TRIM(text||word));
 }

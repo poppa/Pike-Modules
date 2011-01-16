@@ -61,6 +61,30 @@ enum DataType { // {{{
   SQL_FLOAT
 } // }}}
 
+#define SQL_PMOD_SAFE_QUTED_VALUE(V) safe_quote_sql(V)
+string safe_quote_sql(string in)
+{
+  int len = in && sizeof(in);
+  
+  if (!len)
+    return "";
+  
+  in += "\0";
+  string b = "";
+
+  for (int i = 0; i < len; i++) {
+    if (i == len)
+      break;
+
+    if (in[i] == '%' && in[i+1] != '%')
+      b += "%";
+
+    b += in[i..i];
+  }
+
+  return b;
+}
+
 //! Class representing a SQL column
 class Field // {{{
 {
@@ -106,7 +130,7 @@ class Field // {{{
   //! @tt{`name`='quoted-value'@}.
   mixed get()
   {
-    return sprintf("`%s`=%s", name, get_quoted());
+    return sprintf("`%s`=%s", name, safe_quote_sql(get_quoted()));
   }
 
   //! Returns the name
@@ -136,10 +160,12 @@ class Field // {{{
   //! Returns the value quoted
   string get_quoted()
   {
+    werror("+++ Get quoted for %O\n", name);
+    
     switch (type)
     {
       case SQL_STRING:
-	return value && "'" + QUOTE_SQL((string)value) + "'"
+	return value && "'" + QUOTE_SQL(value) + "'"
 	             || nullable && "NULL"
 	             || "''";
 

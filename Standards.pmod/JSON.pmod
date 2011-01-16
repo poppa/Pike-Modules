@@ -231,15 +231,14 @@ private class Encoder
       foreach (indices(val), int|string k) {
 	mixed v = val[k];
       	if (stringp(k))
-	  add("\"%s\":", k);
+	  add("\"%s\":", escape_string(k));
 	else 
 	  add("\"%d\":", k);
 
       	encode_value(v);
 
-      	if (++i < len) {
+      	if (++i < len)
       	  add(",");
-      	}
       }
       add("}");
     }
