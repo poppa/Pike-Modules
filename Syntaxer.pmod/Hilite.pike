@@ -52,7 +52,7 @@ string parse(string data)
 {
   if (tabsize) parser->tabsize = tabsize;
   if (!zero_type(html_embedded)) {
-    werror("Set HTML embedded to: %d\n", html_embedded);
+    //werror("Set HTML embedded to: %d\n", html_embedded);
     parser->html_embedded = html_embedded;
   }
   if (title) parser->title = title;

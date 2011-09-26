@@ -37,7 +37,7 @@ protected void decode_cookies(string data)
   foreach(data/";", string c) {
     string name, value;
     sscanf(c, "%*[ ]%s", c);
-    if(sscanf(c, "%s=%s", name, value) == 2) {
+    if (sscanf(c, "%s=%s", name, value) == 2) {
       value = decode_string(value);
       name = decode_string(name);
       cookies[name] = value;
@@ -51,6 +51,7 @@ protected void decode_query()
   string a, b;
   foreach (query/"&", string v) {
     sscanf(v, "%s=%s", a, b);
+    if (!a) a = v;
     if (!EMPTY(a)) {
       a = decode_string(replace(a, "+", " "));
       b = decode_string(replace(b||"", "+", " "));

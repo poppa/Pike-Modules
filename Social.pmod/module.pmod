@@ -20,6 +20,23 @@
 
 #include "social.h"
 
+#if constant(Standards.JSON.decode)
+public function json_decode = Standards.JSON.decode;
+#else
+public function json_decode = lambda (string s) {
+  error("No JSON decode function available. You can set an arbitrary JSON "
+        "decode function via Graph.set_json_decode().\n");
+};
+#endif
+
+//! Set JSON decoding function
+//!
+//! @param func
+void set_json_decode(function func)
+{
+  json_decode = func;
+}
+
 //! MD5 routine
 //!
 //! @param s

@@ -293,4 +293,3 @@ Response call(string api_method, void|mapping|Params params)
 {
   return Response(call_xml(api_method, params));
 }
-

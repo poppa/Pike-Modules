@@ -186,7 +186,7 @@ class Client // {{{
   //! @param params
   Response invoke(string|Standards.URI url, string operation,
                   array(Param) params,
-		  void|Protocols.HTTP.Query con)
+                  void|Protocols.HTTP.Query con)
   {
     return load_wsdl(url, operation, params, con);
   }
@@ -232,27 +232,27 @@ class Client // {{{
     string ns = wsdl->get_target_namespace()->get_namespace_uri();
 
     if (!ns)
-      error("Unable to resolv namespace from WSDL\n");
+      error("Unable to resolve namespace from WSDL\n");
 
     Port port = wsdl->get_first_soap_port();
     if (!port)
-      error("Unable to resolv port from WSDL\n");
+      error("Unable to resolve port from WSDL\n");
     
     Binding binding = wsdl->get_binding(port->binding->get_local_name());
     if (!binding)
-      error("Unable to resolv binding from WSDL port binding\n");
+      error("Unable to resolve binding from WSDL port binding\n");
 
     Operation operation = binding->operations[method];
     if (!operation)
-      error("Unable to resolv operation from WSDL binding\n");
+      error("Unable to resolve operation from WSDL binding\n");
 
     PortType porttype = wsdl->get_porttype(binding->type->get_local_name());
     if (!porttype)
-      error("Unable to resolv porttype from WSDL binding\n");
+      error("Unable to resolve porttype from WSDL binding\n");
 
     Operation port_op = porttype->operations[method];
     if (!port_op)
-      error("Unable to resolv operation from WSDL porttype\n");
+      error("Unable to resolve operation from WSDL porttype\n");
 
     string soapaction = operation->soap_action;
     string endpoint = port->address->location;
@@ -549,14 +549,14 @@ class Response // {{{
     return nds;
   }
 
-  //! Resolv result types
+  //! Resolve result types
   protected void get_wsdl_types()
   {
     array(Node) nds;
     if (find_node_by_name(response, "schema"))
       nds = get_nodes_by_tag_name(response, "element");
 
-    // Resolv types from response
+    // Resolve types from response
     if (nds && sizeof(nds)) {
       foreach (nds, Node n) {
 	mapping attr = shorten_attributes(n->get_attributes());
@@ -564,7 +564,7 @@ class Response // {{{
 	  wsdl_types[attr->name] = attr->type;
       }
     }
-    // Resolv types from WSDL
+    // Resolve types from WSDL
     else {
       array(Types.Type) els = response_element->get_element_elements();
       foreach (els||({}), Types.Type t) {

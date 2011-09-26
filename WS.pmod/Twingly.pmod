@@ -77,7 +77,7 @@ int(0..1) extended_ping(string blog_name, string blog_url, string update_url,
   Client c = Client(TWINGLY_URL);
   array|Fault res = c[METHOD_EXTENDED_PING](safep(blog_name), safep(blog_url),
                                             safep(update_url), safep(rss_url),
-					    safep(tags));
+                                            safep(tags));
 
   if (objectp(res)) {
     if (print_error)

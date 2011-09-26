@@ -58,7 +58,8 @@
 #define FB_DEBUG
 
 #ifdef FB_DEBUG
-# define TRACE(X...) werror("%s:%d: %s", basename(__FILE__),__LINE__, sprintf(X))
+# define TRACE(X...) \
+  werror("%s:%d: %s", basename(__FILE__),__LINE__, sprintf(X))
 #else
 # define TRACE(X...) 0
 #endif
@@ -143,7 +144,7 @@ class Api
   //!
   //! @param _auth
   //!  Athorization object. See also @[Authorization] and
-  //!  @[Api()->set_authorization]
+  //!  @[Api()->set_authorization()]
   void create(Authorization _auth)
   {
     auth = _auth;
@@ -300,7 +301,7 @@ class Api
 //!      and if that cookie exists you can populate your @[Authorization] 
 //!      object with that string via @[Authorization()->set_from_cookie()].
 //!
-//! This is what a authorization could look like. Note! Much here is psuedo
+//! This is what an authorization could look like. Note! Much here is psuedo
 //! code just to show the idea.
 //!
 //! @example
@@ -369,10 +370,10 @@ class Authorization
   void create(string client_id, string client_secret, string _redirect_uri,
               void|string _permissions)
   {
-    app_id = client_id;
-    app_secret = client_secret;
+    app_id       = client_id;
+    app_secret   = client_secret;
     redirect_uri = _redirect_uri;
-    permissions = _permissions;
+    permissions  = _permissions;
   }
 
   //! Returns the application ID
@@ -408,7 +409,7 @@ class Authorization
   string get_auth_uri(void|mapping args)
   {
     Params p = Params(Param("client_id", app_id),
-                      Param("redirect_uri", 
+                      Param("redirect_uri",
                             args&&args->redirect_uri||redirect_uri));
 
     if (args)
@@ -514,6 +515,8 @@ class Authorization
 	  case "created": created = v; break;
 	}
       }
+      
+      return this;
     };
   }
 
@@ -538,7 +541,7 @@ class Authorization
       error("Unknown algorithm. Expected HMAC-SHA256");
 
     string expected_sig;
-    
+
 #if constant(Crypto.HMAC)
 # if constant(Crypto.SHA256)
     expected_sig = Crypto.HMAC(Crypto.SHA256)(payload)(app_secret);

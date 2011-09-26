@@ -1,6 +1,7 @@
 *~
 *.xml
 *.log
+*.cvsignore
 Web.pmod
 Utils.pmod
 TVAB.pmod

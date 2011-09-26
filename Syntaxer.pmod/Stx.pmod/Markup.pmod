@@ -37,6 +37,7 @@ class HTMLParser
 
   string parse(string _data)
   {
+    buffer = String.Buffer();
     tab = SPACE * tabsize;
     data = _data;
 
@@ -61,7 +62,7 @@ class HTMLParser
     if (sizeof(line))
       APPEND_LINE(line);
 
-    return (string)buffer;
+    return buffer->get();
   }
 
   string js_buf, css_buf;
@@ -72,6 +73,8 @@ class HTMLParser
     line += colorize(ENTIFY("<script"), ck) + attr_to_string(args);
     line += colorize(ENTIFY(">"), ck);
 
+    //werror("#####\n%s#####\n", line);
+    
     if (sizeof(TRIM(tag))) {
       if (!js_parser) {
 	js_parser = Syntaxer.get_parser("js");
@@ -81,12 +84,14 @@ class HTMLParser
 
       string tmp = line + js_parser->parse(tag);
       array(string) lns = tmp/"\n";
-      string last = lns[-2];
-      lns = lns[0..sizeof(lns)-3];
+      //string last = lns[-2];
+      lns = lns[..sizeof(lns)-2];
       foreach (lns, string ln)
 	APPEND_LINE(ln);
 
-      line = last[0..sizeof(last)-7] + colorize(ENTIFY("</script>"), ck);
+      //werror("Here...%s\n", last);
+      
+      line = colorize(ENTIFY("</script>"), ck);
     }
     else
       line += colorize(ENTIFY("</script>"), ck);

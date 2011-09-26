@@ -94,7 +94,7 @@ protected mapping(string:string) colors = ([
 
 protected mapping(string:array(string)) styles = ([
   "keywords"     : ({ "<b>", "</b>" }),
-  "preprocessor" : ({ "<b style='background: black;'>", "</b>" }),
+  "preprocessor" : ({ "<b style='background:black;'>", "</b>" }),
   "macro"        : ({ "<b>", "</b>" })
 ]);
 protected mapping(string:multiset(string)) keywords = ([]);
@@ -269,7 +269,7 @@ main:
       int tlen = sizeof(tlines);
 
       for (i = 0; i < tlen; i++) {
-	line += colorize(TO_WHITE(ENTIFY(tlines[i])), "blockcomment");
+	line += colorize(TO_WHITE(ENTIFY( tlines[i] )), "blockcomment");
 	if (i < tlen-1) {
 	  APPEND_LINE(line);
 	  line = "";

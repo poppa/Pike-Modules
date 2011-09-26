@@ -122,7 +122,7 @@ int(0..1) is_cancelled()
              response["openid." + alias + "." + (X)]
 
   if (!alias) {
-    TRACE("Unables to resolv alias! Falling back to \"sreg\" or deafult "
+    TRACE("Unabled to resolv alias! Falling back to \"sreg\" or deafult "
           "alias!\n");
     alias = P("ns.sreg") && "sreg" || .DEFAULT_ENDPOINT_ALIAS;
   }
