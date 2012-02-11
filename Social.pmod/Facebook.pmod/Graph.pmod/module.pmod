@@ -55,7 +55,7 @@
 //| You should have received a copy of the GNU General Public License
 //| along with Graph.pmod. If not, see <http://www.gnu.org/licenses/>.
 
-#define FB_DEBUG
+//#define FB_DEBUG
 
 #ifdef FB_DEBUG
 # define TRACE(X...) \
@@ -225,7 +225,7 @@ class Api
     http_method = http_method || "GET";
     mapping headers = ([ "User-Agent" : USER_AGENT ]);
     Params p = Params();
-    
+
     if (params) {
       if (mappingp(params))
 	p->add_mapping(params);
@@ -248,7 +248,7 @@ class Api
     }
     else
       params = p->to_mapping();
-
+    
     Protocols.HTTP.Query q;
     q = Protocols.HTTP.do_method(http_method, uri, params, headers, 0, data);
 
@@ -515,7 +515,7 @@ class Authorization
 	  case "created": created = v; break;
 	}
       }
-      
+
       return this;
     };
   }

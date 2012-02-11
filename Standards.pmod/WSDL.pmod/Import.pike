@@ -41,8 +41,10 @@ protected void decode(Node n)
   mapping a = n->get_attributes();
   namespace = a->namespace;
   string loc = a->location || a->schemaLocation;
+
   if (loc) {
     string xml;
+
     if (!catch(location = Standards.URI(loc))) {
       if (mixed e = catch(xml = .get_cache(location)))
 	werror("Import error: %s\n", describe_error(e));

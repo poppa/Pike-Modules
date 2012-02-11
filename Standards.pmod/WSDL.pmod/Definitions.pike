@@ -193,9 +193,11 @@ array(object) get_types()
   array(object) ret = ({});
   foreach (schemas, Schema s)
     ret += s->get_all_elements();
+
   foreach (values(imports), Import imp)
     if (imp->schema)
       ret += imp->schema->get_all_elements();
+
   return ret;
 }
 

@@ -67,7 +67,7 @@ string to_query()
 {
  array o = ({});
  foreach (params, .Param p)
-   o += ({ p->get_name() + "=" + .urlencode(p->get_value()) });
+   o += ({ .urlencode(p->get_name()) + "=" + .urlencode(p->get_value()) });
 
  return o*"&";
 }
@@ -141,9 +141,11 @@ Self `-(.Param|Self p)
 //! The name of a @[Param]erter to find.
 .Param `[](string key)
 {
- foreach (params, .Param p)
-   if (p->get_name() == key)
-     return p;
+  foreach (params, .Param p)
+    if (p->get_name() == key)
+      return p;
+  
+  return 0;
 }
 
 //! Clone the current instance
@@ -159,4 +161,3 @@ string _sprintf(int t)
 {
  return t == 'O' && sprintf("%O(%O)", object_program(this), params);
 }
-

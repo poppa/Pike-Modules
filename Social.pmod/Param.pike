@@ -82,7 +82,7 @@ string name_value()
 //! Same as @[name_value()] except this URL encodes the value.
 string name_value_encoded()
 {
-  return name + "=" + .urlencode(value);
+  return .urlencode(name) + "=" + .urlencode(value);
 }
 
 //! Comparer method. Checks if @[other] equals this object
@@ -146,4 +146,3 @@ private void low_set_value(string v)
     }
   }
 }
-

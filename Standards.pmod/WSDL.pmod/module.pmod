@@ -78,7 +78,7 @@ void add_cache(string|Standards.URI url, string wsdl_xml)
 //! @param password
 .Definitions get_url(string|Standards.URI url, void|string username,
                      void|string password,
-		     void|Protocols.HTTP.Query con)
+                     void|Protocols.HTTP.Query con)
 {
   return .Definitions(get_cache(url, username, password, con));
 }
@@ -178,6 +178,7 @@ Parser.XML.Tree.Node find_root(Parser.XML.Tree.Node n)
 
 string get_ns_from_uri(string uri)
 {
+  if (!uri) return 0;
   if (uri[-1] != '/') uri += "/";
   return Standards.SOAP.Constants.URI_TO_NS[uri];
 }
