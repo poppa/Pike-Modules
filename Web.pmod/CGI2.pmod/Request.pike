@@ -16,10 +16,10 @@ void create()
 
   if (!EMPTY(server->CONTENT_LENGTH))
     misc->len = (int)(server->CONTENT_LENGTH - " ");
-  
+
   query = server->QUERY_STRING;
   method = server->REQUEST_METHOD||"GET";
-  
+
   if ((int)server->CONTENT_LENGTH)
     data = Stdio.stdin->read((int)server->CONTENT_LENGTH);
 
@@ -67,7 +67,7 @@ protected void decode_post()
     werror("%O: Short stdin read!\n", object_program(this));
     return;
   }
-  
+
   string a, b;
   data = data[..misc->len];
   switch(lower_case(((server->CONTENT_TYPE||"")/";")[0]-" "))

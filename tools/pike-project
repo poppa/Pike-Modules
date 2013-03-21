@@ -1,6 +1,6 @@
 #!/usr/bin/env pike
-/* pike-project eases the making of Pike modules, either as Pike C modules or 
- * normal Pike modules. This program generates the minimum needed to create a 
+/* pike-project eases the making of Pike modules, either as Pike C modules or
+ * normal Pike modules. This program generates the minimum needed to create a
  * Pike module that can be compiled and installed by Pike it self:
  *
  *    pike -x module
@@ -26,7 +26,7 @@
  */
 
 #ifdef __NT__
-# error Sorry! This program doesn't work on Winblows!
+# error Sorry! This program doesn't work on Windows!
 #endif
 
 #define TRIM(S) String.trim_all_whites((S))
@@ -68,18 +68,25 @@ constant HELP =
 "  If not given the project directory will be created in the current working\n"
 "  directory.\n";
 
+constant INSTALL_TEXT = // {{{
+#"VHlwaWNhbGx5IHlvdSBpbnN0YWxsIGEgUGlrZSBtb2R1bGUgbGlrZSB0aGlzOgoKCXBpa2UgLXgg
+bW9kdWxlICAgICAgICAgICAgIyBDb21waWxlcyB0aGUgbW9kdWxlCglwaWtlIC14IG1vZHVsZSBp
+bnN0YWxsICAgICMgSW5zdGFsbHMgdGhlIG1vZHVsZQoJCkZvciBmdXJ0aGVyIG9wdGlvbnMgcnVu
+CgoJcGlrZSAteCBtb2R1bGUgLS1oZWxwCg=="; // }}}
+
 // module:          Public.System.Module
 // module_name:     Module
 // module_dir:      Public.pmod/System.pmod/
 // module_path:     Public.System
 // module_tar_name: Public_System_Module
 private string  module, module_name, module_dir, module_path, module_tar_name,
-                author, license, init_dir;
+                author, license;
 private mapping variables;
 private int     module_type, license_type;
 #ifdef Gtk
 private MainWindow win;
 private int gtk = 1;
+private string init_dir;
 #else  /* Gtk */
 private int gtk = 0;
 #endif /* Gtk */
@@ -138,7 +145,7 @@ int main(int argc, array(string) argv)
 	  case "help":     write(HELP, basename( argv[0] )); exit(0);
 	  case "modname":  module  = opt[1]; break;
 	  case "author":   author  = opt[1]; break;
-	  case "type":     
+	  case "type":
 	    switch (upper_case( opt[1] ))
 	    {
 	      case "PMOD": module_type = PMOD; break;
@@ -416,7 +423,7 @@ class MainWindow // {{{
     set_icon(pixbuf_from_base64_string(PIKE_LOGO));
 
     Gtk.Tooltips tt = Gtk.Tooltips();
-    
+
     VBOX vbox = VBOX(0,0);
     add(vbox);
 
@@ -468,8 +475,10 @@ class MainWindow // {{{
 
     proj_dir_button = MyFCB("Select location",
                             Gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER);
+
     if (settings->dir && Stdio.exist(settings->dir))
       proj_dir_button->set_current_folder(settings->dir);
+
     proj_dir->set_widget(proj_dir_button);
 
     MyHbox proj_type = MyHbox("Module type");
@@ -482,11 +491,14 @@ class MainWindow // {{{
 
     int i = 0;
     int sel;
+
     foreach (project_types; int k; string desc) {
       Gtk.TreeIter iter = ls_proj->append();
       ls_proj->set_row(iter, ({ k, desc }));
+
       if (k == settings->type)
       	sel = i;
+
       i++;
     }
 
@@ -503,11 +515,14 @@ class MainWindow // {{{
 
     i = 0;
     sel = 0;
+
     foreach (indices(licenses), int k) {
       Gtk.TreeIter iter = ls_lic->append();
       ls_lic->set_row(iter, ({ k, licenses[k] }));
+
       if (k == settings->license)
       	sel = i;
+
       i++;
     }
 
@@ -536,20 +551,24 @@ class MainWindow // {{{
     auth_email->set_widget(auth_email_entry);
     auth_email->right->set_padding(2, 8, 10, 10);
     auth_email->left->set_padding(2, 8, 10, 10);
-    if (settings->email) auth_email_entry->set_text(settings->email);
+
+    if (settings->email)
+      auth_email_entry->set_text(settings->email);
+
     vbox_auth->pack_start(auth_email, 0, 1, 0);
 
     if (author) {
       sscanf(author, "%s <%s>", author, string email);
       catch (author = utf8_to_string(author));
       auth_name_entry->set_text(author);
+
       if (email)
       	auth_email_entry->set_text(email);
     }
   } // }}}
-  
+
   private int prev_dot = 1;
-  private mixed on_proj_name_key_release_event(Gtk.Widget widget, 
+  private mixed on_proj_name_key_release_event(Gtk.Widget widget,
                                                Gtk.GdkEvent event) // {{{
   {
     string buf = widget->get_text();
@@ -572,17 +591,19 @@ class MainWindow // {{{
       	ok->set_sensitive(0);
 	update_location(0);
       }
-      else update_location(1);
+      else
+      	update_location(1);
+
       return 0;
     }
-    
+
     if (prev_dot && ((c >= '0' && c <= '9') || c == '.')) {
       widget->set_text( buf[0..sizeof(buf)-2] );
       widget->set_position(-1);
       return 0;
     }
 
-    if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+    if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
           (c >= '0' && c <= '9') || c == '_' || c == '.'))
     {
       widget->set_text( buf[0..sizeof(buf)-2] );
@@ -598,7 +619,7 @@ class MainWindow // {{{
       ok->set_sensitive(1);
       update_location(1);
     }
-    
+
     return 1;
   } // }}}
 
@@ -735,12 +756,6 @@ private Gtk.GdkPixbuf pixbuf_from_base64_string(string s) // {{{
   rm(file);
   return pb;
 } // }}}
-
-constant INSTALL_TEXT = // {{{
-#"VHlwaWNhbGx5IHlvdSBpbnN0YWxsIGEgUGlrZSBtb2R1bGUgbGlrZSB0aGlzOgoKCXBpa2UgLXgg
-bW9kdWxlICAgICAgICAgICAgIyBDb21waWxlcyB0aGUgbW9kdWxlCglwaWtlIC14IG1vZHVsZSBp
-bnN0YWxsICAgICMgSW5zdGFsbHMgdGhlIG1vZHVsZQoJCkZvciBmdXJ0aGVyIG9wdGlvbnMgcnVu
-CgoJcGlrZSAteCBtb2R1bGUgLS1oZWxwCg=="; // }}}
 
 // A base64 encoded PNG file.
 constant PIKE_LOGO = // {{{

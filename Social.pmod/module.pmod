@@ -20,6 +20,8 @@
 
 #include "social.h"
 
+constant USER_AGENT = "Pike Social client (Pike " + __VERSION__ + ")";
+
 #if constant(Standards.JSON.decode)
 public function json_decode = Standards.JSON.decode;
 #else
@@ -35,6 +37,32 @@ public function json_decode = lambda (string s) {
 void set_json_decode(function func)
 {
   json_decode = func;
+}
+
+string time_elapsed(int timestamp)
+{
+  int diff = (int) time(timestamp);
+  int t;
+
+  switch (diff)
+  {
+    case      0 .. 30: return "Just now";
+    case     31 .. 120: return "Just recently";
+    case    121 .. 3600: return sprintf("%d minutes ago",(int)(diff/60.0));
+    case   3601 .. 86400:
+      t = (int)((diff/60.0)/60.0);
+      return sprintf("%d hour%s ago", t, t > 1 ? "s" : "");
+
+    case  86401 .. 604800: 
+      t = (int)(((diff/60.0)/60.0)/24);
+      return sprintf("%d day%s ago", t, t > 1 ? "s" : "");
+
+    case 604801 .. 31449600: 
+      t = (int)((((diff/60.0)/60.0)/24)/7);
+      return sprintf("%d week%s ago", t, t > 1 ? "s" : "");
+  }
+
+  return "A long time ago";
 }
 
 //! MD5 routine
@@ -60,4 +88,39 @@ string urlencode(string s)
 #elif constant(Protocols.HTTP.http_encode_string)
   return Protocols.HTTP.http_encode_string(s);
 #endif
+}
+
+//! Same as @[Protocols.HTTP.uri_decode()] except this turns spaces into
+//! @tt{+@} instead of @tt{%20@}.
+//!
+//! @param s
+string urldecode(string s)
+{
+#if constant(Protocols.HTTP.uri_decode)
+  return Protocols.HTTP.uri_decode(s);
+#elif constant(Protocols.HTTP.http_decode_string)
+  return Protocols.HTTP.http_decode_string(s);
+#else
+  return s;
+#endif
+}
+
+//! Turns a query string into a mapping
+//!
+//! @param query
+mapping query_to_mapping(string query)
+{
+  mapping m = ([]);
+  if (!query || !sizeof(query))
+    return m;
+  
+  if (query[0] == '?')
+    query = query[1..];
+  
+  foreach (query/"&", string p) {
+    sscanf (p, "%s=%s", string k, string v);
+    m[k] = urldecode(v);
+  }
+  
+  return m;
 }

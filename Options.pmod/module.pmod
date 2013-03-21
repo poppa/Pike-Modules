@@ -24,7 +24,7 @@
 //! @ignore
 constant __author = "Pontus Östlund <spam@poppa.se>";
 constant __version = "0.1";
-constant __components = ({ "Public.pmod/Poppa.pmod/Options.pmod/module.pmod" });
+constant __components = ({ "Options.pmod/module.pmod" });
 //! @endignore
 
 enum Flag {
@@ -72,6 +72,7 @@ class Context
     foreach (args, Argument a) {
       string o = a->get_opt();
       string opt = a->get_longopt();
+
       if (o == "h")
       	have_h = 1;
       else if (o == "?")
@@ -94,6 +95,7 @@ class Context
   void set_help_enabled(int(0..1) enable_help)
   {
     help_enabled = enable_help;
+
     if (help_enabled)
       add_help();
     else
@@ -139,13 +141,13 @@ class Context
       	  args += ({ Argument(@arg) });
       }
       else 
-      	args += ({ Argument(@a) });
+      	args += ({ Argument(@((array)a)) });
     }
     else
       args += ({ a });
     
     add_help();
-    
+
     return this_object();
   }
   

@@ -90,6 +90,7 @@ string minify(Stdio.File|string data)
 //| LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 //| FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 //| IN THE SOFTWARE.
+
 class JSMin
 {
   constant EOF = '\0';
@@ -99,8 +100,6 @@ class JSMin
   private int lookahead = EOF;
   private Stdio.FakeFile input;
   private String.Buffer output;
-
-#define add(C) output->add(sprintf("%c", (C)))
 
   void create(Stdio.File|string data)
   {
@@ -132,6 +131,7 @@ class JSMin
     return c == '\r' && '\n' || ' ';
   }
 
+#define add(C) output->add(sprintf("%c", (C)))
 #define peek() (lookahead = get())
 
   private int next()

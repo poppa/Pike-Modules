@@ -47,7 +47,7 @@
 }
 
 //! Returns a parser object suited for the file @[path]. This will try to find
-//! a parser based on the file extension. Of no extension exists it looks for
+//! a parser based on the file extension. If no extension exists it looks for
 //! a shebang (#!/bin/prog, #!/usr/bin/prog, #!/bin/env prog etc).
 //!
 //! @param path

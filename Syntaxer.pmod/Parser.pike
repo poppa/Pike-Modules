@@ -154,8 +154,10 @@ string parse(string in)
     parser->tabsize = tabsize;
     parser->line_wrap = line_wrap;
     html_embedded = 0;
+
     foreach (preprocs, array(string) pp)
       parser->get_parser()->set_preprocessor_parser(pp[0][1..], this);
+
     return parser->parse(data);
   }
 
@@ -164,8 +166,8 @@ string parse(string in)
   string    line           = "";
   int       index          = -1;
   int       len            = strlen(data);
-  int(0..1) highlight      = html_embedded    ? 0 : 1;
-  int(0..1) has_prefix     = sizeof(prefixes) ? 1 : 0;
+  int(0..1) highlight      = !html_embedded; //    ? 0 : 1;
+  int(0..1) has_prefix     = !!sizeof(prefixes); // ? 1 : 0;
   int(0..1) macro_continue = 0;
 
   //| For HTML embedded languages

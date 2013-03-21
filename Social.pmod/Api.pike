@@ -52,9 +52,8 @@
  * Significant Contributors to this file are:
  *
  */
-
-#define GOOGLE_DEBUG
-#include "google.h"
+ 
+#define TRACE(X...) werror("%s:%d: %s",basename(__FILE__),__LINE__,sprintf(X))
 
 //! Authorization object.
 //!
@@ -156,8 +155,8 @@ mixed call(string g_method, void|mapping|.Params params,
 {
   http_method = http_method || "GET";
   mapping headers = ([ "User-Agent" : .USER_AGENT ]);
-  .Params p = .Params();
-  
+  Social.Params p = Social.Params();
+
   if (params) {
     if (mappingp(params))
       p->add_mapping(params);

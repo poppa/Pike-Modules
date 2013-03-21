@@ -155,9 +155,9 @@ void set_redirect_uri(string uri)
 string get_auth_uri(string base_auth_uri, void|mapping args)
 {
   Params p = Params(Param("client_id",     client_id),
-                    Param("response_type", response_type),
-                    Param("redirect_uri",  redirect_uri));
-
+                    Param("response_type", response_type));
+                    
+  if (redirect_uri) p += Param("redirect_uri",  redirect_uri);
   if (args)  m_delete(args, "redirect_uri");
   if (scope) p += Param("scope", scope);
   if (args)  p->add_mapping(args);
@@ -272,6 +272,10 @@ int(0..1) is_renewable()
 //! Checks if this authorization has expired
 int(0..1) is_expired()
 {
+  // This means no expiration date was set from the API
+  if (gettable->created && !gettable->expires)
+    return 0;
+
   return gettable->expires ? time() > gettable->expires : 1;
 }
 
