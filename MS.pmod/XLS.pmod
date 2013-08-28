@@ -19,7 +19,7 @@
 //!
 //! @xml{<code lang="pike" detab="3" tabsize="2">
 //!   XLS.Workbook wb = XLS.Workbook();
-//!   wb->add_worksheet("Data", 1);
+//!   wb->worksheet("Data", 1);
 //!   wb->add_row();
 //!   wb->add_cell("ID");
 //!   wb->add_cell("Name");
@@ -33,7 +33,7 @@
 //!
 //!   write(wb->render());
 //! </code>@}
- 
+
 #define DATE_P "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]"
 #define TIME_P "[0-2][0-9]:[0-5][0-9]:[0-9][0-9](\.[0-9]+)*"
 
@@ -51,8 +51,8 @@ private multiset data_types = (< "Number","String","DateTime","Date","Time" >);
 //! @param type
 //!  An Excel datatype
 //!
-//! @seealso 
-//!  data_types 
+//! @seealso
+//!  data_types
 private string get_style(string type)
 {
   return ([ "DateTime" : "s22",
@@ -103,19 +103,19 @@ int is_numeric(string s)
     if ((c < 48 || c > 57) && c != '.')
       return 0;
   }
-  
+
   return 1;
 }
 
 //! Main class for creating an Excel XML file
 class Workbook
 {
-  private string _header = 
-  "<?xml version=\"1.0\"?>\n"
+  private string _header =
+  "<?xml version=\"1.0\" encoding=\"ISO-8859-15\"?>\n"
   "<?mso-application progid=\"Excel.Sheet\"?>\n";
-  
+
   private string _styles =
-  " <Styles>\n"
+  " <Styles>\r\n"
   "  <Style ss:ID=\"Default\" ss:Name=\"Normal\">\n"
   "   <Alignment ss:Vertical=\"Bottom\"/>\n"
   "   <Borders/>\n"
@@ -147,13 +147,14 @@ class Workbook
   "   <NumberFormat ss:Format=\"hh:mm:ss\"/>\n"
   "  </Style>\n"
   " </Styles>\n";
-  
+
   private string _workbook =
-  "<Workbook\n"
-  " xmlns:x=\"urn:schemas-microsoft-com:office:excel\"\n"
-  " xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\"\n"
-  " xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\">\n";
-  
+  "<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\"\n"
+  "xmlns:o=\"urn:schemas-microsoft-com:office:office\"\n"
+  "xmlns:x=\"urn:schemas-microsoft-com:office:excel\"\n"
+  "xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\"\n"
+  "xmlns:html=\"http://www.w3.org/TR/REC-html40\">\n";
+
   private mapping   _worksheets = ([]);
   private Worksheet current_ws;
   private Row       current_row;
@@ -162,8 +163,8 @@ class Workbook
   //! Create a new instance of @[Workbook()]
   //!
   //! @param utf8_encode
-  //!  If @expr{1@} the data will be UTF8 encoded  
-  void create(void|int(0..1) utf8_encode) 
+  //!  If @expr{1@} the data will be UTF8 encoded
+  void create(void|int(0..1) utf8_encode)
   {
     auto_encode_utf8 = utf8_encode;
   }
@@ -184,7 +185,7 @@ class Workbook
     _worksheets[name] = ws;
     return ws;
   }
-  
+
   //! Append a @[Row()] to the current @[Worksheet()]
   //!
   //! @param cells
@@ -224,7 +225,7 @@ class Workbook
     string x = _header + _workbook + _styles;
     foreach (_worksheets;;Worksheet sheet)
       x += sheet->to_xml();
-    x += "</ss:Workbook>";
+    x += "</Workbook>";
     return auto_encode_utf8 ? string_to_utf8(x) : x;
   }
 }
@@ -259,14 +260,13 @@ class Worksheet
     rows += ({ r });
     return r;
   }
-  
+
   //! Renders the worksheet to XML.
-  string to_xml()
-  {
-    string x = " <ss:Worksheet ss:Name=\"" + name + "\">\n  <ss:Table>\n";
+  string to_xml(){
+    string x = " <Worksheet ss:Name=\"" + name + "\">\n  <Table>\n";
     foreach (rows, Row row)
       x += row->to_xml() + "\n";
-    return x + "  </ss:Table>\n </ss:Worksheet>\n";
+    return x + "  </Table>\n </Worksheet>\n";
   }
 }
 
@@ -275,11 +275,11 @@ class Row
 {
   private array     cells = ({});
   private int(0..1) is_header = 0;
-  
+
   //! Create a new instance of @[Row()]
   //!
   //! @param header
-  //!  if @expr{1@} the cells will be treated as column headers  
+  //!  if @expr{1@} the cells will be treated as column headers
   void create(void|int header)
   {
     is_header = header;
@@ -304,26 +304,26 @@ class Row
   //!  Force datatype @[type] on the cell
   void add_cell(mixed data, void|string style, void|string type)
   {
-    cells += ({ Cell(data, style ? style : is_header ? "CHeader" : 0, type) }); 
+    cells += ({ Cell(data, style ? style : is_header ? "CHeader" : 0, type) });
   }
-  
+
   //! Render the row to XML
   string to_xml()
   {
-    string x = "   <ss:Row>\n";
+    string x = "   <Row>\n";
     foreach (cells, Cell cell)
       x += cell->to_xml() + "\n";
-    return x + "   </ss:Row>";
+    return x + "   </Row>\n";
   }
 
   //! Cast @[Row()] to @[t]
   //! Only @expr{string@} is implemented which will cast the object to XML
   mixed cast(string t)
   {
-    if (t == "string") 
+    if (t == "string")
       return to_xml();
 
-    error("Can't cast Row to \"%s\n", t);
+    error("Can't cast Row to \"%s\r\n", t);
   }
 }
 
@@ -366,9 +366,9 @@ class Cell
   //! Render the cell to XML
   string to_xml()
   {
-    string x = "    <ss:Cell";
+    string x = "    <Cell";
     if (style) x += " ss:StyleID=\"" + style + "\"";
-    x += "><Data ss:Type=\""+type+"\">" + (string)data + "</Data></ss:Cell>";
+    x += "><Data ss:Type=\""+type+"\">" + (string)data + "</Data></Cell>";
     return x;
   }
 
@@ -376,7 +376,7 @@ class Cell
   //! Only @expr{string@} is implemented which will cast the object to XML
   mixed cast(string t)
   {
-    if (t == "string") 
+    if (t == "string")
       return to_xml();
 
     error("Can't cast Cell to \"%s\n", t);
