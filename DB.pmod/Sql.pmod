@@ -1,11 +1,18 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 //! Sql module with helper classes and such.
 //!
 //! @b{Example@}
 //!
 //! This is how the column type classes can be used.
 //!
-//! @xml{<code lang="pike" detab="2">
+//! @code
 //!  import DB.Sql;
 //!
 //!  array(Field) cols = ({
@@ -19,32 +26,15 @@
 //!                       cols->get_quoted_name()*",",
 //!                       cols->get_quoted()*",");
 //!  mydb->query(sql);
-//! </code>@}
-//|
-//| Copyright © 2010, Pontus Östlund - http://www.poppa.se
-//|
-//| License GNU GPL version 3
-//|
-//| Sql.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| Sql.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with Sql.pmod. If not, see <http://www.gnu.org/licenses/>.
+//! @endcode
 
 #define THIS_OBJECT object_program(this)
 #define QUOTE_SQL(X) replace((X),                                        \
-		             ({ "\\","\"","\0","\'","\n","\r" }),        \
-		             ({ "\\\\","\\\"","\\0","\\\'","\\n","\\r" }))
+                             ({ "\\","\"","\0","\'","\n","\r" }),        \
+                             ({ "\\\\","\\\"","\\0","\\\'","\\n","\\r" }))
 #define TYPEOF_SELF(OTHER) (object_program(this) == object_program((OTHER)))
 #define INHERITS_THIS(CHILD) Program.inherits(object_program(CHILD),    \
-			                      object_program(this))
+                                              object_program(this))
 
 //! Escapes @[s] for safe insertion into database
 string quote(string s) // {{{
@@ -65,10 +55,10 @@ enum DataType { // {{{
 string safe_quote_sql(string in)
 {
   int len = in && sizeof(in);
-  
+
   if (!len)
     return "";
-  
+
   in += "\0";
   string b = "";
 
@@ -104,7 +94,7 @@ class Field // {{{
     type = _type;
     if (_value) set(_value);
   }
-  
+
   //! Set the value
   //!
   //! @param _value
@@ -150,7 +140,7 @@ class Field // {{{
   {
     return type;
   }
-  
+
   //! Returns the name quoted for usage in a query
   string get_quoted_name()
   {
@@ -161,21 +151,21 @@ class Field // {{{
   string get_quoted()
   {
     werror("+++ Get quoted for %O\n", name);
-    
+
     switch (type)
     {
       case SQL_STRING:
-	return value && "'" + QUOTE_SQL(value) + "'"
-	             || nullable && "NULL"
-	             || "''";
+        return value && "'" + QUOTE_SQL(value) + "'"
+                     || nullable && "NULL"
+                     || "''";
 
       case SQL_INT:
-	/* Fall through */
+        /* Fall through */
       case SQL_FLOAT:
-	if (value == UNDEFINED && nullable)
-	  return "NULL";
+        if (value == UNDEFINED && nullable)
+          return "NULL";
 
-	return (string)value;
+        return (string)value;
     }
   }
 
@@ -202,28 +192,28 @@ class Field // {{{
   {
     if (objectp(other)) {
       return (TYPEOF_SELF(other) || INHERITS_THIS(other)) &&
-	     name  == other->get_name()                   &&
-	     type  == other->get_type()                   &&
-	     value == other->get_value();
+             name  == other->get_name()                   &&
+             type  == other->get_type()                   &&
+             value == other->get_value();
     }
 
     if (stringp(other)) {
       if (type != SQL_STRING)
-      	return 0;
+        return 0;
 
       return other == value;
     }
 
     if (intp(other)) {
       if (type != SQL_INT)
-      	return 0;
+        return 0;
 
       return other == value;
     }
 
     if (floatp(other)) {
       if (type != SQL_FLOAT)
-      	return 0;
+        return 0;
 
       return other == value;
     }
@@ -268,7 +258,7 @@ class Float // {{{
   //! Creates a new @[Float] object
   //!
   //! @param name
-  //! @param value  
+  //! @param value
   void create(string name, float|void value)
   {
     ::create(name, SQL_FLOAT, value);
@@ -295,7 +285,7 @@ class Enum // {{{
 {
   inherit String;
   protected multiset fields;
-  
+
   //! Creates a new @[Int] object
   //!
   //! @param name
@@ -310,7 +300,7 @@ class Enum // {{{
 
   //! Setter
   //!
-  //! @throws 
+  //! @throws
   //!  An error if @[_value] isn't allowed according to the @tt{enum_fields@}
   //!  given in @[create()].
   //!
@@ -320,8 +310,8 @@ class Enum // {{{
     if (!nullable && _value == UNDEFINED) {
       //TRACE("Trying to set VOID on %O\n", name);
       if ( !fields[_value] ) {
-	error("\"%s\" is an illegal value. Expected %s",
-	      (string)_value, (array)fields*", ");
+        error("\"%s\" is an illegal value. Expected %s",
+              (string)_value, (array)fields*", ");
       }
     }
 

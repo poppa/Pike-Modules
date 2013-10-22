@@ -1,26 +1,15 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! Social module
-//|
-//| Copyright © 2009, Pontus Östlund - www.poppa.se
-//|
-//| License GNU GPL version 3
-//|
-//| Social.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| Social.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with Social.pmod. If not, see <http://www.gnu.org/licenses/>.
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
 
 #include "social.h"
 
-constant USER_AGENT = "Pike Social client (Pike " + __VERSION__ + ")";
+constant USER_AGENT = "Mozilla 4.0 (Pike/" + __REAL_MAJOR__ + "." +
+                      __REAL_MINOR__ + "." + __REAL_BUILD__ + ")";
 
 #if constant(Standards.JSON.decode)
 public function json_decode = Standards.JSON.decode;
@@ -39,6 +28,15 @@ void set_json_decode(function func)
   json_decode = func;
 }
 
+//! Human readable representation of @[timestamp].
+//!
+//! Examples are:
+//!       0..30 seconds: Just now
+//!      0..120 seconds: Just recently
+//!   121..3600 seconds: x minutes ago
+//!   ... and so on
+//!
+//! @param timestamp
 string time_elapsed(int timestamp)
 {
   int diff = (int) time(timestamp);
@@ -53,11 +51,11 @@ string time_elapsed(int timestamp)
       t = (int)((diff/60.0)/60.0);
       return sprintf("%d hour%s ago", t, t > 1 ? "s" : "");
 
-    case  86401 .. 604800: 
+    case  86401 .. 604800:
       t = (int)(((diff/60.0)/60.0)/24);
       return sprintf("%d day%s ago", t, t > 1 ? "s" : "");
 
-    case 604801 .. 31449600: 
+    case 604801 .. 31449600:
       t = (int)((((diff/60.0)/60.0)/24)/7);
       return sprintf("%d week%s ago", t, t > 1 ? "s" : "");
   }
@@ -113,14 +111,14 @@ mapping query_to_mapping(string query)
   mapping m = ([]);
   if (!query || !sizeof(query))
     return m;
-  
+
   if (query[0] == '?')
     query = query[1..];
-  
+
   foreach (query/"&", string p) {
     sscanf (p, "%s=%s", string k, string v);
     m[k] = urldecode(v);
   }
-  
+
   return m;
 }

@@ -1,26 +1,14 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
-//! Fetches weather forecast from Google for a given location.
-//|
-//| Copyright © 2009, Pontus Östlund - www.poppa.se
-//|
-//| License GNU GPL version 3
-//|
-//| This file is part of Google.pmod
-//|
-//| Google.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| Google.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with Google.pmod. If not, see <http://www.gnu.org/licenses/>.
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
 
-#define DEBUG
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
+//! Fetches weather forecast from Google for a given location.
+
+//#define DEBUG
 
 #ifdef DEBUG
 # define TRACE(X...) \
@@ -54,7 +42,7 @@ private multiset(string) locale = (< "en", "en-us" >);
 //! Creates a new @[Weather] object
 //!
 //! @param city
-//!  The city to fetch the forecast for. Like @tt{new york, ny@} or 
+//!  The city to fetch the forecast for. Like @tt{new york, ny@} or
 //!  @tt{stockholm@}.
 //! @param _locale
 //!  Locale of the preferred language the response should be in.
@@ -101,27 +89,27 @@ private void parse_xml(string xml)
 
     foreach (root->get_children(), Node node) {
       if (node->get_node_type() != XML_ELEMENT)
-      	continue;
+        continue;
 
       string tn = node->get_tag_name();
 
       switch (tn)
       {
-      	case "problem_cause": 
-	  error("An error occured: %s! ", GET_DATA(node));
-	  break;
+        case "problem_cause":
+          error("An error occured: %s! ", GET_DATA(node));
+          break;
 
-	case "forecast_information":
-	  info = Information(node);
-	  break;
+        case "forecast_information":
+          info = Information(node);
+          break;
 
-	case "current_conditions":
-	  current = CurrentCondition(node);
-	  break;
+        case "current_conditions":
+          current = CurrentCondition(node);
+          break;
 
-	case "forecast_conditions":
-	  forecast += ({ ForecastCondition(node) });
-	  break;
+        case "forecast_conditions":
+          forecast += ({ ForecastCondition(node) });
+          break;
       }
     }
   }
@@ -134,14 +122,14 @@ class Base
   {
     n && n->iterate_children(
       lambda (Node cn) {
-      	if (cn->get_node_type() != XML_ELEMENT)
-      	  return;
+        if (cn->get_node_type() != XML_ELEMENT)
+          return;
 
-      	string tn = cn->get_tag_name();
-      	if ( function fn = this["parse_" + tn] )
-      	  fn(cn);
-      	else if (object_variablep(this ,tn))
-      	  parse_default(cn);
+        string tn = cn->get_tag_name();
+        if ( function fn = this["parse_" + tn] )
+          fn(cn);
+        else if (object_variablep(this ,tn))
+          parse_default(cn);
       }
     );
   }
@@ -159,22 +147,22 @@ class Information
 
   //! The name of the city the forecast is from
   string city;
-  
+
   //! The postal code of the city
   string postal_code;
-  
+
   //! The city's latitude
   float latitude;
-  
+
   //! The city's longitude
   float longitude;
-  
+
   //! The date and time of the forecast
   Calendar.Second date;
-  
+
   //! The current date and time
   Calendar.Second current_date;
-  
+
   //! Unit system used in the foreceast
   string unit_system;
 
@@ -228,13 +216,13 @@ class CurrentCondition
 
   //! Temperature in fahrenheit
   int temp_f;
-  
+
   //! Temperature in celcius
   int temp_c;
-  
+
   //! Current humidity
   string humidity;
-  
+
   //! Current wind speed
   string wind;
 

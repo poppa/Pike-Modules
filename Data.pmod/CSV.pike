@@ -1,3 +1,11 @@
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 private string content_type = "text/csv";
 private string coldelim;
 private string rowdelim;
@@ -65,11 +73,11 @@ void mk_mapping(void|int(0..1) lowercase)
     keys = map(keys, lower_case);
 
   int klen = sizeof(keys);
-  
+
   foreach (data, array row) {
     if (sizeof(row) < klen)
       row += allocate(klen - sizeof(row));
-    
+
     mapping tmp = ([]);
     for (int i = 0; i < klen; i++)
       tmp[keys[i]] = row[i] && sizeof( row[i] ) && row[i] || 0;
@@ -102,5 +110,5 @@ int _sizeof()
 
 protected string normalize_data(string data)
 {
-  return replace(data, ({ "\r\n", "\r" }), ({ "\n", "\n" })); 
+  return replace(data, ({ "\r\n", "\r" }), ({ "\n", "\n" }));
 }

@@ -1,24 +1,12 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 //! Various Google related modules and classes
-//|
-//| Copyright © 2009, Pontus Östlund - @url{www.poppa.se@}
-//|
-//| License GNU GPL version 3
-//|
-//| This file is part of Google.pmod
-//|
-//| Google.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| Google.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with Google.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 //! Makes an @tt{MD5@} hashed string of @[s].
 //!
@@ -44,6 +32,7 @@ string download(string url, void|mapping headers)
 {
   url = replace(url, "&amp;", "&");
   Protocols.HTTP.Query q = Protocols.HTTP.get_url(url, 0, headers);
+
   if (q->status != 200)
     error("Bad status \"%d\" in Google.download()\n", q->status);
 

@@ -1,57 +1,10 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
 
-/* This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
-
-/* File licensing and authorship information block.
- *
- * Version: MPL 1.1/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Initial Developer of the Original Code is
- *
- * Pontus Östlund <pontus@poppa.se>
- *
- * Portions created by the Initial Developer are Copyright (C) Pontus Östlund
- * All Rights Reserved.
- *
- * Contributor(s):
- *
- * Alternatively, the contents of this file may be used under the terms of
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of the LGPL, and not to allow others to use your version
- * of this file under the terms of the MPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL or the LGPL.
- *
- * Significant Contributors to this file are:
- *
- */
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
 
 import Parser.XML.Tree;
 
@@ -65,10 +18,10 @@ import Parser.XML.Tree;
 //! we're dealing with
 private mapping node_to_class = ([
   "feed"    : ([ "node"            : "atom",
-	         "attribute"       : "xmlns",
-	         "attribute-value" : "http://www.w3.org/2005/Atom" ]),
+                 "attribute"       : "xmlns",
+                 "attribute-value" : "http://www.w3.org/2005/Atom" ]),
   "rss"     : ([ "node"            : "rss",
-	         "attribute"       : "version" ]),
+                 "attribute"       : "version" ]),
   "rdf:rdf" : ([ "node"            : "rdf:rdf" ])
 ]);
 
@@ -86,7 +39,7 @@ object parse_url(Standards.URI|string uri, void|int recurse_count)
   Protocols.HTTP.Query q;
   q = Protocols.HTTP.get_url(uri);
 
-  switch (q->status) 
+  switch (q->status)
   {
     case 200:
       string data = q->data();
@@ -96,10 +49,10 @@ object parse_url(Standards.URI|string uri, void|int recurse_count)
       sscanf (q->headers["content-type"], "%*scharset=%s", string charset);
 
       if (charset) {
-      	catch {
-	  object encoder = Locale.Charset.encoder(lower_case(charset));
-	  data = encoder->feed(data)->drain();
-	};
+        catch {
+          object encoder = Locale.Charset.encoder(lower_case(charset));
+          data = encoder->feed(data)->drain();
+        };
       }
 
       return parse(data);
@@ -107,7 +60,7 @@ object parse_url(Standards.URI|string uri, void|int recurse_count)
     case 301..302:
       string loc = q->headers->location;
       if (search(loc, "://") > -1)
-      	return parse_url(loc, recurse_count++);
+        return parse_url(loc, recurse_count++);
 
       error("Unhandled redirect! ");
       break;
@@ -150,26 +103,26 @@ object parse(string|void data, int(0..1)|void normalize_names)
     lambda(Node n) {
       string tag_name  = lower_case(n->get_full_name());
       if ( mapping rule = node_to_class[tag_name] ) {
-	mapping attributes = n->get_attributes();
-	_root = n;
-	if ( rule->attribute ) {
-	  if ( attributes[rule->attribute] ) {
-	    if ( rule["attribute-value"] ) {
-	      if ( attributes[rule->attribute] == rule["attribute-value"] ) {
-		type = rule->node;
-		return STOP_WALK;
-	      }
-	    }
-	    else {
-	      type = rule->node;
-	      return STOP_WALK;
-	    }
-	  }
-	}
-	else {
-	  type = rule->node;
-	  return STOP_WALK;
-	}
+        mapping attributes = n->get_attributes();
+        _root = n;
+        if ( rule->attribute ) {
+          if ( attributes[rule->attribute] ) {
+            if ( rule["attribute-value"] ) {
+              if ( attributes[rule->attribute] == rule["attribute-value"] ) {
+                type = rule->node;
+                return STOP_WALK;
+              }
+            }
+            else {
+              type = rule->node;
+              return STOP_WALK;
+            }
+          }
+        }
+        else {
+          type = rule->node;
+          return STOP_WALK;
+        }
       }
     }
   );
@@ -203,8 +156,6 @@ string copy_of_node(Node n, int(0..1)|void keep_root)
   return b->get();
 }
 
-//| {{{ strtotime
-//
 //! Converts a date string into a Calendar.Second.
 //!
 //! @param date
@@ -250,8 +201,7 @@ string|Calendar.Second strtotime(string date, int|void retobj)
   TRACE("Unknown date format: %s", date);
 
   return date;
-} // }}}
-
+}
 
 private Parser.HTML xmlify_parser;
 
@@ -392,12 +342,12 @@ class AbstractThing
 
     foreach (xml->get_children(), Node cn) {
       if (cn->get_node_type() == XML_ELEMENT) {
-	if ((name = cn->get_full_name()) && subnodes[name] || !check) {
-	  if ( rename[name] )
-	    name = rename[name];
+        if ((name = cn->get_full_name()) && subnodes[name] || !check) {
+          if ( rename[name] )
+            name = rename[name];
 
-	  ( cb = this_object()["parse_" + name] ) && cb(cn);
-	}
+          ( cb = this_object()["parse_" + name] ) && cb(cn);
+        }
       }
     }
   }
@@ -522,11 +472,11 @@ class AbstractItem
 
     if (data->pubDate)
       return data->pubDate;
-    
+
     if (data->created)
       return data->created;
   }
-  
+
   string get_content()
   {
     return data["content"]||data["content:encoded"]||data["description"];
@@ -599,9 +549,8 @@ class Rss
     ::create(node);
   }
 
-  //| {{{ Channel
-  //
-  //! @class Channel
+  //! Channel class
+  //!
   //! @seealso Feed.Channel
   //! @seealso AbstractChannel
   class Channel
@@ -611,7 +560,7 @@ class Rss
 
     //! Sub nodes to the channel node that should be caught.
     multiset subnodes = (< "title", "link", "description", "lastBuildDate",
-			   "image", "cloud", "category", "item" >);
+                           "image", "cloud", "category", "item" >);
 
     function parse_title         = _parse_string;
     function parse_link          = _parse_string;
@@ -622,10 +571,10 @@ class Rss
     void create(Node node)
     {
       foreach (node->get_children(), Node n) {
-	if (n->get_full_name() == "channel") {
-	  ::create(n);
-	  return;
-	}
+        if (n->get_full_name() == "channel") {
+          ::create(n);
+          return;
+        }
       }
 
       error("Missing channel node in XML!");
@@ -635,8 +584,8 @@ class Rss
     {
       mapping m = ([]);
       foreach (n->get_children(), Node cn)
-	if (cn->get_node_type() == XML_ELEMENT)
-	  m[cn->get_tag_name()] = cn->value_of_node();
+        if (cn->get_node_type() == XML_ELEMENT)
+          m[cn->get_tag_name()] = cn->value_of_node();
 
       data->image = m;
     }
@@ -650,7 +599,7 @@ class Rss
     {
       return ::_sprintf(m);
     }
-  } // }}}
+  }
 
   //| {{{ Item
   //
@@ -666,8 +615,8 @@ class Rss
                            "dc:date"         : "pubDate" ]);
 
     multiset subnodes = (< "title", "category", "link", "pubDate", "dc:date",
-			   "author", "description", "content", "comments",
-			   "content:encoded", "guid", "enclosure" >);
+                           "author", "description", "content", "comments",
+                           "content:encoded", "guid", "enclosure" >);
 
     function parse_title       = _parse_string;
     function parse_guid        = parse_link;
@@ -689,9 +638,9 @@ class Rss
     {
       mapping a = n->get_attributes();
       data->enclosure = ([
-	"url"    : a->url,
-	"type"   : a->type,
-	"length" : a->length
+        "url"    : a->url,
+        "type"   : a->type,
+        "length" : a->length
       ]);
     }
 
@@ -735,7 +684,7 @@ class Atom
     constant type = "Atom.Channel";
 
     multiset subnodes = (< "title", "author", "published", "updated", "link",
-			   "entry" >);
+                           "entry" >);
 
     function parse_title   = _parse_string;
     function parse_updated = parse_published;
@@ -759,7 +708,7 @@ class Atom
     void handle_date(string type, string date)
     {
       if (type == "published")
-	type = "date";
+        type = "date";
 
       data[type] = strtotime(date, 1) || date;
     }
@@ -768,8 +717,8 @@ class Atom
     {
       mapping m = ([]);
       foreach (n->get_children(), Node cn)
-	if (cn->get_node_type() == XML_ELEMENT)
-	  m[cn->get_full_name()] = cn->value_of_node();
+        if (cn->get_node_type() == XML_ELEMENT)
+          m[cn->get_full_name()] = cn->value_of_node();
 
       data->author = m;
     }
@@ -791,7 +740,7 @@ class Atom
     constant type = "Atom.Item";
 
     multiset subnodes = (< "title", "published", "updated", "category",
-			   "link", "content" >);
+                           "link", "content" >);
 
     function parse_title     = _parse_string;
     function parse_content   = _parse_content;
@@ -814,7 +763,7 @@ class Atom
       string value = n->value_of_node();
 
       if (name == "published")
-	name = "date";
+        name = "date";
 
       data[name] = strtotime(value, 1)||value;
     }
@@ -822,7 +771,7 @@ class Atom
     void parse_category(Node n)
     {
       if (!data->category)
-	data->category = ({});
+        data->category = ({});
 
       data->category += ({ n->get_attributes()["label"] });
     }
@@ -854,10 +803,10 @@ class Rdf
     void create(Node node)
     {
       foreach (node->get_children(), Node cn) {
-	if (cn->get_tag_name() == "channel") {
-	  ::create(cn);
-	  break;
-	}
+        if (cn->get_tag_name() == "channel") {
+          ::create(cn);
+          break;
+        }
       }
 
       ::create(node);
@@ -865,7 +814,7 @@ class Rdf
 
     //! Sub nodes to the channel node that should be caught.
     multiset subnodes = (< "title", "link", "description", "lastBuildDate",
-			   "image", "cloud", "category", "item" >);
+                           "image", "cloud", "category", "item" >);
 
     function parse_title         = _parse_string;
     function parse_link          = _parse_string;
@@ -877,8 +826,8 @@ class Rdf
     {
       mapping m = ([]);
       foreach (n->get_children(), Node cn)
-	if (cn->get_node_type() == XML_ELEMENT)
-	  m[cn->get_tag_name()] = cn->value_of_node();
+        if (cn->get_node_type() == XML_ELEMENT)
+          m[cn->get_tag_name()] = cn->value_of_node();
 
       data->image = m;
     }

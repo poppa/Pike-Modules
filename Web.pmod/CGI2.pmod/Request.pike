@@ -1,3 +1,11 @@
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 #define EMPTY(S) !((S) && sizeof((S)))
 protected constant decode_string = Protocols.HTTP.uri_decode;
 
@@ -74,12 +82,12 @@ protected void decode_post()
   {
     default:
       if (misc->len < 200000) {
-	foreach (replace(data-"\n", "+", " ")/"&", string v) {
-	  sscanf(v, "%s=%s", a, b);
+        foreach (replace(data-"\n", "+", " ")/"&", string v) {
+          sscanf(v, "%s=%s", a, b);
 
-	  if (a)
-	    add_variable(decode_string(a), decode_string(b||""));
-	}
+          if (a)
+            add_variable(decode_string(a), decode_string(b||""));
+        }
       }
       break;
 
