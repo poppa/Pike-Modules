@@ -1,24 +1,12 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 //! This class fetches weather forecast from Yahoo.
-//|
-//| Copyright © 2009, Pontus Östlund - www.poppa.se
-//|
-//| License GNU GPL version 3
-//|
-//| This file is part of Yahoo.pmod
-//|
-//| Yahoo.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| Yahoo.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with Yahoo.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 import Parser.XML.Tree;
 
@@ -162,7 +150,7 @@ string condition_img_url(void|string size, void|string condition_code)
 string condition_img(void|string size, void|string condition_code)
 {
   string url = condition_img_url(size, condition_code);
-  return sprintf("<img src='%s' alt='%s' title='' />", 
+  return sprintf("<img src='%s' alt='%s' title='' />",
                  url, weather->condition->text);
 }
 
@@ -197,37 +185,37 @@ private void parse_xml(string xml)
   root && root[1][1]->iterate_children(
     lambda (Node n) {
       if (n->get_node_type() != XML_ELEMENT)
-	return;
+        return;
 
       switch (n->count_children())
       {
-	case 0: /* Weather nodes */
-	  if (has_prefix(n->get_full_name(), "yweather"))
-	    weather[n->get_tag_name()] = n->get_attributes();
+        case 0: /* Weather nodes */
+          if (has_prefix(n->get_full_name(), "yweather"))
+            weather[n->get_tag_name()] = n->get_attributes();
 
-	  break;
+          break;
 
-	case 1: /* General RSS nodes */
-	  if (n->get_tag_name() == "ttl")
-	    ttl = (int)n->value_of_node();
-	  break;
+        case 1: /* General RSS nodes */
+          if (n->get_tag_name() == "ttl")
+            ttl = (int)n->value_of_node();
+          break;
 
-	default: /* Item, Image */
-	  if (n->get_tag_name() == "item") {
-	    foreach (n->get_children(), Node cn) {
-	      if (cn->get_node_type() != XML_ELEMENT)
-		continue;
+        default: /* Item, Image */
+          if (n->get_tag_name() == "item") {
+            foreach (n->get_children(), Node cn) {
+              if (cn->get_node_type() != XML_ELEMENT)
+                continue;
 
-	      if (has_prefix(cn->get_full_name(), "yweather")) {
-		if (cn->get_tag_name() == "forecast")
-		  weather->forecast += ({ cn->get_attributes() });
-		else
-		  weather[cn->get_tag_name()] = cn->get_attributes();
-	      }
-	      else if (has_prefix(cn->get_full_name(), "geo"))
-		weather->geo[cn->get_tag_name()] = cn->value_of_node();
-	    }
-	  }
+              if (has_prefix(cn->get_full_name(), "yweather")) {
+                if (cn->get_tag_name() == "forecast")
+                  weather->forecast += ({ cn->get_attributes() });
+                else
+                  weather[cn->get_tag_name()] = cn->get_attributes();
+              }
+              else if (has_prefix(cn->get_full_name(), "geo"))
+                weather->geo[cn->get_tag_name()] = cn->value_of_node();
+            }
+          }
       }
     }
   );
@@ -283,7 +271,7 @@ string|Calendar.Minute normalize_time(string t, void|int(0..1) retobj)
 //!
 //! @returns
 //!  Either an ISO formatted date string or the @tt{Calendar.Second@} object if
-//!  @[retobj] is @tt{1@}. If no conversion can be made @[date] will be 
+//!  @[retobj] is @tt{1@}. If no conversion can be made @[date] will be
 //!  returned.
 string|Calendar.Second strtotime(string date, int|void retobj) // {{{
 {

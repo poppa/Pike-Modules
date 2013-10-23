@@ -1,24 +1,12 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 //! Module for creating OAuth signatures
-//|
-//| Copyright © 2009, Pontus Östlund - www.poppa.se
-//|
-//| License GNU GPL version 3
-//|
-//| This file is part of OAuth.pmod
-//|
-//| OAuth.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| OAuth.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with OAuth.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 #include "oauth.h"
 
@@ -129,7 +117,7 @@ protected class HmacSha1
     if (!token) token = Token("","");
     string sigbase = request->get_signature_base();
     string key = sprintf("%s&%s", uri_encode(consumer->secret),
-				  uri_encode(token->secret||""));
+                                  uri_encode(token->secret||""));
     return MIME.encode_base64(
 #if constant(Crypto.HMAC) && constant(Crypto.SHA1)
       Crypto.HMAC(Crypto.SHA1)(key)(sigbase)
@@ -165,7 +153,7 @@ class MY_HMAC_SHA1
 {
   function H;
   int B;
-  
+
   void create(function h, int|void b)
   {
     H = h;
@@ -189,9 +177,9 @@ class MY_HMAC_SHA1
     void create(string passwd)
     {
       if (sizeof(passwd) > B)
-	passwd = raw_hash(passwd);
+        passwd = raw_hash(passwd);
       if (sizeof(passwd) < B)
-	passwd = passwd + "\0" * (B - sizeof(passwd));
+        passwd = passwd + "\0" * (B - sizeof(passwd));
 
       ikey = passwd ^ ("6" * B);
       okey = passwd ^ ("\\" * B);

@@ -1,28 +1,18 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 //! Various modules and classes
-//|
-//| Copyright © 2009, Pontus Östlund - http://www.poppa.se
-//|
-//| License GNU GPL version 3
-//|
-//| Misc.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| Misc.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with Misc.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 import Parser.XML.Tree;
 
 //! Turns an XML tree into an object
-//! 
-//! @xml{<code lang="xml" detab="3">
+//!
+//! @xml{
 //!   <artist name="Dream Theater">
 //!    <album>
 //!     <name>When dream and day unite</name>
@@ -33,21 +23,21 @@ import Parser.XML.Tree;
 //!     <year>1992</year>
 //!    </album>
 //!   </artist>
-//! </code>@}
+//! @}
 //!
-//! @xml{<code lang="pike" detab="3">
+//! @code
 //!   SimpleXML sxml = SimpleXML(xml);
 //!   werror("%O\n", sxml->album->name->get_value());
 //!   ({ /* 2 elements */
 //!       "When dream and day unite",
 //!       "Images and words"
 //!   })
-//! </code>@}
+//! @endcode
 class SimpleXML
 {
   string raw_xml;
   SimpleXML parent;
-  
+
   //! Full name of the node, including the namespace
   protected string fullname;
 
@@ -73,7 +63,7 @@ class SimpleXML
 
   //! Creates a new insance of @[SimpleXML]
   //!
-  //! @throws 
+  //! @throws
   //!  An error if @[xml] is a string and XML parsing fails
   //!
   //! @param xml
@@ -98,22 +88,22 @@ class SimpleXML
     // Lets find the first element node
     if (root->get_node_type() != XML_ELEMENT) {
       foreach (root->get_children(), Node cn) {
-	if (cn->get_node_type() == XML_ELEMENT) {
-	  root = cn;
-	  break;
-	}
+        if (cn->get_node_type() == XML_ELEMENT) {
+          root = cn;
+          break;
+        }
       }
     }
 
     parse(root);
   }
-  
+
   //! Returns the node name
   string get_name()
   {
     return name;
   }
-  
+
   //! Returns the full node name, including the namespace
   string get_fullname()
   {
@@ -131,7 +121,7 @@ class SimpleXML
   {
     return children;
   }
-  
+
   //! Returns the node attributes
   mapping(string:string) get_attributes()
   {
@@ -153,12 +143,12 @@ class SimpleXML
 
     foreach (children, SimpleXML s) {
       if (s->get_name() == key) {
-	if (r) {
-	  if (!arrayp(r))
-	    r = ({ r });
-	  r += ({ s });
-	}
-	else r = s;
+        if (r) {
+          if (!arrayp(r))
+            r = ({ r });
+          r += ({ s });
+        }
+        else r = s;
       }
     }
 
@@ -196,7 +186,7 @@ class SimpleXML
     depth = -1;
     return low_dump(this);
   }
-  
+
   private string low_dump(object o)
   {
     depth++;
@@ -215,16 +205,16 @@ class SimpleXML
     foreach (children, object c)
       s += low_dump(c);
 
-    
+
     if (sizeof(children)) s += " "*depth;
-    
+
     s += "</" + name + ">\n";
-    
+
     depth--;
-    
+
     return s;
   }
-  
+
   //! @tt{sizeof()@} method overloader
   int _sizeof()
   {
@@ -245,18 +235,18 @@ class SimpleXML
 
     if ((f = n->get_first_element()) && f->get_node_type() == XML_ELEMENT) {
       foreach (n->get_children(), Node cn) {
-	switch (cn->get_node_type())
-	{
-	  case XML_ELEMENT: 
-	    children += ({ object_program(this)(cn, this) });
-	    break;
+        switch (cn->get_node_type())
+        {
+          case XML_ELEMENT:
+            children += ({ object_program(this)(cn, this) });
+            break;
 
-	  case XML_TEXT:
-	    string s = String.trim_all_whites(cn->value_of_node());
-	    if (sizeof(s))
-	      svalues += ({ s });
-	    break;
-	}
+          case XML_TEXT:
+            string s = String.trim_all_whites(cn->value_of_node());
+            if (sizeof(s))
+              svalues += ({ s });
+            break;
+        }
       }
     }
     else
@@ -272,102 +262,3 @@ class SimpleXML
     return t == 'O' && sprintf("%O(%s)", object_program(this), name);
   }
 }
-
-//! Subprocess class
-//!
-//! @note
-//!  I take no credit for this class. It's mainly from the Roxen tag
-//!  @tt{emit#exec@} by Marcus Wellhardt at Roxen Internet Sowftware AB
-//!  @url{http://roxen.com@}
-class Proc
-{
-  //! The result from the sub process
-  string result = "";
-  
-  //! Did we end up with a timeout?
-  int(0..1) is_timeout = 0;
-
-  protected Process.create_process p;
-  protected int           timeout;
-  protected int           retval;
-  protected int(0..1)     done;
-  protected array(string) args;
-
-  private Pike.Backend backends = Thread.Local();
-
-  //! Creates a new @[Proc] class
-  //!
-  //! @param _args
-  //!  Array of arguments. The first index should be the program to run and
-  //!  there after argument to pass to the program. 
-  //! @param _timeout
-  //!  Maximimum number of seconds the process can run. Default is @tt{30@}
-  void create(array(string)|void _args, void|int _timeout)
-  {
-    args = _args;
-    timeout = _timeout||30;
-  }
-
-  protected void on_data(int id, string data)
-  {
-    result += data;
-  }
-
-  protected void on_close(int id)
-  {
-    done = 1;
-  }
-
-  protected void on_timeout()
-  {
-    is_timeout = 1;
-    p->kill(9);
-    done = 1;
-  }
-
-  //! Run the process
-  //!
-  //! @throws
-  //!  An error if the creation of a subprocess fails
-  //!
-  //! @returns
-  //!  The return value of the subprocess. To get the data from the process
-  //!  use @[Proc()->result].
-  int run(void|array _args)
-  {
-    is_timeout = 0;
-    done   = 0;
-    retval = 0;
-    result = "";
-
-    array the_args = _args||args;
-
-    Stdio.File stdout = Stdio.File();
-
-    if (mixed e = catch(p = Process.create_process(the_args, 
-                            ([ "stdout" : stdout->pipe() ]))))
-    {
-      error("Unable to create process: %s\n", describe_backtrace(e));
-    }
-
-    Pike.Backend backend = backends->get();
-
-    if (!backend)
-      backends->set(backend = Pike.Backend());
-
-    backend->add_file(stdout);
-    mixed to = backend->call_out(on_timeout, timeout);
-    stdout->set_nonblocking(on_data, 0, on_close);
-
-    while (!done)
-      float time = backend(0);
-
-    int rv = p->wait();
-    stdout->close();
-    backend->remove_call_out(on_timeout);
-    p->kill(9);
-
-    return rv;
-  }
-}
-

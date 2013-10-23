@@ -1,94 +1,135 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
 
-/* This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
 
-/* File licensing and authorship information block.
- *
- * Version: MPL 1.1/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Initial Developer of the Original Code is
- *
- * Pontus Östlund <pontus@poppa.se>
- *
- * Portions created by the Initial Developer are Copyright (C) Pontus Östlund
- * All Rights Reserved.
- *
- * Contributor(s):
- *
- * Alternatively, the contents of this file may be used under the terms of
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of the LGPL, and not to allow others to use your version
- * of this file under the terms of the MPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL or the LGPL.
- *
- * Significant Contributors to this file are:
- *
- */
+//! Google+ API
 
-#define GOOGLE_DEBUG
-#include "google.h"
+//! API base URI.
+protected constant API_URI = "https://www.googleapis.com/plus/v1";
 
-constant API_URI  = "https://www.googleapis.com/plus/v1";
-constant SCOPE_ME = "https://www.googleapis.com/auth/plus.me";
+inherit .Api : parent;
 
-inherit .Api;
-
-void create(.Authorization auth)
+//! Getter for the @[People] object which has methods for all @expr{people@}
+//! related Google+ API methods.
+//!
+//! @seealso
+//!  @url{https://developers.google.com/+/api/latest/people@}
+People `people()
 {
-  ::create(auth);
+  return _people || (_people = People());
 }
 
-mixed get_people(string|int user_id)
+//! Getter for the @[Activities] object which has methods for all
+//! @expr{activities@} related Google+ API methods.
+//!
+//! @seealso
+//!  @url{https://developers.google.com/+/api/latest/activities@}
+Activities `activities()
 {
-  string uri = API_URI + "/people/" + user_id;
-  return ::get(uri);
+  return _activities || (_activities = Activities());
 }
 
-mixed list_activites(string|int user_id, void|string collection,
-                     void|int max_results, void|string page_token)
+//! Class implementing the Google+ People API.
+//! @url{https://developers.google.com/+/api/latest/people@}
+//!
+//! Retreive an instance of this class through the
+//! @[Social.Google.Plus()->people] property
+class People
 {
-  collection = collection || "public";
-  string uri = API_URI + "/people/" + user_id + "/activities/" + collection;
+  inherit Method;
+  protected constant METHOD_PATH = "/people/";
 
-  .Params p = .Params();
+  //! Get info ablut a person.
+  //!
+  //! @param user_id
+  //!  If empty the currently authenticated user will be fetched.
+  //! @param cb
+  //!  Callback for async request
+  mapping get(void|string user_id, void|Callback cb)
+  {
+    return _get (user_id||"me", 0, cb);
+  }
 
-  if (max_results) p += .Param("maxResults", max_results);
-  if (page_token)  p += .Param("pageToken", page_token);
-
-  return ::get(uri, p);
+  //! List all of the people in the specified @[collection].
+  //!
+  //! @param user_id
+  //!  If empty the currently authenticated user will be used.
+  //!
+  //! @param collection
+  //!  If empty "public" activities will be listed. Acceptable values are:
+  //!  @ul
+  //!   @item "public"
+  //!    The list of people who this user has added to one or more circles,
+  //!    limited to the circles visible to the requesting application.
+  //!  @endul
+  //!
+  //! @param params
+  //!  @mapping
+  //!   @member int "maxResult"
+  //!    Max number of items ti list
+  //!   @member string "orderBy"
+  //!    The order to return people in. Acceptable values are:
+  //!    @ul
+  //!     @item "alphabetical"
+  //!      Order the people by their display name.
+  //!     @item "best"
+  //!      Order people based on the relevence to the viewer.
+  //!    @endul
+  //!   @member string "pageToken"
+  //!    The continuation token, which is used to page through large result
+  //!    sets. To get the next page of results, set this parameter to the value
+  //!    of @expr{nextPageToken@} from the previous response.
+  //!  @endmapping
+  //!
+  //! @param cb
+  //!  Callback for async request
+  mapping list(void|string user_id, void|string collection,
+               void|ParamsArg params, void|Callback cb)
+  {
+    return _get((user_id||"me") + "/activities/" + (collection||"public"),
+                params, cb);
+  }
 }
 
-mixed get_activity(string|int activity_id)
+//! Class implementing the Google+ Activities API.
+//! @url{https://developers.google.com/+/api/latest/activities@}
+//!
+//! Retreive an instance of this class through the
+//! @[Social.Google.Plus()->activities] property
+class Activities
 {
-  string uri = API_URI + "/activites/" + activity_id;
-  return ::get(uri);
+  inherit Method;
+  protected constant METHOD_PATH = "/activities/";
+
+  mapping activity(string activity_id, void|Callback cb)
+  {
+    return _get(activity_id, 0, cb);
+  }
 }
 
+private People _people;
+private Activities _activities;
+
+//! Authorization class.
+//!
+//! @seealso
+//!  @[Social.Api.Authorization]
+class Authorization
+{
+  inherit  .Api.Authorization;
+
+  //! Authentication scopes
+  constant SCOPE_ME = "https://www.googleapis.com/auth/plus.me";
+  constant SCOPE_LOGIN = "https://www.googleapis.com/auth/plus.login";
+  constant SCOPE_EMAIL = "https://www.googleapis.com/auth/userinfo.email";
+
+  //! All valid scopes
+  protected multiset valid_scopes = (< SCOPE_ME, SCOPE_LOGIN, SCOPE_EMAIL >);
+
+  //! Default scope
+  protected string _scope = SCOPE_ME;
+}

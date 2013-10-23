@@ -1,26 +1,12 @@
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 //! Helper module for the Java binding in Pike.
-//|
-//| Copyright (C) 2011 Pontus Östlund (www.poppa.se)
-//|
-//| Permission is hereby granted, free of charge, to any person obtaining a copy
-//| of this software and associated documentation files (the "Software"), to
-//| deal in the Software without restriction, including without limitation the
-//| rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-//| sell copies of the Software, and to permit persons to whom the Software is
-//| furnished to do so, subject to the following conditions:
-//|
-//| The above copyright notice and this permission notice shall be included in
-//| all copies or substantial portions of the Software.
-//|
-//| The Software shall be used for Good, not Evil.
-//|
-//| THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//| IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//| FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//| AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//| LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//| OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-//| THE SOFTWARE.
 
 #ifdef JDEBUG
 # define TRACE(X...) werror("%s:%d: %s",basename(__FILE__),__LINE__,sprintf(X))
@@ -147,7 +133,7 @@ mixed decode(mixed jobj) // {{{
     case "java.util.ArrayList":
       ret = ({});
       foreach (values(jobj->toArray()), object o)
-      	ret += ({ decode(o) });
+        ret += ({ decode(o) });
 
       break;
 
@@ -155,7 +141,7 @@ mixed decode(mixed jobj) // {{{
     case "java.util.Hashtable":
       ret = ([]);
       foreach (values(jobj->entrySet()->toArray()), object set)
-	ret[decode(set->getKey())] = decode(set->getValue());
+        ret[decode(set->getKey())] = decode(set->getValue());
 
       break;
 
@@ -173,7 +159,7 @@ mixed decode(mixed jobj) // {{{
       return jobj->booleanValue();
 
     case "java.util.Date":
-      string f = sprintf("%d-%d-%d %d:%d:%d", 
+      string f = sprintf("%d-%d-%d %d:%d:%d",
                          jobj->getYear()+1900,
                          jobj->getMonth()+1,
                          jobj->getDate(),
@@ -181,7 +167,7 @@ mixed decode(mixed jobj) // {{{
                          jobj->getMinutes(),
                          jobj->getSeconds());
       return Calendar.parse("%Y-%M-%D %h:%m:%s", f);
-      
+
     default:
       error("Unhandled Java type: %O\n", type);
   }
@@ -207,7 +193,7 @@ mixed decode(mixed jobj) // {{{
 //!   @member array "methods"
 //!    A list of object/class methods
 //!  @endmapping
-void|mapping reflect(object instance, void|string _glob, 
+void|mapping reflect(object instance, void|string _glob,
                      void|int(0..1) _return) // {{{
 {
   if (sprintf("%O", object_program(instance)) != "Java.jobject") {
@@ -222,7 +208,7 @@ void|mapping reflect(object instance, void|string _glob,
   ]);
 
   object klass = instance->getClass();
-  
+
   foreach (values(klass->getConstructors()), object o) {
     string name = (string)o->toGenericString();
     if (!_glob || glob(_glob, name))
@@ -237,7 +223,7 @@ void|mapping reflect(object instance, void|string _glob,
 
   foreach (values(klass->getMethods()), object o) {
     string name = (string)o->toGenericString();
-    
+
     if (!_glob || glob(_glob, name))
       retval->methods += ({ name });
   }
@@ -247,11 +233,11 @@ void|mapping reflect(object instance, void|string _glob,
     write("Constructors (%d)\n", sizeof(retval->constructors));
     foreach (retval->constructors, string s)
       write("  * %s\n", s);
-    
+
     write("\nFields (%d)\n", sizeof(retval->fields));
     foreach (retval->fields, string s)
       write("  * %s\n", s);
-    
+
     write("\nMethods (%d)\n", sizeof(retval->methods));
     foreach (retval->methods, string s)
       write("  * %s\n", s);

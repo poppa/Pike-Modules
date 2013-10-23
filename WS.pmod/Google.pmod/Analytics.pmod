@@ -1,22 +1,12 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 //! Module for fetching data from a Google Analytics account
-//|
-//| Copyright © 2010, Pontus Östlund - @url{http://www.poppa.se@}
-//|
-//| License GNU GPL version 3
-//|
-//| Analytics.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| Analytics.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with Analytics.pmod. If not, see <http://www.gnu.org/licenses/>.
 
 import Parser.XML.Tree;
 
@@ -45,15 +35,15 @@ class Api
 {
   //! Hash from authentication. Not actually used.
   protected string sid;
-  
+
   //! Hash from authentication. Not actually used
   protected string lsid;
-  
+
   //! The authentication session.
   protected string auth;
-  
+
   //! Errors from a response is stored here.
-  //! 
+  //!
   //! @mapping
   //!  @member string "domain"
   //!   The error domain
@@ -67,7 +57,7 @@ class Api
   //! Authenticate the current user
   int(0..1) authenticate()
   {
-    error("Not implemented yet! ");
+    error("Not implemented yet! Use the DesktopApi instead.\n");
   }
 
   //! Returns the list of available accounts
@@ -85,7 +75,7 @@ class Api
 
     return 0;
   }
-  
+
   //! Returns the error mapping if any
   mapping get_error()
   {
@@ -101,7 +91,7 @@ class Api
   //! @param table_id
   //!  The ID of the site in Google Analytics, i.e: @tt{ga:123456@}
   //! @param params
-  //!  Mapping of parameters for the call to the API. The mapping can contain 
+  //!  Mapping of parameters for the call to the API. The mapping can contain
   //!  the following indices
   //!  @mapping
   //!   @member string "start-date"
@@ -149,22 +139,22 @@ class Api
     if (q->status != 200) {
       Node xroot = parse_input(q->data());
       xroot && xroot[0]->walk_inorder(
-	lambda(Node n) {
-	  if (n->get_tag_name() == "error") {
-	    gerror = ([]);
-	    foreach (n->get_children(), Node en) {
-	      if (en->get_node_type() == XML_ELEMENT) {
-	      	gerror[lower_case(en->get_tag_name())] = en->value_of_node();
-	      }
-	    }
-	  }
-	}
+        lambda(Node n) {
+          if (n->get_tag_name() == "error") {
+            gerror = ([]);
+            foreach (n->get_children(), Node en) {
+              if (en->get_node_type() == XML_ELEMENT) {
+                gerror[lower_case(en->get_tag_name())] = en->value_of_node();
+              }
+            }
+          }
+        }
       );
 
       if (gerror)
-      	error("%s: %s! ", gerror->code, gerror->internalreason);
+        error("%s: %s! ", gerror->code, gerror->internalreason);
       else
-	error("Bad HTTP status code (%d) in response! ", q->status);
+        error("Bad HTTP status code (%d) in response! ", q->status);
     }
 
     return q->data();
@@ -210,14 +200,14 @@ class DesktopApi
 
     if (q->status == 200) {
       foreach (q->data()/"\n", string line) {
-      	if (sscanf(line, "%s=%s", string key, string val) == 2) {
-	  switch (lower_case(key))
-	  {
-	    case "lsid": lsid = val; break;
-	    case "sid":  sid  = val; break;
-	    case "auth": auth = val; break;
-	  }
-	}
+        if (sscanf(line, "%s=%s", string key, string val) == 2) {
+          switch (lower_case(key))
+          {
+            case "lsid": lsid = val; break;
+            case "sid":  sid  = val; break;
+            case "auth": auth = val; break;
+          }
+        }
       }
       return 1;
     }
@@ -227,16 +217,16 @@ class DesktopApi
 }
 
 //! This class handles parsing of a successful response from Google Analytics.
-//! Some generic results, from the top level in the XML document, will populate 
+//! Some generic results, from the top level in the XML document, will populate
 //! this object and all @tt{entry@} nodes will be parsed - into a mapping - and
 //! put in the array @[DataParser()->rows].
 //!
 //! If this class is inherited and a method, prefixed with @tt{_@}
-//! (an underscore), exists in the inherited class with the same name as a node 
-//! in the XML document, that method will be called with the XML node as 
+//! (an underscore), exists in the inherited class with the same name as a node
+//! in the XML document, that method will be called with the XML node as
 //! argument.
 //!
-//! @xml{<code detab="3">
+//! @code
 //!   class GData {
 //!     inherit DataParser;
 //!
@@ -244,36 +234,36 @@ class DesktopApi
 //!       werror("Got entry node: %O\n", n);
 //!     }
 //!   }
-//! </code>@}
+//! @endcode
 class DataParser
 {
   //! Array of entries (i.e. the data nodes of the document)
   array(mapping) rows = ({});
-  
+
   //! Contains aggregated results of the @tt{metric@} parameter
   mapping aggregates = ([]);
 
   //! The id is the URL of the report at Google Analytics.
   string id;
-  
+
   //! The title of the report
   string title;
-  
+
   //! Total results of the report
   int total_results;
-  
+
   //! Starts index (page) of the report
   int start_index;
-  
+
   //! Items displayed per page in the report
   int items_per_page;
 
   //! When the report was last updated
   Calendar.Second updated;
-  
+
   //! The start date of the report
   Calendar.Day start_date;
-  
+
   //! The end date of the report
   Calendar.Day end_date;
 
@@ -284,11 +274,11 @@ class DataParser
   mixed parse(string data)
   {
     Node root = parse_input(data);
-    
+
     foreach (root->get_children(), Node n) {
       if (n->get_node_type() == XML_ELEMENT) {
-      	root = n;
-      	break;
+        root = n;
+        break;
       }
     }
 
@@ -297,49 +287,49 @@ class DataParser
 
     root->walk_inorder(
       lambda(Node cn) {
-      	if (cn->get_node_type() == XML_ELEMENT) {
-	  string n = cn->get_tag_name();
-	  if (!id && n == "id") {
-	    id = cn->value_of_node();
-	    return;
-	  }
-	  else if (!title && n == "title") {
-	    title = cn->value_of_node();
-	    return;
-	  }
-	  else if (!updated && n == "updated") {
-	    updated = Calendar.parse("%Y-%M-%DT%h:%m:%s.%f%z", 
-	                             cn->value_of_node());
-	    return;
-	  }
-	  else if (!total_results && n == "totalResults") {
-	    total_results = (int)cn->value_of_node();
-	    return;
-	  }
-	  else if (!start_index && n == "startIndex") {
-	    start_index = (int)cn->value_of_node();
-	    return;
-	  }
-	  else if (!items_per_page && n == "itemsPerPage") {
-	    items_per_page = (int)cn->value_of_node();
-	    return;
-	  }
-	  else if (!start_date && n == "startDate") {
-	    start_date = Calendar.parse("%Y-%M-%D", cn->value_of_node());
-	    return;
-	  }
-	  else if (!end_date && n == "endDate") {
-	    end_date = Calendar.parse("%Y-%M-%D", cn->value_of_node());
-	    return;
-	  }
+        if (cn->get_node_type() == XML_ELEMENT) {
+          string n = cn->get_tag_name();
+          if (!id && n == "id") {
+            id = cn->value_of_node();
+            return;
+          }
+          else if (!title && n == "title") {
+            title = cn->value_of_node();
+            return;
+          }
+          else if (!updated && n == "updated") {
+            updated = Calendar.parse("%Y-%M-%DT%h:%m:%s.%f%z",
+                                     cn->value_of_node());
+            return;
+          }
+          else if (!total_results && n == "totalResults") {
+            total_results = (int)cn->value_of_node();
+            return;
+          }
+          else if (!start_index && n == "startIndex") {
+            start_index = (int)cn->value_of_node();
+            return;
+          }
+          else if (!items_per_page && n == "itemsPerPage") {
+            items_per_page = (int)cn->value_of_node();
+            return;
+          }
+          else if (!start_date && n == "startDate") {
+            start_date = Calendar.parse("%Y-%M-%D", cn->value_of_node());
+            return;
+          }
+          else if (!end_date && n == "endDate") {
+            end_date = Calendar.parse("%Y-%M-%D", cn->value_of_node());
+            return;
+          }
 
-	  if ( function f = this["_" + n] )
-	    return call_function(f, cn);
-	}
+          if ( function f = this["_" + n] )
+            return call_function(f, cn);
+        }
       }
     );
   }
-  
+
   // Handles the @tt{aggregates@} node in the XML document.
   // Consider protected, only used internally.
   //
@@ -348,15 +338,15 @@ class DataParser
   {
     foreach (n->get_children(), Node cn) {
       if (cn->get_tag_name() == "metric") {
-      	mapping a = cn->get_attributes();
-      	sscanf(a->name, "%*s:%s", a->name);
-      	a->name = lower_case(a->name);
-      	switch (a->type)
-      	{
-      	  case "integer": aggregates[a->name] = (int)a->value;   break;
-      	  case "float":   aggregates[a->name] = (float)a->value; break;
-      	  default:        aggregates[a->name] = a->value;        break;
-      	}
+        mapping a = cn->get_attributes();
+        sscanf(a->name, "%*s:%s", a->name);
+        a->name = lower_case(a->name);
+        switch (a->type)
+        {
+          case "integer": aggregates[a->name] = (int)a->value;   break;
+          case "float":   aggregates[a->name] = (float)a->value; break;
+          default:        aggregates[a->name] = a->value;        break;
+        }
       }
     }
   }
@@ -370,18 +360,18 @@ class DataParser
     if (n->get_attributes()["gd:kind"] == "analytics#datarow") {
       mapping m = ([]);
       foreach (n->get_children(), Node cn) {
-      	if ( cn->get_node_type() == XML_ELEMENT) {
-      	  mapping a = cn->get_attributes();
-      	  if (string val = a->value) {
-	    sscanf(a->name, "%*s:%s", a->name);
-	    switch (a->type)
-	    {
-	      case "integer": m[lower_case(a->name)] = (int)val;   break;
-	      case "float":   m[lower_case(a->name)] = (float)val; break;
-	      default:        m[lower_case(a->name)] = val;        break;
-	    }
-	  }
-	}
+        if ( cn->get_node_type() == XML_ELEMENT) {
+          mapping a = cn->get_attributes();
+          if (string val = a->value) {
+            sscanf(a->name, "%*s:%s", a->name);
+            switch (a->type)
+            {
+              case "integer": m[lower_case(a->name)] = (int)val;   break;
+              case "float":   m[lower_case(a->name)] = (float)val; break;
+              default:        m[lower_case(a->name)] = val;        break;
+            }
+          }
+        }
       }
 
       rows += ({ m });

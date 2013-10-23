@@ -1,60 +1,13 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
 
-/* This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
-
-/* File licensing and authorship information block.
- *
- * Version: MPL 1.1/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Initial Developer of the Original Code is
- *
- * Pontus Östlund <pontus@poppa.se>
- *
- * Portions created by the Initial Developer are Copyright (C) Pontus Östlund
- * All Rights Reserved.
- *
- * Contributor(s):
- *
- * Alternatively, the contents of this file may be used under the terms of
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of the LGPL, and not to allow others to use your version
- * of this file under the terms of the MPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL or the LGPL.
- *
- * Significant Contributors to this file are:
- *
- */
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
 
 //! JavaScript stuff
- 
+
 //! Minifies JavaScript
 //!
 //! @throws
@@ -140,32 +93,32 @@ class JSMin
     if (c == '/') {
       switch (peek())
       {
-      	case '/':
-	  while (c = get())
-	    if (c <= '\n')
-	      return c;
-	  break;
+        case '/':
+          while (c = get())
+            if (c <= '\n')
+              return c;
+          break;
 
-	case '*':
-	  get();
-	  while (1) {
-	    switch (get())
-	    {
-	      case '*':
-		if (peek() == '/') {
-		  get();
-		  return ' ';
-		}
-		break;
+        case '*':
+          get();
+          while (1) {
+            switch (get())
+            {
+              case '*':
+                if (peek() == '/') {
+                  get();
+                  return ' ';
+                }
+                break;
 
-	      case EOF:
-		error("Unterminated string literal! ");
-	    }
-	  }
-	  break;
+              case EOF:
+                error("Unterminated string literal! ");
+            }
+          }
+          break;
 
-	default:
-	  return c;
+        default:
+          return c;
       }
     }
 
@@ -177,45 +130,45 @@ class JSMin
     switch ((int)d)                                                        \
     {                                                                      \
       case 1:                                                              \
-	add(a);                                                            \
+        add(a);                                                            \
       case 2:                                                              \
-	a = b;                                                             \
-	if (a == '"' || a == '\'') {                                       \
-	  while (1) {                                                      \
-	    add(a);                                                        \
-	    a = get();                                                     \
-	    if (a == b)                                                    \
-	      break;                                                       \
-	    if (a == '\\') {                                               \
-	      add(a);                                                      \
-	      a = get();                                                   \
-	    }                                                              \
-	    if (a == EOF)                                                  \
-	      error("Unterminated string literal! ");                      \
-	  }                                                                \
-	}                                                                  \
+        a = b;                                                             \
+        if (a == '"' || a == '\'') {                                       \
+          while (1) {                                                      \
+            add(a);                                                        \
+            a = get();                                                     \
+            if (a == b)                                                    \
+              break;                                                       \
+            if (a == '\\') {                                               \
+              add(a);                                                      \
+              a = get();                                                   \
+            }                                                              \
+            if (a == EOF)                                                  \
+              error("Unterminated string literal! ");                      \
+          }                                                                \
+        }                                                                  \
       case 3:                                                              \
-	b = next();                                                        \
-	if (b == '/' &&                                                    \
-	   (< '(',',','=',':','[','!','&','|','?','{','}',';','\n' >)[a] ) \
-	{                                                                  \
-	  add(a);                                                          \
-	  add(b);                                                          \
-	  while (1) {                                                      \
-	    a = get();                                                     \
-	    if (a == '/')                                                  \
-	      break;                                                       \
-	    if (a == '\\') {                                               \
-	      add(a);                                                      \
-	      a = get();                                                   \
-	    }                                                              \
-	    if (a == EOF)                                                  \
-	      error("Unterminated regular expression literal");            \
-	    add(a);                                                        \
-	  }                                                                \
-	  b = next();                                                      \
-	}                                                                  \
-	break;                                                             \
+        b = next();                                                        \
+        if (b == '/' &&                                                    \
+           (< '(',',','=',':','[','!','&','|','?','{','}',';','\n' >)[a] ) \
+        {                                                                  \
+          add(a);                                                          \
+          add(b);                                                          \
+          while (1) {                                                      \
+            a = get();                                                     \
+            if (a == '/')                                                  \
+              break;                                                       \
+            if (a == '\\') {                                               \
+              add(a);                                                      \
+              a = get();                                                   \
+            }                                                              \
+            if (a == EOF)                                                  \
+              error("Unterminated regular expression literal");            \
+            add(a);                                                        \
+          }                                                                \
+          b = next();                                                      \
+        }                                                                  \
+        break;                                                             \
     }                                                                      \
   } while(0)
 
@@ -230,69 +183,69 @@ class JSMin
     while (a != EOF) {
       switch (a)
       {
-      	case ' ':
-	  if (is_alnum(b))
-	    action(1);
-	  else 
-	    action(2);
-	  break;
+        case ' ':
+          if (is_alnum(b))
+            action(1);
+          else
+            action(2);
+          break;
 
-	case '\n':
-	  switch (b)
-	  {
-	    case '{':
-	    case '[':
-	    case '(':
-	    case '+':
-	    case '-':
-	      action(1);
-	      break;
-	    case ' ':
-	      action(3);
-	      break;
+        case '\n':
+          switch (b)
+          {
+            case '{':
+            case '[':
+            case '(':
+            case '+':
+            case '-':
+              action(1);
+              break;
+            case ' ':
+              action(3);
+              break;
 
-	    default:
-	      if (is_alnum(b))
-	      	action(1);
-	      else
-	      	action(2);
-	  }
-	  break;
+            default:
+              if (is_alnum(b))
+                action(1);
+              else
+                action(2);
+          }
+          break;
 
-	default:
-	  switch (b)
-	  {
-	    case ' ':
-	      if (is_alnum(a)) {
-	      	action(1);
-	      	break;
-	      }
-	      action(3);
-	      break;
+        default:
+          switch (b)
+          {
+            case ' ':
+              if (is_alnum(a)) {
+                action(1);
+                break;
+              }
+              action(3);
+              break;
 
-	    case '\n':
-	      switch (a)
-	      {
-	      	case '}':
-	      	case ']':
-	      	case ')':
-	      	case '+':
-	      	case '-':
-	      	case '\'':
-	      	case '"':
-		  action(1);
-		  break;
-		default:
-		  if (is_alnum(a))
-		    action(1);
-		  else
-		    action(3);
-	      }
-	      break;
+            case '\n':
+              switch (a)
+              {
+                case '}':
+                case ']':
+                case ')':
+                case '+':
+                case '-':
+                case '\'':
+                case '"':
+                  action(1);
+                  break;
+                default:
+                  if (is_alnum(a))
+                    action(1);
+                  else
+                    action(3);
+              }
+              break;
 
-	    default:
-	      action(1);
-	  }
+            default:
+              action(1);
+          }
       }
     }
   }

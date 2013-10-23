@@ -1,23 +1,14 @@
-/*| Copyright © 2009 Pontus Östlund <pontus@poppa.se>
- *|
- *| The XLS.pmod module is free software; you can redistribute it and/or
- *| modify it under the terms of the GNU General Public License as published by
- *| the Free Software Foundation; either version 2 of the License, or (at your
- *| option) any later version.
- *|
- *| The XLS.pmod module is distributed in the hope that it will be useful,
- *| but WITHOUT ANY WARRANTY; without even the implied warranty of
- *| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- *| Public License for more details.
- *|
- *| You should have received a copy of the GNU General Public License
- *| along with this program; if not, write to the Free Software Foundation,
- *| Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
 
 //! The XML.pmod module provides an easy way to generate an Excel XML document.
 //!
-//! @xml{<code lang="pike" detab="3" tabsize="2">
+//! @code
 //!   XLS.Workbook wb = XLS.Workbook();
 //!   wb->worksheet("Data", 1);
 //!   wb->add_row();
@@ -32,7 +23,7 @@
 //!   }
 //!
 //!   write(wb->render());
-//! </code>@}
+//! @endcode
 
 #define DATE_P "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]"
 #define TIME_P "[0-2][0-9]:[0-5][0-9]:[0-9][0-9](\.[0-9]+)*"
@@ -56,8 +47,8 @@ private multiset data_types = (< "Number","String","DateTime","Date","Time" >);
 private string get_style(string type)
 {
   return ([ "DateTime" : "s22",
-	    "Date"     : "s21",
-	    "Time"     : "s23" ])[type];
+            "Date"     : "s21",
+            "Time"     : "s23" ])[type];
 }
 
 //! Returns the Excel datatype for @[v]
@@ -69,9 +60,9 @@ private string get_type(mixed v)
   if (stringp(v)) {
     if (is_numeric(v)) {
       if (search(v, ".") > -1)
-	v = (float)v;
+        v = (float)v;
       else
-	v = (int)v;
+        v = (int)v;
     }
   }
 
@@ -201,7 +192,7 @@ class Workbook
 
     if (cells)
       foreach (cells, mixed cell)
-	add_cell(cell, style);
+        add_cell(cell, style);
 
     return r;
   }
@@ -350,14 +341,14 @@ class Cell
 
     if ( (< "DateTime", "Date", "Time" >)[type] ) {
       if (type == "Date")
-	data += "T00:00:00";
+        data += "T00:00:00";
       else if (type == "DateTime")
-	data = replace(data, " ", "T");
+        data = replace(data, " ", "T");
       else if (type == "Time")
-	data = "1899-12-31T" + data;
+        data = "1899-12-31T" + data;
 
       if (!glob("*.???", data))
-	data += ".000";
+        data += ".000";
 
       type = "DateTime";
     }

@@ -1,9 +1,16 @@
-/* -*- Mode: Pike; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 8 -*- */
+/*
+  Author: Pontus Östlund <https://profiles.google.com/poppanator>
+
+  Permission to copy, modify, and distribute this source for any legal
+  purpose granted as long as my name is still attached to it. More
+  specifically, the GPL, LGPL and MPL licenses apply to this software.
+*/
+
 //! OAuth module
 //!
 //! @b{Example@}
 //!
-//! @xml{<code lang="pike" detab="2" tabsize="2">
+//! @code
 //!  import Security.OAuth;
 //!
 //!  string endpoint = "http://twitter.com/users/show.xml";
@@ -20,24 +27,7 @@
 //!    error("Bad response status: %d\n", query->status);
 //!
 //!  werror("Data is: %s\n", query->data());
-//! </code>@}
-//|
-//| Copyright © 2009, Pontus Östlund - www.poppa.se
-//|
-//| License GNU GPL version 3
-//|
-//| OAuth.pmod is free software: you can redistribute it and/or modify
-//| it under the terms of the GNU General Public License as published by
-//| the Free Software Foundation, either version 3 of the License, or
-//| (at your option) any later version.
-//|
-//| OAuth.pmod is distributed in the hope that it will be useful,
-//| but WITHOUT ANY WARRANTY; without even the implied warranty of
-//| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//| GNU General Public License for more details.
-//|
-//| You should have received a copy of the GNU General Public License
-//| along with OAuth.pmod. If not, see <http://www.gnu.org/licenses/>.
+//! @endcode
 
 //! Verion
 constant VERSION = "1.0";
@@ -114,7 +104,7 @@ Params get_default_params(Consumer consumer, Token token)
 
   if (token)
     p += Param(TOKEN_KEY, token->key);
-  
+
   return p;
 }
 
@@ -188,7 +178,7 @@ class Request
 
     if ( !(< "GET", "POST" >)[method] )
       ARG_ERROR("http_method", "Must be one of \"GET\" or \"POST\".");
-    
+
   }
 
   //! Add a param
@@ -223,7 +213,7 @@ class Request
   {
     foreach (values(params), Param p)
       if ( p[name] )
-	return p;
+        return p;
 
     return 0;
   }
@@ -250,7 +240,7 @@ class Request
   //! Generates a signature base
   string get_signature_base()
   {
-    TRACE("\n\n+++ get_signature_base(%s, %s, %s)\n\n", 
+    TRACE("\n\n+++ get_signature_base(%s, %s, %s)\n\n",
           method, (normalize_uri(uri)), (params->get_signature()));
 
     return ({
@@ -268,7 +258,7 @@ class Request
     mapping args = params->get_variables();
     foreach (args; string k; string v)
       if (String.width(v) == 8)
-	catch (args[k] = utf8_to_string(v));
+        catch (args[k] = utf8_to_string(v));
 
     if (!extra_headers)
       extra_headers = ([]);
@@ -295,7 +285,7 @@ class Request
 
     return (method == "GET" ? normalize_uri(uri) + "?" : "")+(string)params;
   }
-  
+
   //! String format
   string _sprintf(int t)
   {
@@ -341,10 +331,10 @@ class Token
 {
   //! The token key
   string key;
-  
+
   //! The token secret
   string secret;
-  
+
   //! Creates a new @[Token]
   //!
   //! @param key
@@ -364,8 +354,8 @@ class Token
   {
     switch (how) {
       case "string":
-	return "oauth_token=" + key + "&"
-	       "oauth_token_secret=" + secret;
+        return "oauth_token=" + key + "&"
+               "oauth_token_secret=" + secret;
     }
 
     error("Can't cast %O() to %O\n", object_program(this), how);
@@ -384,7 +374,7 @@ class Param
 {
   //! Param name
   protected string name;
-  
+
   //! Param value
   protected string value;
 
@@ -400,21 +390,21 @@ class Param
 
   //! Getter for the name attribute
   string get_name() { return name; }
-  
+
   //! Setter for the value attribute
   void set_name(string value) { name = value; }
 
   //! Getter for the value attribute
   string get_value() { return value; }
-  
+
   //! Setter for the value attribute
   void set_value(mixed _value) { value = (string)_value; }
 
   //! Returns the value encoded
   string get_encoded_value() { return uri_encode(value); }
-  
+
   //! Returns the name and value for usage in a signature string
-  string get_signature() { return uri_encode(name) + "=" + uri_encode(value); } 
+  string get_signature() { return uri_encode(name) + "=" + uri_encode(value); }
 
   //! Comparer method. Checks if @[other] equals this object
   //!
@@ -451,7 +441,7 @@ class Param
     return 0;
   }
 
-  string _sprintf(int t) 
+  string _sprintf(int t)
   {
     return t == 'O' && sprintf("%O(%O, %O)", object_program(this), name, value);
   }
@@ -463,7 +453,7 @@ class Params
 {
   //! Storage for @[Param]s of this object
   private array(Param) params;
-  
+
   //! Create a new @[Params]
   //!
   //! @param _params
@@ -472,19 +462,19 @@ class Params
   {
     params = _params||({});
   }
-  
+
   //! Returns the params for usage in an authentication header
   string get_auth_header()
   {
     array a = ({});
     foreach (params, Param p) {
       if (has_prefix(p->get_name(), "oauth_"))
-	a += ({ p->get_name() + "=\"" + p->get_encoded_value() + "\"" });
+        a += ({ p->get_name() + "=\"" + p->get_encoded_value() + "\"" });
     }
-    
+
     return a*",";
   }
-  
+
   //! Returns the parameters as a mapping
   mapping get_variables()
   {
@@ -492,25 +482,25 @@ class Params
 
     foreach (params, Param p)
       if (!has_prefix(p->get_name(), "oauth_"))
-	m[p->get_name()] = p->get_value();
+        m[p->get_name()] = p->get_value();
 
     return m;
   }
-  
+
   //! Returns the parameters as a query string
   string get_query_string()
   {
     array s = ({});
     foreach (params, Param p)
       if (!has_prefix(p->get_name(), "oauth_"))
-	s += ({ p->get_name() + "=" + uri_encode(p->get_value()) });
+        s += ({ p->get_name() + "=" + uri_encode(p->get_value()) });
 
     return s*"&";
   }
 
   //! Returns the parameters as a mapping with encoded values
   //!
-  //! @seealso 
+  //! @seealso
   //!  @[get_variables()]
   mapping get_encoded_variables()
   {
@@ -518,7 +508,7 @@ class Params
 
     foreach (params, Param p)
       if (!has_prefix(p->get_name(), "oauth_"))
-	m[p->get_name()] = uri_encode(p->get_value());
+        m[p->get_name()] = uri_encode(p->get_value());
 
     return m;
   }
@@ -534,15 +524,15 @@ class Params
   //! @param how
   mixed cast(string how)
   {
-    switch (how) 
+    switch (how)
     {
-      case "mapping": 
-	mapping m = ([]);
-	foreach (params, Param p)
-	  m[p->get_name()] = p->get_value();
+      case "mapping":
+        mapping m = ([]);
+        foreach (params, Param p)
+          m[p->get_name()] = p->get_value();
 
-	return m;
-	break;
+        return m;
+        break;
     }
   }
 
@@ -582,8 +572,8 @@ class Params
   {
     foreach (params, Param pm) {
       if (pm == p) {
-	params -= ({ pm });
-	break;
+        params -= ({ pm });
+        break;
       }
     }
 
