@@ -52,6 +52,11 @@ array(.Param) get_params()
   return params;
 }
 
+string to_unencoded_query()
+{
+  return params->name_value()*"&";
+}
+
 //! Turns the parameters into a query string
 string to_query()
 {

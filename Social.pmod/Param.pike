@@ -119,6 +119,16 @@ string _sprintf(int t)
   return t == 'O' && sprintf("%O(%O,%O)", object_program(this), name, value);
 }
 
+mixed cast(string how)
+{
+  switch (how)
+  {
+    case "string": return name_value_encoded();
+  }
+
+  error ("Cant cast %O() to %O\n", this_program, how);
+}
+
 //! Makes sure @[v] to set as @[value] is in UTF-8 encoding
 //!
 //! @param v

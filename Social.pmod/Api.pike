@@ -8,6 +8,12 @@
 
 inherit Protocols.HTTP.Session : sess;
 
+#ifdef SOCIAL_REQUEST_DEBUG
+# define TRACE(X...) werror("%s:%d: %s", basename(__FILE__),__LINE__,sprintf(X))
+#else
+# define TRACE(X...) 0
+#endif
+
 //! The URI to the remote API
 constant API_URI = 0;
 
@@ -148,7 +154,7 @@ mixed patch(string api_method, void|ParamsArg params, void|Callback cb)
 //!  @expr{30x@} (a redirect), then the response headers mapping will be
 //!  returned.
 mixed call(string api_method, void|ParamsArg params,
-	         void|string http_method, void|string data, void|Callback cb)
+           void|string http_method, void|string data, void|Callback cb)
 {
   http_method = upper_case(http_method || "get");
   Social.Params p = Social.Params();
@@ -172,8 +178,8 @@ mixed call(string api_method, void|ParamsArg params,
 
 
 #ifdef SOCIAL_REQUEST_DEBUG
-  werror("\n> Request: %s?%s\n", api_method, (string) p);
-  if (data) werror("> data: %s\n", data);
+  TRACE("\n> Request: %s?%s\n", api_method, (string) p);
+  if (data) TRACE("> data: %s\n", data);
 #endif
 
 
@@ -208,10 +214,8 @@ private mixed handle_response (Request req)
   if (req->status() != 200) {
     string d = req->data();
 
-#ifdef SOCIAL_REQUEST_DEBUG
-    werror("Bad resp[%d]: %s\n\n%O\n", req->status(), req->data(), req->headers());
-    req->dump ();
-#endif
+    TRACE("Bad resp[%d]: %s\n\n%O\n",
+          req->status(), req->data(), req->headers());
 
     if (has_value(d, "error")) {
       mapping e;

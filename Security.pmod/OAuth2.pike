@@ -6,6 +6,12 @@
   specifically, the GPL, LGPL and MPL licenses apply to this software.
 */
 
+#ifdef SOCIAL_REQUEST_DEBUG
+# define TRACE(X...) werror("%s:%d: %s", basename(__FILE__),__LINE__,sprintf(X))
+#else
+# define TRACE(X...) 0
+#endif
+
 /* Public API */
 
 //! Creates an OAuth2 object
@@ -183,8 +189,10 @@ string get_auth_uri(string auth_uri, void|mapping args)
   if (args) {
     m_delete(args, "scope");
     m_delete(args, "redirect_uri");
-    p->add_mapping(args);
+    p += args;
   }
+
+  TRACE ("auth_uri(%s)\n", (string) p["redirect_uri"]);
 
   return auth_uri + "?" + p->to_query();
 }
@@ -223,16 +231,25 @@ string request_access_token(string oauth_token_uri, string code)
                     Param("grant_type",    _grant_type),
                     Param("code",          code));
 
-  Protocols.HTTP.Query q;
-  q = Protocols.HTTP.post_url(oauth_token_uri, p->to_mapping(),
-                              request_headers);
+  int qpos = 0;
+
+  if ((qpos = search(oauth_token_uri, "?")) > -1) {
+    string qs = oauth_token_uri[qpos..];
+    oauth_token_uri = oauth_token_uri[..qpos];
+  }
+
+  TRACE ("request_access_token(%s?%s)\n", oauth_token_uri, (string) p);
+
+  Protocols.HTTP.Session sess = Protocols.HTTP.Session();
+  Protocols.HTTP.Session.Request q;
+  q = sess->post_url(oauth_token_uri, p->to_mapping());
 
   string c = q->data();
 
-  if (q->status != 200) {
-    string emsg = sprintf("Bad status (%d) in HTTP response! ", q->status);
-    if (string reason = try_get_error(c))
-      emsg += "Reason: " + reason + "! ";
+  if (q->status() != 200) {
+    string emsg = sprintf("Bad status (%d) in HTTP response! ", q->status());
+    if (mapping reason = try_get_error(c))
+      emsg += sprintf("Reason: %O!\n", reason);
 
     error(emsg);
   }
@@ -404,8 +421,7 @@ private mixed try_get_error(string data)
 {
   catch {
     mixed x = json_decode(data);
-    if (mappingp(x) && x->error)
-      return x->error;
+    return x->error;
   };
 }
 
