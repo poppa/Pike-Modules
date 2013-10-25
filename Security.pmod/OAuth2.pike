@@ -67,6 +67,16 @@ string `access_token()
   return gettable->access_token;
 }
 
+//! Can be used to set a stored access_token. Will also set creation and
+//! expiration time. This can be useful in apps that support non-expiring
+//! authorizations.
+void `access_token=(string value)
+{
+  gettable->access_token = value;
+  gettable->created = time();
+  gettable->expires = time() + (3600);
+}
+
 //! Getter for @expr{refresh_token@}
 string `refresh_token()
 {
