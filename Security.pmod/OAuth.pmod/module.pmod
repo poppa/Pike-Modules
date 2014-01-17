@@ -62,7 +62,6 @@ constant TOKEN_SECRET_KEY = "oauth_token_secret";
 //! Chars that shouldn't be URL encoded
 constant UNRESERVED_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV"
                             "WXYZ0123456789-_.~"/1;
-
 #include "oauth.h"
 
 //! Helper method to create a @[Request] object
@@ -240,7 +239,7 @@ class Request
   //! Generates a signature base
   string get_signature_base()
   {
-    TRACE("\n\n+++ get_signature_base(%s, %s, %s)\n\n",
+    TRACE("+++ get_signature_base(%s, %s, %s)\n\n",
           method, (normalize_uri(uri)), (params->get_signature()));
 
     return ({
@@ -256,9 +255,11 @@ class Request
   Protocols.HTTP.Query submit(void|mapping extra_headers)
   {
     mapping args = params->get_variables();
-    foreach (args; string k; string v)
+    foreach (args; string k; string v) {
+      if (!v) continue;
       if (String.width(v) == 8)
-        catch (args[k] = utf8_to_string(v));
+        catch(args[k] = utf8_to_string(v));
+    }
 
     if (!extra_headers)
       extra_headers = ([]);
@@ -266,6 +267,7 @@ class Request
     string realm = uri->scheme + "://" + uri->host;
     extra_headers["Authorization"] = "OAuth realm=\"" + realm + "\"," +
                                      params->get_auth_header();
+    extra_headers["Content-Type"] = "text/plain; charset=utf-8";
 
     TRACE("submit(%O, %O, %O, %O)\n", method, uri, args, extra_headers);
 
@@ -378,6 +380,8 @@ class Param
   //! Param value
   protected string value;
 
+  protected int(0..1) is_null = 1;
+
   //! Creates a new @[Param]
   //!
   //! @param _name
@@ -386,6 +390,8 @@ class Param
   {
     name = _name;
     value = (string)_value;
+
+    if (_value) is_null = 0;
   }
 
   //! Getter for the name attribute
@@ -398,13 +404,19 @@ class Param
   string get_value() { return value; }
 
   //! Setter for the value attribute
-  void set_value(mixed _value) { value = (string)_value; }
+  void set_value(mixed _value)
+  {
+    value = (string)_value;
+    is_null = !(!!_value);
+  }
 
   //! Returns the value encoded
-  string get_encoded_value() { return uri_encode(value); }
+  string get_encoded_value() { return value && uri_encode(value); }
 
   //! Returns the name and value for usage in a signature string
-  string get_signature() { return uri_encode(name) + "=" + uri_encode(value); }
+  string get_signature() {
+    return uri_encode(name) + "=" + uri_encode(value);
+  }
 
   //! Comparer method. Checks if @[other] equals this object
   //!
@@ -480,9 +492,10 @@ class Params
   {
     mapping m = ([]);
 
-    foreach (params, Param p)
+    foreach (params, Param p) {
       if (!has_prefix(p->get_name(), "oauth_"))
         m[p->get_name()] = p->get_value();
+    }
 
     return m;
   }
@@ -516,7 +529,7 @@ class Params
   //! Returns the parameters for usage in a signature base string
   string get_signature()
   {
-    return sort(params)->get_signature()*"&";
+    return ((sort(params)->get_signature()) - ({ 0 })) * "&";
   }
 
   //! Casting method. Only supports casting to @tt{mapping@}.
@@ -621,8 +634,12 @@ class Params
 //! @param s
 string uri_encode(string s)
 {
-  if (String.width(s) < 8)
-    s = string_to_utf8(s);
+#if constant(Protocols.HTTP.uri_encode)
+  return Protocols.HTTP.uri_encode(s);
+#endif
+
+  if (String.width(s) >= 8)
+    catch (s = utf8_to_string(s));
 
   String.Buffer b = String.Buffer();
   function add = b->add;
