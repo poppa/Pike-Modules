@@ -193,8 +193,8 @@ string get_auth_uri(string auth_uri, void|mapping args)
   if (args && args->redirect_uri || _redirect_uri)
     p += Param("redirect_uri", args && args->redirect_uri || _redirect_uri);
 
-  if (state)
-    p += Param("state", state);
+  if (STATE)
+    p += Param("state", (string) Standards.UUID.make_version4());
 
   if (args && args->scope || _scope) {
     string sc = get_valid_scopes(args && args->scope || _scope);
@@ -250,8 +250,8 @@ string request_access_token(string oauth_token_uri, string code)
                     Param("grant_type",    _grant_type),
                     Param("code",          code));
 
-  if (state)
-    p += Param("state", state);
+  if (STATE)
+    p += Param("state", (string) Standards.UUID.make_version4());
 
   int qpos = 0;
 
@@ -347,6 +347,12 @@ protected constant VERSION = "1.0";
 //! User agent string
 protected constant USER_AGENT  = "Mozilla 4.0 (Pike OAuth2 Client " +
                                  VERSION + ")";
+
+//! Some OAuth2 verifiers need the STATE parameter. If this is not @tt{0@}
+//! a random string will be generated and the @tt{state@} parameter will be
+//! added to the request
+protected constant STATE = 0;
+
 //! The application ID
 protected string _client_id;
 
@@ -374,10 +380,6 @@ protected mapping request_headers = ([
   "User-Agent"   : USER_AGENT,
   "Content-Type" : "application/x-www-form-urlencoded"
 ]);
-
-//! Some OAuth2 verifiers need the STATE parameter. This should be a random
-//! string. If this is @tt{0@} it's discarted
-protected string state = 0;
 
 protected constant json_decode = Standards.JSON.decode;
 protected constant Params      = Social.Params;

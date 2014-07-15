@@ -11,7 +11,9 @@ inherit Social.Api : parent;
 //! The base uri to the API
 constant API_URI = "https://api.linkedin.com/v1";
 
+//! @ignore
 constant ACCESS_TOKEN_PARAM_NAME = "oauth2_access_token";
+//! @endignore
 
 //! Getter for the @[Any] object which is a generic object for making request
 //! to the Linkedin API
@@ -137,12 +139,9 @@ class Authorization
   constant OAUTH_AUTH_URI = "https://www.linkedin.com/uas/oauth2/authorization";
   constant OAUTH_TOKEN_URI = "https://www.linkedin.com/uas/oauth2/accessToken";
 
-  void create(string client_id, string client_secret, void|string redirect_uri,
-            void|string|array(string)|multiset(string) scope)
-  {
-    state = (string) Standards.UUID.make_version4();
-    ::create(client_id, client_secret, redirect_uri, scope);
-  }
+  //! Adds the @tt{state@} parameter to the request which will have the value
+  //! of a random string
+  protected constant STATE = 1;
 
   enum Scopes {
     SCOPE_R_BASIC        = "r_basicprofile",
