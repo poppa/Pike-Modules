@@ -139,6 +139,12 @@ multiset list_valid_scopes()
   return valid_scopes;
 }
 
+//! Returns the scope/scopes set, if any.
+mixed get_scope()
+{
+  return _scope;
+}
+
 //! Check if @[scope] exists in this object
 //!
 //! @param scope
@@ -187,6 +193,9 @@ string get_auth_uri(string auth_uri, void|mapping args)
   if (args && args->redirect_uri || _redirect_uri)
     p += Param("redirect_uri", args && args->redirect_uri || _redirect_uri);
 
+  if (state)
+    p += Param("state", state);
+
   if (args && args->scope || _scope) {
     string sc = get_valid_scopes(args && args->scope || _scope);
 
@@ -202,7 +211,7 @@ string get_auth_uri(string auth_uri, void|mapping args)
     p += args;
   }
 
-  TRACE ("auth_uri(%s)\n", (string) p["redirect_uri"]);
+  TRACE("auth_uri(%s)\n", (string) p["redirect_uri"]);
 
   return auth_uri + "?" + p->to_query();
 }
@@ -241,6 +250,9 @@ string request_access_token(string oauth_token_uri, string code)
                     Param("grant_type",    _grant_type),
                     Param("code",          code));
 
+  if (state)
+    p += Param("state", state);
+
   int qpos = 0;
 
   if ((qpos = search(oauth_token_uri, "?")) > -1) {
@@ -248,7 +260,7 @@ string request_access_token(string oauth_token_uri, string code)
     oauth_token_uri = oauth_token_uri[..qpos];
   }
 
-  TRACE ("request_access_token(%s?%s)\n", oauth_token_uri, (string) p);
+  TRACE("request_access_token(%s?%s)\n", oauth_token_uri, (string) p);
 
   Protocols.HTTP.Session sess = Protocols.HTTP.Session();
   Protocols.HTTP.Session.Request q;
@@ -362,6 +374,10 @@ protected mapping request_headers = ([
   "User-Agent"   : USER_AGENT,
   "Content-Type" : "application/x-www-form-urlencoded"
 ]);
+
+//! Some OAuth2 verifiers need the STATE parameter. This should be a random
+//! string. If this is @tt{0@} it's discarted
+protected string state = 0;
 
 protected constant json_decode = Standards.JSON.decode;
 protected constant Params      = Social.Params;

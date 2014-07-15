@@ -8,7 +8,7 @@
 
 inherit Protocols.HTTP.Session : sess;
 
-#ifdef SOCIAL_REQUEST_DEBUG
+#if defined(SOCIAL_REQUEST_DEBUG) || defined(SOCIAL_REQUEST_DATA_DEBUG)
 # define TRACE(X...) werror("%s:%d: %s", basename(__FILE__),__LINE__,sprintf(X))
 #else
 # define TRACE(X...) 0
@@ -16,6 +16,11 @@ inherit Protocols.HTTP.Session : sess;
 
 //! The URI to the remote API
 constant API_URI = 0;
+
+//! In some API's (LinkedIn f ex) this is named something else so it needs
+//! to be overridden i cases where it has a different name than the
+//! standard one
+constant ACCESS_TOKEN_PARAM_NAME = "access_token";
 
 //! Typedef for the async callback method signature.
 typedef function(mapping|Request:void) Callback;
@@ -43,8 +48,8 @@ protected Authorization auth;
 //!
 //! @param scope
 //!  Extended permissions to use for this authorization.
-void create (string client_id, string client_secret, void|string redirect_uri,
-             void|string|array(string)|multiset(string) scope)
+void create(string client_id, string client_secret, void|string redirect_uri,
+            void|string|array(string)|multiset(string) scope)
 {
   sess::follow_redirects = 0;
   sess::default_headers  = ([ "User-Agent" : .USER_AGENT ]);
@@ -154,17 +159,17 @@ mixed patch(string api_method, void|ParamsArg params, void|Callback cb)
 //!  @expr{30x@} (a redirect), then the response headers mapping will be
 //!  returned.
 mixed call(string api_method, void|ParamsArg params,
-           void|string http_method, void|string data, void|Callback cb)
+	         void|string http_method, void|string data, void|Callback cb)
 {
   http_method = upper_case(http_method || "get");
   Social.Params p = Social.Params();
-  p->add_mapping (default_params());
+  p->add_mapping(default_params());
 
   if (params) p += params;
 
   if (auth && !auth->is_expired()) {
     if (string a = auth->access_token)
-      p += .Param("access_token", a);
+      p += .Param(ACCESS_TOKEN_PARAM_NAME, a);
   }
 
   if (http_method == "POST") {
@@ -176,17 +181,15 @@ mixed call(string api_method, void|ParamsArg params,
 
   Request req;
 
-
 #ifdef SOCIAL_REQUEST_DEBUG
   TRACE("\n> Request: %s?%s\n", api_method, (string) p);
   if (data) TRACE("> data: %s\n", data);
 #endif
 
-
   if (cb) {
     req = _async(http_method, api_method, params, data, default_headers,
                  lambda (Request r) {
-                   if (string x = r->data ()) {
+                   if (string x = r->data()) {
                      r->unset_data_callback();
                      if (cb) cb(handle_response(r));
                    }
@@ -202,7 +205,7 @@ mixed call(string api_method, void|ParamsArg params,
     return 0;
   }
 
-  req = do_method_url (http_method, api_method, params, data, default_headers);
+  req = do_method_url(http_method, api_method, params, data, default_headers);
   return req && handle_response(req);
 }
 
@@ -210,6 +213,10 @@ private mixed handle_response (Request req)
 {
   if ((< 301, 302 >)[req->status()])
     return req->headers();
+
+#ifdef SOCIAL_REQUEST_DATA_DEBUG
+  TRACE("Data: [%s]\n\n", req->data()||"(empty)");
+#endif
 
   if (req->status() != 200) {
     string d = req->data();
@@ -258,7 +265,7 @@ protected string get_uri(string method)
       method = method[1..];
   }
   else {
-    if (!has_prefix (method, "/"))
+    if (!has_prefix(method, "/"))
       method = "/" + method;
   }
 
@@ -359,7 +366,7 @@ class Method
   protected void create()
   {
     if (this_program == Social.Api.Method)
-      error ("This class can not be instantiated directly! ");
+      error("This class can not be instantiated directly! ");
   }
 
   //! Internal convenience method
@@ -389,9 +396,9 @@ private local class MyRequest
     data_callback = 0;
   }
 
-  void dump ()
+  void dump()
   {
-    werror ("%O\n", ((this->con->headers)));
+    werror("%O\n", this->con->headers);
   }
 }
 

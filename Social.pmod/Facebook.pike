@@ -132,6 +132,9 @@ class Authorization
 {
   inherit Social.Api.Authorization;
 
+  constant OAUTH_AUTH_URI  = API_URI + "/oauth/authorize";
+  constant OAUTH_TOKEN_URI = API_URI + "/oauth/access_token";
+
   enum Scopes {
     // User scopes
     SCOPE_EMAIL = "email",
@@ -218,9 +221,6 @@ class Authorization
     SCOPE_VIDEO_UPLOAD = "video_upload",
     SCOPE_XMPP_LOGIN = "xmpp_login"
   };
-
-  constant OAUTH_AUTH_URI  = API_URI + "/oauth/authorize";
-  constant OAUTH_TOKEN_URI = API_URI + "/oauth/access_token";
 
   protected multiset valid_scopes = (<
     SCOPE_EMAIL,SCOPE_PUBLISH_ACTIONS,SCOPE_ABOUT_ME,SCOPE_ACTIONS_BOOKS,

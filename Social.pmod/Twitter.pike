@@ -36,6 +36,6 @@ class Authorization
   //! The endpoint to send request for an access token
   constant ACCESS_TOKEN_URL = "https://api.twitter.com/oauth/access_token";
 
-  //! The enpoint to redirect to when authorize an application
+  //! The enpoint to redirect to when authenticating an application
   constant USER_AUTH_URL = "https://api.twitter.com/oauth/authenticate";
 }

@@ -104,6 +104,7 @@ class Authorization
   {
     token->key = key;
     token->secret = secret;
+    api::access_token = key;
   }
 
   //! Fetches a request token
@@ -124,8 +125,16 @@ class Authorization
     if (force_login)
       p->force_login = "true";
 
+#ifdef OAUTH_DEBUG
+    werror("OAuth1: get_request_token(%O, %O)\n", REQUEST_TOKEN_URL, p);
+#endif
+
     string ctoken = call(REQUEST_TOKEN_URL, p, "POST");
     mapping res = ctoken && (mapping)query_to_params(ctoken);
+
+#ifdef OAUTH_DEBUG
+    werror("OAuth1: get_request_token result: %O\n", res);
+#endif
 
     token = Token(res[TOKEN_KEY],
                   res[TOKEN_SECRET_KEY]);
@@ -135,7 +144,7 @@ class Authorization
   //! Fetches an access token
   //!
   //! @param oauth_verifier
-  Token get_access_token(void|string oauth_verifier)
+  protected string low_get_access_token(void|string oauth_verifier)
   {
     if (!token)
       error("Can't fetch access token when no request token is set!\n");
@@ -147,18 +156,46 @@ class Authorization
                                                       oauth_verifier));
     }
 
+#ifdef OAUTH_DEBUG
+    werror("OAuth1: get_access_token(%O, %O)\n", ACCESS_TOKEN_URL, pm);
+#endif
+
     string ctoken = call(ACCESS_TOKEN_URL, pm, "POST");
+    return ctoken;
+  }
+
+  //! Fetches an access token
+  //!
+  //! @param oauth_verifier
+  Token get_access_token(void|string oauth_verifier)
+  {
+    string ctoken = low_get_access_token(oauth_verifier);
     mapping p = (mapping)query_to_params(ctoken);
+
     token = Token(p[Security.OAuth.TOKEN_KEY],
                   p[Security.OAuth.TOKEN_SECRET_KEY]);
 
     return token;
   }
 
-  string get_auth_uri(void|string|Standards.URI callback_uri,
-                      void|int(0..1) force_login)
+  //! Same as @[get_access_token] except this returns a string
+  //! to comply with the OAuth2 authentication process
+  string request_access_token(string code)
   {
-    get_request_token(callback_uri||api::_redirect_uri, force_login);
+    string ctoken = low_get_access_token(code);
+    mapping p = (mapping)query_to_params(ctoken);
+
+    token = Token(p[Security.OAuth.TOKEN_KEY],
+                  p[Security.OAuth.TOKEN_SECRET_KEY]);
+
+    return encode_value(p);
+  }
+
+  string get_auth_uri(void|mapping args)
+  {
+    if (!args) args = ([]);
+    get_request_token(args->callback_uri||api::_redirect_uri,
+                      args->force_login);
     return sprintf("%s?%s=%s", USER_AUTH_URL, Security.OAuth.TOKEN_KEY,
                    (token && token->key)||"");
   }
@@ -191,8 +228,11 @@ class Authorization
 
     Protocols.HTTP.Query q = r->submit();
 
-    if (q->status != 200) {
+#ifdef OAUTH_DEBUG
+    werror("Oauth1Api()->Authorization()->call(%O)\n", q);
+#endif
 
+    if (q->status != 200) {
       if (mapping e = parse_error_xml(q->data()))
         error("Error in %O: %s\n", e->request, e->error);
       else

@@ -10,7 +10,7 @@
 //!
 //! @b{Example@}
 //!
-//! @code
+//! @xml{<code lang="pike" detab="2" tabsize="2">
 //!  import Security.OAuth;
 //!
 //!  string endpoint = "http://twitter.com/users/show.xml";
@@ -27,7 +27,7 @@
 //!    error("Bad response status: %d\n", query->status);
 //!
 //!  werror("Data is: %s\n", query->data());
-//! @endcode
+//! </code>@}
 
 //! Verion
 constant VERSION = "1.0";
