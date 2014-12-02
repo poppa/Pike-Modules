@@ -139,7 +139,7 @@ private void low_set_value(string v)
   if (String.width(value) < 8) {
     if (mixed e = catch(value = string_to_utf8(value))) {
       werror("Warning: string_to_utf8() failed. Already encoded?\n%s\n",
-	           describe_error(e));
+             describe_error(e));
     }
   }
 }

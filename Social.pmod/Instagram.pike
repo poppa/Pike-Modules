@@ -758,14 +758,3 @@ private Likes _likes;
 
 //! Singleton @[Locations] object. Will be instantiated first time requested.
 private Locations _locations;
-
-#if 0
-//! Convenience method for getting the URI to a specific API method
-//!
-//! @param method
-private string get_uri(string method)
-{
-  if (!has_prefix(method, "/")) method = "/" + method;
-  return API_URI + "/v1" + method;
-}
-#endif
