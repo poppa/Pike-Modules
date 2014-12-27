@@ -8,23 +8,33 @@
 
 //! Linear regression
 //!
+//! @decl linear(array(array(float)) data)
+//! @decl linear(array(float) x, array(float) y)
+//!
 //! @param data
-//!  In the form of
-//!  @code
-//!   ({ /* n elements */
-//!     ({ /* 2 elements */
-//!        a0,
-//!        a1
-//!     }),
-//!     ({ /* 2 elements */
-//!        b0,
-//!        b1
-//!     }),
-//!     and so on...
-//!   })
-//!  @endcode
-array(float) linear(array(array(float)) data)
+//!  Either an array of arrays @code{({ ({ x, y }), ({ x, y }) })@} or
+//!  @code{({ x, x, x })@} if @[data2] is given as @pre{y@}.
+//! @param data2
+//!  If given acts as @pre{y@} values.
+//!
+//! @returns
+//!  @pre{({ gradient, intercept })@}
+array(float) linear(array(array(float))|array(float) data,
+                    void|array(float) data2)
 {
+  if (data && data2) {
+    if (sizeof(data) != sizeof(data2)) {
+      error("The arrays of X and Y must be of the same length!\n");
+    }
+
+    array(array(float)) tmp = ({});
+    for (int i; i < sizeof(data); i++) {
+      tmp += ({ ({ data[i], data2[i] }) });
+    }
+
+    data = tmp;
+  }
+
   array(float) sum = allocate(4, 0.0), points = ({});
   float gradient, intercept;
   int n = sizeof(data);
@@ -45,7 +55,15 @@ array(float) linear(array(array(float)) data)
 //! Same as @[linear()] except a mapping is returned with some additional info
 //! and the plotting points.
 //!
+//! @decl linear2(array(array(float)) data)
+//! @decl linear2(array(float) x, array(float) y)
+//!
 //! @param data
+//!  Either an array of arrays @code{({ ({ x, y }), ({ x, y }) })@} or
+//!  @code{({ x, x, x })@} if @[data2] is given as @pre{y@}.
+//! @param data2
+//!  If given acts as @pre{y@} values.
+//!
 //! @returns
 //!  @mapping
 //!   @member array "equation"
