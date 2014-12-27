@@ -143,6 +143,8 @@ class Authorization
   //! of a random string
   protected constant STATE = 1;
 
+  protected constant DEFAULT_SCOPE = SCOPE_R_BASIC;
+
   enum Scopes {
     SCOPE_R_BASIC        = "r_basicprofile",
     SCOPE_R_NETWORK      = "r_network",

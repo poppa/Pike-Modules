@@ -260,6 +260,7 @@ string request_access_token(string oauth_token_uri, string code)
     oauth_token_uri = oauth_token_uri[..qpos];
   }
 
+  TRACE("params: %O\n", p);
   TRACE("request_access_token(%s?%s)\n", oauth_token_uri, (string) p);
 
   Protocols.HTTP.Session sess = Protocols.HTTP.Session();

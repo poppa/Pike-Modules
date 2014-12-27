@@ -209,7 +209,7 @@ mixed call(string api_method, void|ParamsArg params,
   return req && handle_response(req);
 }
 
-private mixed handle_response (Request req)
+private mixed handle_response(Request req)
 {
   if ((< 301, 302 >)[req->status()])
     return req->headers();
@@ -312,12 +312,20 @@ class Authorization
   //! Request access token URI
   constant OAUTH_TOKEN_URI = 0;
 
+  //! Scope to set if none is set
+  protected constant DEFAULT_SCOPE = 0;
+
   //! Returns an authorization URI.
   //!
   //! @param args
   //!  Additional argument.
   string get_auth_uri(void|mapping args)
   {
+    if ((args && !args->scope || !args) && DEFAULT_SCOPE) {
+      if (!args) args = ([]);
+      args->scope = DEFAULT_SCOPE;
+    }
+
     return ::get_auth_uri(OAUTH_AUTH_URI, args);
   }
 

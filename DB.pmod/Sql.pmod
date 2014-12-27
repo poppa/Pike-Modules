@@ -37,21 +37,20 @@
                                               object_program(this))
 
 //! Escapes @[s] for safe insertion into database
-string quote(string s) // {{{
+string quote(string s)
 {
   return QUOTE_SQL(s);
-} // }}}
+}
 
 //! MySQL data types
-enum DataType { // {{{
+enum DataType {
   SQL_INT,
   SQL_STRING,
   SQL_DATE,
   SQL_DATETIME,
   SQL_FLOAT
-} // }}}
+}
 
-#define SQL_PMOD_SAFE_QUTED_VALUE(V) safe_quote_sql(V)
 string safe_quote_sql(string in)
 {
   int len = in && sizeof(in);
@@ -76,7 +75,7 @@ string safe_quote_sql(string in)
 }
 
 //! Class representing a SQL column
-class Field // {{{
+class Field
 {
   protected string      name;
   protected mixed       value;
@@ -150,8 +149,6 @@ class Field // {{{
   //! Returns the value quoted
   string get_quoted()
   {
-    werror("+++ Get quoted for %O\n", name);
-
     switch (type)
     {
       case SQL_STRING:
@@ -233,10 +230,10 @@ class Field // {{{
 
     return "NULL";
   }
-} // }}}
+}
 
 //! Represents an INT column
-class Int // {{{
+class Int
 {
   inherit Field;
 
@@ -248,10 +245,10 @@ class Int // {{{
   {
     ::create(name, SQL_INT, value);
   }
-} // }}}
+}
 
 //! Represents a FLOAT column
-class Float // {{{
+class Float
 {
   inherit Field;
 
@@ -263,10 +260,10 @@ class Float // {{{
   {
     ::create(name, SQL_FLOAT, value);
   }
-} // }}}
+}
 
 //! Represents a string column (VARCHAR, TEXT and alike).
-class String // {{{
+class String
 {
   inherit Field;
 
@@ -278,10 +275,10 @@ class String // {{{
   {
     ::create(name, SQL_STRING, value);
   }
-} // }}}
+}
 
 //! Represents an ENUM column
-class Enum // {{{
+class Enum
 {
   inherit String;
   protected multiset fields;
@@ -317,10 +314,10 @@ class Enum // {{{
 
     ::set(_value);
   }
-} // }}}
+}
 
 //! Represents a DATE or DATETIME column
-class Date // {{{
+class Date
 {
   inherit String;
 
@@ -346,5 +343,5 @@ class Date // {{{
 
     return value && "'" + QUOTE_SQL((string)value) + "'" || "NULL";
   }
-} // }}}
+}
 

@@ -128,17 +128,23 @@ class SimpleXML
     return attributes;
   }
 
+  mixed `[](string key)
+  {
+    if (attributes[key])
+      return attributes[key];
+
+    return ::`[](key);
+  }
+
   //! Index arrow lookup.
   //! Will look for child nodes of name @[key]. If multiple child nodes exists
   //! an array of child nodes will be returned. If only one node is found that
   //! object will be returned.
   //!
   //! @param key
+
   mixed `->(string key)
   {
-    if ( this[key] && functionp( this[key] ))
-      return this[key];
-
     object|array(object) r;
 
     foreach (children, SimpleXML s) {
@@ -152,7 +158,7 @@ class SimpleXML
       }
     }
 
-    return r;
+    return r || ::`->(key);
   }
 
   //! Casting method
