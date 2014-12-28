@@ -97,27 +97,27 @@ protected mapping(string:string) escape_hash_table;
 
 protected mapping backslash_table;
 
-protected mapping(int:string) document_gamut = ([
-  20 : "strip_link_definitions",
-  30 : "run_basic_block_gamut"
+protected mapping(int:function) document_gamut = ([
+  20 : strip_link_definitions,
+  30 : run_basic_block_gamut
 ]);
 
-protected mapping(int:string) block_gamut = ([
-  10 : "do_headers",
-  20 : "do_horizontal_rules",
-  40 : "do_lists",
-  50 : "do_codeblocks",
-  60 : "do_blockquotes"
+protected mapping(int:function) block_gamut = ([
+  10 : do_headers,
+  20 : do_horizontal_rules,
+  40 : do_lists,
+  50 : do_codeblocks,
+  60 : do_blockquotes
 ]);
 
-protected mapping(int:string) span_gamut = ([
-  -30 : "do_parse_span",
-   10 : "do_images",
-   20 : "do_anchors",
-   30 : "do_autolinks",
-   40 : "do_encode_amps_and_angles",
-   50 : "do_italic_and_bold",
-   60 : "do_hardbreaks"
+protected mapping(int:function) span_gamut = ([
+  -30 : do_parse_span,
+   10 : do_images,
+   20 : do_anchors,
+   30 : do_autolinks,
+   40 : do_encode_amps_and_angles,
+   50 : do_italic_and_bold,
+   60 : do_hardbreaks
 ]);
 
 //! Constructor
@@ -203,7 +203,8 @@ public string transform(string text)
   text = hash_html_blocks(text);
 
   foreach (sort(indices(document_gamut)), int i) {
-    text = this[document_gamut[i]](text);
+    if (callablep(document_gamut[i]))
+      text = document_gamut[i](text);
   }
 
   mapping tmp = mkmapping(values(escape_hash_table),
@@ -227,11 +228,11 @@ protected void teardown()
 
 //!
 //!
-public string run_basic_block_gamut(string t)
+protected string run_basic_block_gamut(string t)
 {
   foreach (sort(indices(block_gamut)), int i) {
-    if (this[block_gamut[i]]) {
-      t = this[block_gamut[i]](t);
+    if (callablep(block_gamut[i])) {
+      t = block_gamut[i](t);
     }
   }
 
@@ -242,7 +243,7 @@ public string run_basic_block_gamut(string t)
 
 //!
 //!
-public string run_block_gamut(string t)
+protected string run_block_gamut(string t)
 {
   t = hash_html_blocks(t);
   return run_basic_block_gamut(t);
@@ -253,8 +254,8 @@ public string run_block_gamut(string t)
 protected string run_span_gamut(string t, void|int(0..1) _trace)
 {
   foreach (sort(indices(span_gamut)), int i) {
-    if (this[span_gamut[i]]) {
-      t = this[span_gamut[i]](t);
+    if (callablep(span_gamut[i])) {
+      t = span_gamut[i](t);
     }
   }
 
@@ -265,7 +266,7 @@ protected string run_span_gamut(string t, void|int(0..1) _trace)
 
 //!
 //!
-public string do_headers(string t)
+protected string do_headers(string t)
 {
   Regex re;
 
@@ -305,7 +306,7 @@ public string do_headers(string t)
 
 //!
 //!
-public string do_horizontal_rules(string t)
+protected string do_horizontal_rules(string t)
 {
   Regex re;
 
@@ -328,7 +329,7 @@ public string do_horizontal_rules(string t)
 protected int list_level;
 //!
 //!
-public string do_lists(string t)
+protected string do_lists(string t)
 {
   int tabless = tabw - 1;
   // Markers
@@ -403,7 +404,7 @@ protected string _lists_cb(string a, string b, string c, string d, string e)
 
 //!
 //!
-private string process_list_item(string list, string m_any)
+protected string process_list_item(string list, string m_any)
 {
   list_level++;
 
@@ -425,8 +426,8 @@ private string process_list_item(string list, string m_any)
   return list;
 }
 
-private string _process_list_item_cb(string aa, string bb, string cc,
-                                     string dd, string ee, string ff)
+protected string _process_list_item_cb(string aa, string bb, string cc,
+                                       string dd, string ee, string ff)
 {
   string item = ee;
   int(0..1) leading_line = sizeof(bb) > 0;
@@ -447,7 +448,7 @@ private string _process_list_item_cb(string aa, string bb, string cc,
 
 //!
 //!
-public string do_hardbreaks(string t)
+protected string do_hardbreaks(string t)
 {
   return Regex(" {2,}\\n")->replace(t, lambda () {
     return hash_part("<br" + empty_elem_suffix + "\n");
@@ -456,7 +457,7 @@ public string do_hardbreaks(string t)
 
 //!
 //!
-public string do_codeblocks(string t)
+protected string do_codeblocks(string t)
 {
   string rs;
 
@@ -503,7 +504,7 @@ public string do_codeblocks(string t)
 
 //!
 //!
-public string do_blockquotes(string t)
+protected string do_blockquotes(string t)
 {
   string r = #"
     (                         # Wrap whole match in $1
@@ -534,7 +535,7 @@ public string do_blockquotes(string t)
 
 //!
 //!
-public string do_images(string t)
+protected string do_images(string t)
 {
   string re;
 
@@ -626,7 +627,7 @@ public string do_images(string t)
 
 //!
 //!
-public string do_anchors(string t)
+protected string do_anchors(string t)
 {
   if (in_anchor) return t;
   in_anchor = 1;
@@ -736,7 +737,7 @@ public string do_anchors(string t)
 
 //!
 //!
-public string do_encode_amps_and_angles(string t)
+protected string do_encode_amps_and_angles(string t)
 {
   if (no_entities) {
     t = replace(t, "&", "&amp;");
@@ -752,7 +753,7 @@ public string do_encode_amps_and_angles(string t)
 
 //!
 //!
-public string do_autolinks(string t)
+protected string do_autolinks(string t)
 {
 
   t = Regex("((https?|ftp|dict):[^'\">\\s]+)", RI)->replace(t,
@@ -790,7 +791,7 @@ public string do_autolinks(string t)
 
 //!
 //!
-public string do_italic_and_bold(string t)
+protected string do_italic_and_bold(string t)
 {
   string re = " (\\*\\*|__) (?=\\S) (.+?[*_]*) (?<=\\S) \\1 ";
   t = Regex(re, RS|RX)->replace(t, lambda (string a, string b, string c) {
@@ -807,7 +808,7 @@ public string do_italic_and_bold(string t)
 
 //!
 //!
-public string do_parse_span(string t)
+protected string do_parse_span(string t)
 {
   t = code_spans(t);
   t = escape_special_chars(t);
@@ -818,7 +819,7 @@ public string do_parse_span(string t)
 
 //!
 //!
-public string strip_link_definitions(string t)
+protected string strip_link_definitions(string t)
 {
   int lesstab = tabw - 1;
 
