@@ -1,38 +1,3 @@
-//! Markdown parser based on the original Markdown by John Gruber and
-//! PHP Markdown by Michel Fortin.
-//!
-//! There's a code block addition which works like the code highlighting
-//! directive in Github's Markdown:
-//!
-//! @code
-//!  This some code:
-//!
-//!  ```pike
-//!  array(string) a = "abcdefghijklmnop"/1;
-//!  ```
-//! @endcode
-//!
-//! Which will result in
-//!
-//! @code
-//!  <pre>
-//!    <code data-language="pike">array(string) a = "abcdefghijklmnop"/1;</code>
-//!  </pre>
-//! @endcode
-//!
-//! Usage:
-//!
-//! @code
-//!  Markdown.Parser p = Markdown.Parser();
-//!  string html = p->transform(markdown_text);
-//! @endcode
-//!
-//! Alternatively use the @[Markdown.transform()] method in the module.
-//!
-//! @code
-//!  string html = Markdown.transform(markdown_text);
-//! @endcode
-
 /*
   Author: Pontus Östlund <https://profiles.google.com/poppanator>
 
@@ -43,20 +8,23 @@
   This is a mixed port of the original Markdown in Perl by John Gruber  and
   the PHP Markdown by Michel Fortin.
 
-  PHP Markdown:
-  Copyright (c) 2004-2014 Michel Fortin
-  <http://michelf.com/projects/php-markdown/>
-
   Original copyright:
-  Copyright (c) 2004 John Gruber
-  <http://daringfireball.net/projects/markdown/>
+    (c) Emanuil Rusev
+    http://erusev.com
 */
+
+#define PARSERDOWN_DEBUG
 
 import Regexp.PCRE;
 
 #define TRIM String.trim_all_whites
+#define DIE exit(0)
 
-constant Regex = Widestring;
+#ifdef PARSERDOWN_DEBUG
+# define TRACE(X...) werror("Parserdown.pike:%d: %s\n", __LINE__,sprintf(X))
+#else
+# define TRACE(X...) 0
+#endif
 
 enum HtmlVersion {
   HTML,
@@ -64,1033 +32,1069 @@ enum HtmlVersion {
   XHTML
 }
 
+constant R = Re;
+
+#define REGEX(PATTERN, ARGS...) \
+  (re_cache[PATTERN + #ARGS] || \
+  (re_cache[PATTERN + #ARGS] = R(PATTERN, ARGS)))
+
 // Shortened regexp options
 constant RM   = OPTION.MULTILINE;
 constant RX   = OPTION.EXTENDED;
 constant RS   = OPTION.DOTALL;
 constant RI   = OPTION.CASELESS;
+constant RU   = OPTION.UNGREEDY;
 constant RMX  = RM|RX;
 constant RXS  = RX|RS;
 constant RMS  = RM|RS;
 constant RMXS = RMX|RS;
 
-public mapping predef_urls;
-public mapping predef_titles;
-
-protected int htmlver = HTML5;
-protected int tabw = 4;
-protected int no_entities = 0;
-protected int no_markup = 0;
-protected string empty_elem_suffix = ">"; // html5
-protected mapping url_hashes, title_hashes, html_hashes;
-protected int(0..1) in_anchor;
-
-protected int nested_brackets_depth = 6;
-protected string nested_brackets_re;
-
-protected int nested_url_parenthesis_depth = 4;
-protected string nested_url_parenthesis_re;
-
-// Table of hash values for escaped characters:
-protected string escape_chars = "\\`*_{}[]()>#+-.!";
-protected mapping(string:string) escape_hash_table;
-
-protected mapping backslash_table;
-
-protected mapping(int:function) document_gamut = ([
-  20 : strip_link_definitions,
-  30 : run_basic_block_gamut
-]);
-
-protected mapping(int:function) block_gamut = ([
-  10 : do_headers,
-  20 : do_horizontal_rules,
-  40 : do_lists,
-  50 : do_codeblocks,
-  60 : do_blockquotes
-]);
-
-protected mapping(int:function) span_gamut = ([
-  -30 : do_parse_span,
-   10 : do_images,
-   20 : do_anchors,
-   30 : do_autolinks,
-   40 : do_encode_amps_and_angles,
-   50 : do_italic_and_bold,
-   60 : do_hardbreaks
-]);
-
-//! Constructor
-//!
-//! @param tabsize
-//! @param html_version
-void create(void|int tabsize, void|HtmlVersion html_version)
-{
-  tabw = tabsize || tabw;
-  htmlver = html_version;
-
-  if (htmlver == XHTML)
-    empty_elem_suffix = " />";
-
-  nested_brackets_re =
-        ("(?>[^\\[\\]]+|\\[" * nested_brackets_depth) +
-        ("\\])*" * nested_brackets_depth);
-
-  nested_url_parenthesis_re =
-        ("(?>[^()\\s]+|\\(" * nested_url_parenthesis_depth) +
-        ("(?>\\)))*" * nested_url_parenthesis_depth);
-
-  escape_hash_table = ([]);
-
-  foreach (escape_chars/1, string c) {
-    escape_hash_table[c] = String.string2hex(Crypto.MD5.hash(c));
-  }
-}
-
-//!
-//!
-public void set_tab_width(int w)
-{
-  tabw = w;
-}
-
-//!
-//!
-public void set_html_version(HtmlVersion v)
-{
-  htmlver = v;
-  empty_elem_suffix = v == XHTML ? " />" : ">";
-}
-
-//!
-//!
-public void set_no_entities(int(0..1) noent)
-{
-  no_entities = noent;
-}
-
-//!
-//!
-public void set_no_markup(int(0..1) nomarkup)
-{
-  no_markup = nomarkup;
-}
-
-//!
-//!
-public string transform(string text)
-{
-  url_hashes   = predef_urls   || ([]);
-  title_hashes = predef_titles || ([]);
-  html_hashes  = ([]);
-  in_anchor    = 0;
-
-  // Remove UTF-8 BOM and marker character in input, if present.
-  text = Regex("^\xEF\xBB\xBF|\x1A")->replace(text, "");
-
-  // Normalize newlines
-  text = replace(text, ([ "\r\n" : "\n", "\r" : "\n" ]));
-  text += "\n\n";
-  text = detab(text);
-
-  // Strip only whitespace lines of whitespace
-  text = Regex("^[ \t]+$", RM)->replace(text, "");
-  text = replace(text, "\n\n\n", "\n\n");
-
-  // So that the HTML parser in hash_html_blocks doesn't catch HTML tags
-  // in code.
-  text = do_codeblocks(text);
-  text = hash_html_blocks(text);
-
-  foreach (sort(indices(document_gamut)), int i) {
-    if (callablep(document_gamut[i]))
-      text = document_gamut[i](text);
-  }
-
-  mapping tmp = mkmapping(values(escape_hash_table),
-                          indices(escape_hash_table));
-
-  text = replace(text, tmp);
-
-  teardown();
-
-  return text;
-}
-
-//!
-//!
-protected void teardown()
-{
-  url_hashes   = ([]);
-  title_hashes = ([]);
-  html_hashes  = ([]);
-}
-
-//!
-//!
-protected string run_basic_block_gamut(string t)
-{
-  foreach (sort(indices(block_gamut)), int i) {
-    if (callablep(block_gamut[i])) {
-      t = block_gamut[i](t);
-    }
-  }
-
-  t = form_paragraphs(t);
-
-  return t;
-}
-
-//!
-//!
-protected string run_block_gamut(string t)
-{
-  t = hash_html_blocks(t);
-  return run_basic_block_gamut(t);
-}
-
-//!
-//!
-protected string run_span_gamut(string t, void|int(0..1) _trace)
-{
-  foreach (sort(indices(span_gamut)), int i) {
-    if (callablep(span_gamut[i])) {
-      t = span_gamut[i](t);
-    }
-  }
-
-  return t;
-}
-
-// Converters
-
-//!
-//!
-protected string do_headers(string t)
-{
-  Regex re;
-
-  // Headers level 1
-  re = Regex("^(.+)[ \\t]*\\n=+[ \\t]*\\n+", RMX);
-
-  t = re->replace(t, lambda (string a, string b) {
-    string h = hash_block("<h1>" + run_span_gamut(b) + "</h1>");
-    return "\n" + h + "\n\n";
-  });
-
-  // Headers level 2
-  re = Regex("^(.+)[ \\t]*\\n-+[ \\t]*\\n+", RMX);
-
-  t = re->replace(t, lambda (string a, string b) {
-    string h = hash_block("<h2>" + run_span_gamut(b) + "</h2>");
-    return "\n" + h + "\n\n";
-  });
-
-  re = Regex(#"
-    ^(\\#{1,6})   # $1 = string of #'s
-    [ \\t]*
-    (.+?)         # $2 = Header text
-    [ \\t]*
-    \\#*          # optional closing #'s (not counted)
-    \\n+
-  ", RMX);
-
-  t = re->replace(t, lambda (string a, string b, string c) {
-    string n = "h" + sizeof(b);
-    n = hash_block(sprintf("<%s>%s</%[0]s>", n, run_span_gamut(c)));
-    return "\n" + n + "\n\n";
-  });
-
-  return t;
-}
-
-//!
-//!
-protected string do_horizontal_rules(string t)
-{
-  Regex re;
-
-  string hr = "<hr" + empty_elem_suffix;
-
-  function cb = lambda (string a) {
-    return "\n" + hash_block(hr) + "\n";
-  };
-
-  re = Regex("^[ ]{0,2}([ ]?\\*[ ]?){3,}[ \\t]*$", RM);
-  t  = re->replace(t, cb);
-  re = Regex("^[ ]{0,2}([ ]?\\-[ ]?){3,}[ \\t]*$", RM);
-  t  = re->replace(t, cb);
-  re = Regex("^[ ]{0,2}([ ]?\\_[ ]?){3,}[ \\t]*$", RM);
-  t  = re->replace(t, cb);
-
-  return t;
-}
-
-protected int list_level;
-//!
-//!
-protected string do_lists(string t)
-{
-  int tabless = tabw - 1;
-  // Markers
-  string m_ul  = "[*+-]";
-  string m_ol  = "\\d+[\\.]";
-  string m_any = "(?:" + m_ul + "|" + m_ol + ")";
-
-  mapping mre = ([
-    m_ul : m_ol,
-    m_ol : m_ul
-  ]);
-
-  foreach (mre; string a; string b) {
-    string all = #"
-      (                           # $1 = whole list
-        (                         # $2
-        ([ ]{0," + tabless + #"}) # $3 = number of spaces
-        (" + a + #")              # $4 = first list item marker
-        [ ]+
-        )
-        (?s:.+?)
-        (                         # $5
-          \\z
-        |
-          \\n{2,}
-          (?=\\S)
-          (?!               # Negative lookahead for another list item marker
-            [ ]*
-            " + a + #"[ ]+
-          )
-        |
-          (?=                     # Lookahead for another kind of list
-            \\n
-            \\3                   # Must have the same indentation
-            " + b + #"[ ]+
-          )
-        )
-      )
-    ";
-
-    //werror("# List level: %d\n", list_level);
-
-    if (list_level) {
-      t = Regex("^" + all, RMX)->replace(t, _lists_cb);
-    }
-    else {
-      t = Regex("(?:(?<=\\n)\\n|\\A\\n?) # Must eat the newline" +
-                all, RMX)->replace(t, _lists_cb);
-    }
-  }
-
-  return t;
-}
-
-//!
-//!
-protected string _lists_cb(string a, string b, string c, string d, string e)
-{
-  string list  = b;
-  string m_ul  = "[*+-]";
-  string m_ol  = "\\d+[\\.]";
-  string tag   = Regex(m_ul)->match(e) ? "ul" : "ol";
-  string m_any = tag == "ul" ? m_ul : m_ol;
-
-  list += "\n";
-
-  string res = process_list_item(list, m_any);
-
-  res = hash_block(sprintf("<%s>\n%s</%[0]s>", tag, res));
-  return "\n" + res + "\n\n";
-}
-
-//!
-//!
-protected string process_list_item(string list, string m_any)
-{
-  list_level++;
-
-  list = Regex("\\n{2,}\\z")->replace(list, "\n");
-
-  list = Regex(#"
-    (\\n)?                    # leading line = $1
-    (^[ ]*)                   # leading whitespace = $2
-    (" + m_any + #"           # list marker and space = $3
-      (?:[ ]+|(?=\\n))        # space only required if item is not empty
-    )
-    ((?s:.*?))                # list item text   = $4
-    (?:(\\n+(?=\\n))|\\n)     # tailing blank line = $5
-    (?= \\n* (\\z | \\2 (" + m_any + #") (?:[ ]+|(?=\\n))))
-  ", RMX)->replace(list, _process_list_item_cb);
-
-  list_level--;
-
-  return list;
-}
-
-protected string _process_list_item_cb(string aa, string bb, string cc,
-                                       string dd, string ee, string ff)
-{
-  string item = ee;
-  int(0..1) leading_line = sizeof(bb) > 0;
-  int(0..1) tailing_line = sizeof(ff) > 0;
-
-  if (leading_line || tailing_line || sscanf(dd, "%*s\n\n") > 0) {
-    item = cc + (" " * sizeof(dd)) + item;
-    item = run_block_gamut(outdent(item) + "\n");
-  }
-  else {
-    item = do_lists(outdent(item));
-    item = Regex("\\n+$")->replace(item, "");
-    item = run_span_gamut(item);
-  }
-
-  return "<li>" + item + "</li>\n";
-}
-
-//!
-//!
-protected string do_hardbreaks(string t)
-{
-  return Regex(" {2,}\\n")->replace(t, lambda () {
-    return hash_part("<br" + empty_elem_suffix + "\n");
-  });
-}
-
-//!
-//!
-protected string do_codeblocks(string t)
-{
-  string rs;
-
-  rs = #"
-    ```([-a-z0-9]+\\n)?
-    (.*?)
-    ```";
-
-  t = Regex(rs, RX|RS)->replace(t,
-    lambda (string a, string b, string c) {
-      string code = "<pre><code";
-      if (sizeof(b))
-        code += " data-language=\"" + TRIM(b) + "\"";
-
-      code += ">" + encode_code(TRIM(c)) + "</code></pre>";
-
-      return sprintf("%s", hash_block(code));
-    }
-  );
-
-  rs = #"
-    (?:\\n\\n|\\A)
-    (             # $1 = the code block -- one or more lines,
-                  # starting with a space/tab
-      (?:
-        (?:[ ]{" + tabw + #"} | \\t)  # Lines must start with a tab or a
-                                      # tab-width of spaces
-        .*\\n+
-      )+
-    )
-    ((?=^[ ]{0," + tabw + #"}\\S)|\\Z) # Lookahead for non-space at
-                                       # line-start, or end of doc
-  ";
-
-  t = Regex(rs, RMX)->replace(t, lambda (string a, string b) {
-    b = outdent(b);
-    b = encode_code(TRIM(b));
-    b = hash_block("<pre><code>" + b + "</code></pre>");
-    return sprintf("\n\n%s\n\n", b);
-  });
-
-  return t;
-}
-
-//!
-//!
-protected string do_blockquotes(string t)
-{
-  string r = #"
-    (                         # Wrap whole match in $1
-      (
-        ^[ \\t]*>[ \\t]?      # '>' at the start of a line
-          .+\\n               # rest of the first line
-        (.+\\n)*              # subsequent consecutive lines
-        \\n*                  # blanks
-      )+
-    )
-  ";
-
-  t = Regex(r, RMX)->replace(t, lambda (string a, string b, string c) {
-    b = Regex("^[ ]*>[ ]?|^[ ]+$", RM)->replace(b, "");
-    b = run_block_gamut(b);
-    b = Regex("^", RM)->replace(b, "  ");
-    b = Regex("(\\s*<pre>.+?</pre>)", RMX|RS)->replace(b,
-      lambda (string a, string b) {
-        return Regex("^  ", RM)->replace(b, "");
-      }
-    );
-
-    return sprintf("\n%s\n\n", hash_block("<blockquote>\n"+b+"\n</blockquote>"));
-  });
-
-  return t;
-}
-
-//!
-//!
-protected string do_images(string t)
-{
-  string re;
-
-  re = #"
-    (                 # wrap whole match in $1
-      !\\[
-        (.*?)         # alt text = $2
-      \\]
-
-      [ ]?            # one optional space
-      (?:\\n[ ]*)?    # one optional newline followed by spaces
-
-      \\[
-        (.*?)         # id = $3
-      \\]
-    )";
-
-  t = Regex(re, RMXS)->replace(t,
-    lambda (string a, string b, string c, string d) {
-      string ret = "";
-      string alt = c;
-      string key = lower_case(d);
-
-      //werror("a: %s, b: %s, c: %s, d: %O, e: %O\n", a, b, c, d, e);
-
-      if (!sizeof(key))
-        key = lower_case(alt);
-
-      if (url_hashes[key]) {
-        string url = url_hashes[key];
-        url = replace(url, ([ "*" : escape_hash_table["*"],
-                              "_" : escape_hash_table["_"] ]));
-        ret = sprintf("<img src=\"%s\" alt=\"%s\"", url, alt);
-        if (title_hashes[key]) {
-          alt = title_hashes[key];
-          alt = replace(alt, ([ "*" : escape_hash_table["*"],
-                                "_" : escape_hash_table["_"] ]));
-          ret += " title=\"" + alt + "\"";
-        }
-
-        ret += empty_elem_suffix;
-      }
-      else
-        ret = a;
-
-      return ret;
-    }
-  );
-
-  re = #"
-    (                   # wrap whole match in $1
-      !\\[
-        (.*?)           # alt text = $2
-      \\]
-      \\(               # literal paren
-          [ \\t]*
-          <?(\\S+?)>?   # src url = $3
-          [ \\t]*
-          (             # $4
-            (['\"])     # quote char = $5
-            (.*?)       # title = $6
-            \\5         # matching quote
-            [ \\t]*
-          )?            # title is optional
-      \\)
-    )";
-
-  t = Regex(re, RMXS)->replace(t,
-    lambda (string a, string b, string c, string d, string e,
-            string f, string g)
-    {
-      string alt   = .attr_quote(c);
-      string url   = .attr_quote(d);
-      string title = .attr_quote(g);
-
-      string img = sprintf("<img src=\"%s\" alt=\"%s\"", url, alt);
-
-      if (sizeof(title))
-        img += " title=\"" + title + "\"";
-
-      img += empty_elem_suffix;
-
-      return img;
-    }
-  );
-
-  return t;
-}
-
-//!
-//!
-protected string do_anchors(string t)
-{
-  if (in_anchor) return t;
-  in_anchor = 1;
-
-  string re;
-
-  //
-  // First, handle reference-style links: [link text] [id]
-  //
-  re = #"
-    (                 # wrap whole match in $1
-      \\[
-      (" + nested_brackets_re + #") # link text = $2
-      \\]
-
-      [ ]?            # one optional space
-      (?:\\n[ ]*)?    # one optional newline followed by spaces
-
-      \\[
-      (.*?)           # id = $3
-      \\]
-    )";
-
-  t = Regex(re, RXS)->replace(t,
-    lambda (string a, string b, string c, string d) {
-      string ret  = "";
-      string text = c;
-      string key  = lower_case(d);
-
-      if (!sizeof(key))
-        key = lower_case(text);
-
-      if (url_hashes[key]) {
-        string url = url_hashes[key];
-        url = replace(url, ([ "*" : escape_hash_table["*"],
-                              "_" : escape_hash_table["_"] ]));
-
-        ret = sprintf("<a href=\"%s\"", url);
-
-        if (title_hashes[key]) {
-          string ttl = title_hashes[key];
-          ttl = replace(ttl, ([ "*" : escape_hash_table["*"],
-                                "_" : escape_hash_table["_"] ]));
-          ret += " title=\"" + ttl + "\"";
-        }
-
-        ret += ">" + text + "</a>";
-      }
-      else
-        ret = a;
-
-      return hash_part(ret);
-    }
-  );
-
-  //
-  // Next, inline-style links: [link text](url "optional title")
-  //
-  re = #"
-    (             # wrap whole match in $1
-      \\[
-          (" + nested_brackets_re + #") # link text = $2
-      \\]
-      \\(         # literal paren
-          [ \\n]*
-          (?:
-            <(.+?)>   # href = $3
-          |
-            (" + nested_url_parenthesis_re + #")  # href = $4
-          )
-          [ \\n]*
-          (           # $5
-            (['\"])   # quote char = $6
-            (.*?)     # Title = $7
-            \\6       # matching quote
-            [ \\n]*   # ignore any spaces/tabs between closing quote and )
-          )?          # title is optional
-      \\)
-    )";
-
-  t = Regex(re, RXS)->replace(t,
-    lambda (string a, string b, string c, string d, string e, string f,
-            string g, string h)
-    {
-      string linktext = run_span_gamut(c);
-      string url = e == "" ? f : e;
-      string unhashed = unhash(url);
-
-      if (url != unhashed)
-        url = Regex("^<(.*)>$")->replace_positional(unhashed, "%[1]");
-
-      string res = "<a href=\"" + .attr_quote(url) + "\"";
-      if (h != "") {
-        res += " title=\"" + .attr_quote(h) + "\"";
-      }
-
-      res += ">" + linktext + "</a>";
-
-      return hash_part(res);
-    }
-  );
-
-  in_anchor = 0;
-
-  return t;
-}
-
-//!
-//!
-protected string do_encode_amps_and_angles(string t)
-{
-  if (no_entities) {
-    t = replace(t, "&", "&amp;");
-  }
-  else {
-    t = Regex("&(?!#?[xX]?(?:[0-9a-fA-F]+|\\w+);)")->replace(t, "&amp;");
-  }
-
-  t = Regex("<(?![a-z/?\\$!])")->replace(t, "&lt;");
-
-  return t;
-}
-
-//!
-//!
-protected string do_autolinks(string t)
-{
-
-  t = Regex("((https?|ftp|dict):[^'\">\\s]+)", RI)->replace(t,
-    lambda (string a, string b, string c) {
-      return hash_part(sprintf("<a href=\"%s\">%[0]s</a>", .attr_quote(b)));
-    }
-  );
-
-  string re = #"
-    <
-    (?:mailto:)?
-    (
-      (?:
-        [-!#$%&'*+/=?^_`.{|}~\\w\\x80-\\xFF]+
-      |
-        \".*?\"
-      )
-      \\@
-      (?:
-        [-a-z0-9\\x80-\\xFF]+(\\.[-a-z0-9\\x80-\\xFF]+)*\\.[a-z]+
-      |
-        \\[[\\d.a-fA-F:]+\\] # IPv4 & IPv6
-      )
-    )
-    >";
-
-  t = Regex(re, RI|RX)->replace(t, lambda (string a, string b) {
-    b = .attr_quote(b);
-    string enc = encode_email(b);
-    return hash_part(enc);
-  });
-
-  return t;
-}
-
-//!
-//!
-protected string do_italic_and_bold(string t)
-{
-  string re = " (\\*\\*|__) (?=\\S) (.+?[*_]*) (?<=\\S) \\1 ";
-  t = Regex(re, RS|RX)->replace(t, lambda (string a, string b, string c) {
-    return "<strong>" + c + "</strong>";
-  });
-
-  re = " (\\*|_) (?=\\S) (.+?) (?<=\\S) \\1 ";
-  t = Regex(re, RS|RX)->replace(t, lambda (string a, string b, string c) {
-    return "<em>" + c + "</em>";
-  });
-
-  return t;
-}
-
-//!
-//!
-protected string do_parse_span(string t)
-{
-  t = code_spans(t);
-  t = escape_special_chars(t);
-  return t;
-}
-
-// Other
-
-//!
-//!
-protected string strip_link_definitions(string t)
-{
-  int lesstab = tabw - 1;
-
-  string r = #"
-    ^[ ]{0," + lesstab + #"}\\[(.+)\\]: # id = $1
-      [ \\t]*
-      \\n?               # maybe *one* newline
-      [ \\t]*
-    <?(\\S+?)>?          # url = $2
-      [ \\t]*
-      \\n?               # maybe one newline
-      [ \\t]*
-    (?:
-        (?<=\\s)         # lookbehind for whitespace
-        [\"(]
-        (.+?)            # title = $3
-        [\")]
-        [ \\t]*
-    )?                   # title is optional
-    (?:\\n+|\\Z)";
-
-  Regex re = Regex(r, RMX);
-
-  t = re->replace(t, lambda (string a, string b, string c, string d) {
-    string key = lower_case(b);
-    url_hashes[key] = do_encode_amps_and_angles(c);
-
-    if (sizeof(d)) {
-      title_hashes[key] = .attr_quote(d);
-    }
-
-    return "";
-  });
-
-  return t;
-}
-
-//!
-//!
-protected string form_paragraphs(string t)
-{
-  t = Regex("\\A\\n+|\\n+\\z", RMX)->replace(t, "");
-
-  array(string) graphs = (t/"\n\n") - ({ "\n" });
-
-  //werror("\n------------------\n%O\n------------------------\n", graphs);
-
-  graphs = map(graphs, lambda (string v) {
-    v = TRIM(v);
-    int isp = Regex("^B\\x1A[0-9]+B|^C\\x1A[0-9]+C$", RMX)->match(v);
-    if (!isp) {
-      v = run_span_gamut(v);
-      v = Regex("^([ ]*)")->replace(v, "<p>");
-      v += "</p>";
-      v = unhash(v);
-    }
-    else {
-      v = html_hashes[v];
-    }
-    return v;
-  });
-
-  t = graphs * "\n\n";
-  //t = unhash(t);
-
-  return t;
-}
-
-// Generic
-
-//!
-//!
-protected string outdent(string t)
-{
-  string re = "^(\\t|[ ]{1," + tabw  + "})";
-  t = Regex(re, RM)->replace(t, "");
-  return t;
-}
-
-//! Normalize tab according to the @[tabw] setting
+//! Convert Markdown text @[t] to HTML
 //!
 //! @param t
-protected string detab(string t)
+public string text(string t)
 {
-  return Regex("(.*?)\t")->replace(t,
-    lambda (string a, string b) {
-      return b + (" " * (tabw - sizeof(b) % tabw));
-    }
-  );
-}
+  if (!t || ! sizeof(t))
+    return t;
 
-// Helpers
+  definitions = ([]);
 
-protected string code_spans(string t)
-{
-  string r = #"
-    (`+)    # $1 = Opening run of `
-    (.+?)   # $2 = The code block
-    (?<!`)
-    \\1      # Matching closer
-    (?!`)
-  ";
+  t = replace(TRIM(t), ([ "\r\n" : "\n", "\r" : "\n", "\t" : "    " ]));
+  t = lines(t/"\n");
+  t = TRIM(t);
 
-  t = Regex(r, RX)->replace(t, lambda (string a, string b, string c) {
-    c = encode_code(TRIM(c));
-    return ("<code>" + c + "</code>");
-  });
+  re_cache = ([]);
+  definitions = ([]);
 
   return t;
 }
 
-//!
-//!
-protected array tokenize_html(string t)
+public void set_breaks_enabled(int(0..1) enabled)
 {
-  array(mapping) tokens = ({});
-  Parser.HTML p = Parser.HTML();
+  breaks_enabled = enabled;
+}
 
-  p->_set_tag_callback(lambda () {
-    tokens += ({ ([ "tag" : p->current() ]) });
-  });
-
-  p->_set_data_callback(lambda () {
-    tokens += ({ ([ "text" : p->current() ]) });
-  });
-
-  p->feed(t)->finish();
-
-  return tokens;
+public void set_html_version(HtmlVersion v)
+{
+  html_version = v;
+  empty_elem_suffix = v == XHTML ? "/>" : ">";
 }
 
 //!
 //!
-protected string escape_special_chars(string t)
+protected string lines(array(string) lines)
 {
-  array tokens = tokenize_html(t);
+  mapping cur_block;
+  array elements = ({ 0 });
 
-  string text = "";
-  foreach (tokens, mapping tok) {
-    if (tok->tag) {
-      text += replace(tok->tag, ([ "*" : escape_hash_table["*"],
-                                   "_" : escape_hash_table["_"] ]));
+  outer: foreach (lines, string line) {
+    if (rtrim(line) == "") {
+      if (cur_block) {
+        cur_block->interupted = 1;
+      }
+
+      continue;
+    }
+
+    int indent = 0;
+
+    while (has_index(line, indent) && line[indent] == ' ') {
+      indent += 1;
+    }
+
+    string text = indent > 0 ? line[indent..] : line;
+
+    mapping m_line = ([ "body" : line, "indent" : indent, "text" : text ]);
+
+    if (cur_block && cur_block->incomplete) {
+      if (function fun = addto_func[cur_block->type]) {
+        mapping block = fun(m_line, cur_block);
+
+        if (block) {
+          cur_block = block;
+          continue;
+        }
+        else {
+          if (fun = complete_func[cur_block->type]) {
+            cur_block = fun(cur_block);
+          }
+
+          m_delete(cur_block, "incomplete");
+        }
+      }
+    }
+
+    int marker = text[0];
+
+    if (definition_types[marker]) {
+      foreach (definition_types[marker], string definition_type) {
+        if (function fun = type_funcs[definition_type]) {
+          mapping definition;
+
+          if (definition = fun(m_line, cur_block)) {
+            if (!definitions[definition_type]) {
+              definitions[definition_type] = ([]);
+            }
+
+            definitions[definition_type][definition->id] = definition->data;
+
+            continue outer;
+          }
+        }
+      }
+    }
+
+    array(string) b_types = unmarked_block_types;
+
+    if (block_types[marker]) {
+      foreach (block_types[marker], string block_type) {
+        b_types += ({ block_type });
+      }
+    }
+
+    foreach (b_types, string block_type) {
+      if (function fun = type_funcs[block_type]) {
+        if (mapping block = fun(m_line, cur_block)) {
+          block->type = block_type;
+
+          if (!block->identified) {
+            if (cur_block)
+              elements += ({ cur_block->element });
+
+            block->identified = 1;
+          }
+
+          if (fun = addto_func[block_type]) {
+            block->incomplete = 1;
+          }
+
+          cur_block = block;
+          continue outer;
+        }
+      }
+    }
+
+    if (cur_block && !cur_block->type && !cur_block->interupted) {
+      //! @note
+      //!  There's a newline here in the original implementation
+      cur_block->element->text += " " + text;
     }
     else {
-      text += encode_backslash_escape(tok->text);
+      elements += ({ cur_block && cur_block->element });
+      cur_block = build_paragraph(m_line);
+      cur_block->identified = 1;
     }
   }
 
-  return text;
+  function fun;
+  if (cur_block && cur_block->incomplete &&
+     (fun = complete_func[cur_block->type]))
+  {
+    cur_block = fun(cur_block);
+  }
+
+  elements += ({ cur_block->element });
+  elements = elements[1..];
+
+  return build_elements(elements);
 }
 
-//!
-//!
-protected string encode_backslash_escape(string t)
+protected string build_elements(array elems)
 {
-  if (!backslash_table) {
-    backslash_table = ([
-      "\\\\" : escape_hash_table["\\"],
-      "\\`"  : escape_hash_table["`"],
-      "\\*"  : escape_hash_table["*"],
-      "\\_"  : escape_hash_table["_"],
-      "\\{"  : escape_hash_table["{"],
-      "\\}"  : escape_hash_table["}"],
-      "\\["  : escape_hash_table["]"],
-      "\\["  : escape_hash_table["["],
-      "\\("  : escape_hash_table["("],
-      "\\)"  : escape_hash_table[")"],
-      "\\>"  : escape_hash_table[">"],
-      "\\#"  : escape_hash_table["#"],
-      "\\+"  : escape_hash_table["+"],
-      "\\-"  : escape_hash_table["-"],
-      "\\."  : escape_hash_table["."],
-      "\\!"  : escape_hash_table["!"]
+  string ret = "";
+
+  foreach (elems, mapping elem) {
+    if (!elem) continue;
+    ret += "\n" + build_element(elem);
+  }
+
+  return ret + "\n";
+}
+
+protected string build_element(mapping elem)
+{
+  string ret = "";
+
+  if (elem->name) {
+    ret += "<" + elem->name;
+
+    if (elem->attributes) {
+      foreach (elem->attributes; string name; string value) {
+        if (!value) continue;
+        ret += " " + name + "=\"" + value + "\"";
+      }
+    }
+
+    if (elem->text) {
+      ret += ">";
+    }
+    else {
+      ret += empty_elem_suffix;
+      return ret;
+    }
+  }
+
+  if (elem->text) {
+    if (elem->handler) {
+      if (function fun = handler_func[elem->handler]) {
+        //TRACE("handler: %s: %O\n", elem->handler, elem);
+        ret += fun(elem->text);
+      }
+      else {
+        ret += "[[ .. add handler for " + elem->handler + " .. ]]";
+      }
+    }
+    else {
+      ret += elem->text;
+    }
+  }
+
+  if (elem->name) {
+    ret += "</" + elem->name + ">";
+  }
+
+  //TRACE("Element: %O\n", elem);
+
+  return ret;
+}
+
+protected mapping build_paragraph(mapping line)
+{
+  return ([
+    "element" : ([
+      "name" : "p",
+      "text" : line->text,
+      "handler" : "line"
+    ])
+  ]);
+}
+
+protected mapping identify_codeblock(mapping line, void|mapping cur_block)
+{
+  if (cur_block && !cur_block->type && !cur_block->interupted) {
+    return 0;
+  }
+
+  if (line->indent >= 4) {
+    string text = line->body[4..];
+
+    return ([
+      "element" : ([
+        "name" : "pre",
+        "handler" : "element",
+        "text" : ([
+          "name" : "code",
+          "text" : text
+        ])
+      ])
+    ]);
+  }
+}
+
+protected mapping add_to_codeblock(mapping line, void|mapping cblock)
+{
+  if (line->indent >= 4) {
+    if (cblock && cblock->interupted) {
+      cblock->element->text->text += "\n";
+      m_delete(cblock, "interupted");
+    }
+
+    cblock->element->text->text += "\n" + line->body[4..];
+    return cblock;
+  }
+}
+
+protected mapping identify_atx(mapping line, void|mapping cur_block)
+{
+  string text = line->text;
+
+  if (text && sizeof(text) > 1) {
+    int level = 1;
+    while (has_index(text, level) && text[level] == '#')
+      level++;
+
+    text = trim(text, "# ");
+
+    return ([
+      "element" : ([
+        "name" : "h" + min(6, level),
+        "text" : text,
+        "handler" : "line"
+      ])
+    ]);
+  }
+}
+
+protected mapping identify_rule(mapping line, void|mapping cur_block)
+{
+  R re = REGEX("^([" + line->text[0..0] + "])([ ]{0,2}\\1){2,}[ ]*$");
+
+  if (re->match(line->text)) {
+    return ([ "element" : ([ "name" : "hr" ]) ]);
+  }
+}
+
+protected mapping identify_list(mapping line, void|mapping cur_block)
+{
+  [string name, string pattern] =
+    line->text[0] <= '-' ? ({ "ul", "[*+-]" }) : ({ "ol", "[0-9]+[.]" });
+
+  pattern = "^(" + pattern + "[ ]+)(.*)";
+  R re = REGEX(pattern);
+
+  mapping block;
+  array(string) m;
+
+  if (m = re->match2(line->text)) {
+    block = ([
+      "indent"  : line->indent,
+      "pattern" : pattern,
+      "element" : ([
+        "name"    : name,
+        "handler" : "elements"
+      ]),
+      "li" : ([
+        "name"    : "li",
+        "handler" : "li",
+        "text"    : ({ m[2] })
+      ])
+    ]);
+
+    block->element->text = ({ block->li });
+  }
+
+  return block;
+}
+
+protected mapping add_to_list(mapping line, mapping cur_block)
+{
+  mapping block = copy_value(cur_block);
+  R re = REGEX(block->pattern);
+  array(string) m;
+
+  if (re && line->indent == block->indent && (m = re->match2(line->text))) {
+    if (block->interupted) {
+      block->li->text += ({ "" });
+      m_delete(block, "interupted");
+    }
+
+    m_delete(block, "li");
+
+    block->li = ([
+      "name"    : "li",
+      "handler" : "li",
+      "text"    : ({ m[2] })
+    ]);
+
+    block->element->text += ({ block->li });
+
+    return block;
+  }
+
+  if (!block->interupted) {
+    re = REGEX("^[ ]{0,4}");
+    string text = re->replace(line->body, "");
+    block->li->text += ({ text });
+
+    return block;
+  }
+
+  if (block->indent > 0) {
+    block->li->text += ({ "" });
+
+    re = REGEX("^[ ]{0,4}");
+
+    string text = re->replace(line->body, "");
+    block->li->text += ({ text });
+
+    m_delete(block, "interupted");
+
+    return block;
+  }
+}
+
+protected mapping identify_setext(mapping line, void|mapping cblock)
+{
+  if (!cblock || cblock->type || cblock->interupted) {
+    return 0;
+  }
+
+  if (rtrim(line->text, line->text[0..0]) == "") {
+    cblock->element->name = line->text[0] == '=' ? "h1" : "h2";
+    return cblock;
+  }
+}
+
+protected mapping identify_table(mapping line, void|mapping cur_block)
+{
+  if (!cur_block || cur_block->type || cur_block->interupted) {
+    return 0;
+  }
+
+  if (search(cur_block->element->text, "|") > -1 &&
+      rtrim(line->text, " -:|") == "")
+  {
+    array(string) alignments = ({});
+    string divider = trim(TRIM(line->text), "|");
+
+    foreach (divider/"|", string divcell) {
+      divcell = TRIM(divcell);
+
+      if (!sizeof(divcell)) {
+        continue;
+      }
+
+      string alignment;
+
+      if (divcell[0] == ':') {
+        alignment = "left";
+      }
+
+      if (divcell[sizeof(divcell)-1] == ':') {
+        alignment = alignment == "left" ? "center" : "right";
+      }
+
+      alignments += ({ alignment });
+    }
+
+    array header_elements = ({});
+    string header = cur_block->element->text;
+    header = trim(TRIM(header), "|");
+
+    foreach (header/"|"; int index; string cell) {
+      cell = TRIM(cell);
+      mapping header_element = ([
+        "name" : "th",
+        "text" : cell,
+        "handler" : "line"
+      ]);
+
+      if (has_index(alignments, index)) {
+        header_element->attributes = ([
+          "align" : alignments[index]
+        ]);
+      }
+
+      header_elements += ({ header_element });
+    }
+
+    mapping block = ([
+      "alignments" : alignments,
+      "identified" : 1,
+      "element" : ([
+        "name" : "table",
+        "handler" : "elements"
+      ])
+    ]);
+
+    block->element->text = ({
+      ([ "name" : "thead", "handler" : "elements", "text" : ({}) ]),
+      ([ "name" : "tbody", "handler" : "elements", "text" : ({}) ]),
+    });
+
+    block->element->text[0]->text += ({
+      ([ "name" : "tr", "handler" : "elements", "text" : header_elements ])
+    });
+
+    return block;
+  }
+}
+
+protected mapping add_to_table(mapping line, void|mapping cblock)
+{
+  if (line->text[0] == '|' || search(line->text, "|") > -1) {
+    array elements = ({});
+
+    string row = trim(TRIM(line->text), "|");
+
+    array(string) alignments = cblock->alignments;
+
+    foreach (row/"|"; int index; string cell) {
+      cell = TRIM(cell);
+      mapping element = ([
+        "name" : "td",
+        "handler" : "line",
+        "text" : cell
+      ]);
+
+      if (alignments && has_index(alignments, index)) {
+        element->attributes = ([ "align" : alignments[index] ]);
+      }
+
+      elements += ({ element });
+    }
+
+    mapping element = ([
+      "name" : "tr",
+      "handler" : "elements",
+      "text" : elements
+    ]);
+
+    cblock->element->text[1]->text += ({ element });
+
+    return cblock;
+  }
+}
+
+protected mapping identify_comment(mapping line, void|mapping cur_block)
+{
+  werror("Identify comment: %O\n", line);
+  exit(0);
+}
+
+protected mapping identify_markup(mapping line, void|mapping cur_block)
+{
+  werror("Identify markup: %O\n", line);
+  exit(0);
+}
+
+protected mapping identify_quote(mapping line, void|mapping cur_block)
+{
+  R re = REGEX("^>[ ]?(.*)");
+  array(string) m;
+
+  if (m = re->match2(line->text)) {
+    return ([
+      "element" : ([
+        "name"    : "blockquote",
+        "handler" : "lines",
+        "text"    : ({ m[1] })
+      ])
+    ]);
+  }
+}
+
+protected mapping add_to_quote(mapping line, void|mapping cblock)
+{
+  R re = REGEX("^>[ ]?(.*)");
+  array(string) m;
+
+  if (line->text[0] == '>' && (m = re->match2(line->text))) {
+    if (cblock->interupted) {
+      cblock->element->text += ({ "" });
+      m_delete(cblock, "interupted");
+    }
+
+    cblock->element->text += ({ m[1] });
+
+    return cblock;
+  }
+
+  if (!cblock->interupted) {
+    cblock->element->text += ({ line->text });
+    return cblock;
+  }
+}
+
+protected mapping identify_fenced_code(mapping line, void|mapping cur_block)
+{
+  werror("Identify fenced code: %O\n", line);
+  exit(0);
+}
+
+protected mapping identify_reference(mapping line, void|mapping block)
+{
+  string s_re = "^\\[(.+?)\\]:[ ]*<?(\\S+?)>?(?:[ ]+[\"'(](.+)[\"')])?[ ]*$";
+  R re = REGEX(s_re);
+  array(string) m;
+
+  if ((m = re->match2(line->text))) {
+    mapping def = ([
+      "id": lower_case(m[1]),
+      "data" : ([
+        "url" : m[2],
+        "title" : 0
+      ])
+    ]);
+
+    if (m[3]) def->data->title = m[3];
+
+    return def;
+  }
+}
+
+protected mapping identify_inline_code(mapping excerpt)
+{
+  string marker = excerpt->text[0..0];
+  string rs = sprintf("^(%s+)[ ]*(.+?)[ ]*(?<!%[0]s)\\1(?!%[0]s)", marker);
+
+  R re = REGEX(rs, RS);
+
+  if (array(string) m = re->match2(excerpt->text)) {
+    string text = .text_quote(m[2]);
+    text = REGEX("[ ]*\\n")->replace(text, " ");
+
+    return ([
+      "extent" : sizeof(m[0]),
+      "element" : ([
+        "nonl" : 1,
+        "name" : "code",
+        "text" : text
+      ])
     ]);
   }
 
-  return replace(t, backslash_table);
+  return 0;
 }
 
-//!
-//!
-protected string encode_code(string t)
+protected mapping identify_emphasis(mapping excerpt)
 {
-  t = unhash(t);
-  t = replace(t, ([ "&" : "&amp;", "<" : "&lt;", ">" : "&gt;" ]));
-  t = replace(t, escape_hash_table);
-  return t;
-}
-
-//!
-//!
-protected string encode_email(string t)
-{
-  string addr = "mailto:" + t;
-  int len = sizeof(addr);
-  string out = "";
-
-  array(function) enc = ({
-    lambda (int c) { return "&#" + c + ";"; },
-    lambda (int c) { return sprintf("&#x%x;", c); },
-    lambda (int c) { return sprintf("%c", c); }
-  });
-
-  for (int i; i < len; i++) {
-    int c = addr[i];
-
-    if (c == '@') {
-      out += enc[1](c);
-    }
-    else if (c == ':') {
-      out += ":";
-    }
-    else {
-      float r = random(1.0);
-      if (r > .9) out += enc[2](c);
-      else if (r > .45) out += enc[1](c);
-      else out += enc[0](c);
-    }
+  if (!excerpt->text || sizeof(excerpt->text) < 2) {
+    return 0;
   }
 
-  sscanf (out, "%*s:%s", string text);
+  int marker = excerpt->text[0];
+  string smarker = excerpt->text[0..0];
+  array(string) m;
+  R sre = strong_regex[smarker], ere = em_regex[smarker];
+  string em;
 
-  return sprintf("<a href=\"%s\">%s</a>", out, text);
+  if (excerpt->text[1] == marker && sre && (m = sre->match2(excerpt->text))) {
+    em = "strong";
+  }
+  else if (ere && (m = ere->match2(excerpt->text))) {
+    em = "em";
+  }
+  else {
+    return 0;
+  }
+
+  return ([
+    "extent" : m && sizeof(m[0]),
+    "element" : ([
+      "name" : em,
+      "handler" : "line",
+      "text" : m[1]
+    ])
+  ]);
 }
 
-//!
-//!
-protected string unhash(string t)
+protected mapping identify_url(mapping excerpt)
 {
-  return replace(t, html_hashes);
+  string text = excerpt->text;
+
+  if (!text || sizeof(text) < 2 || text[1] != '/') {
+    return 0;
+  }
+
+  mapping ret;
+
+  R re = REGEX("\\bhttps?:[/]{2}[^\\s<]+\\b/*", RI);
+  re->matchall(excerpt->context, lambda (array m) {
+    int pos = search(excerpt->context, m[0]);
+    string url = replace(m[0], ([ "&" : "&amp;", "<" : "&lt;"]));
+
+    ret = ([
+      "extent" : sizeof(m[0]),
+      "position" : pos,
+      "element" : ([
+        "name" : "a",
+        "text" : url,
+        "attributes" : ([ "href" : url ])
+      ])
+    ]);
+  });
+
+  return ret;
 }
 
-//!
-//!
-protected string hash_html_blocks(string t)
+protected mapping identify_ampersand(mapping excerpt)
 {
-  array(string) tags;
-  string bta, btb;
-
-  bta = "ins|del|";
-  btb = "p|div|h1|h2|h3|h4|h5|h6|blockquote|pre|table|dl|ol|ul|address|"
-        "script|noscript|style|form|fieldset|iframe|math|svg|"
-        "article|section|nav|aside|hgroup|header|footer|figure";
-
-  tags = (bta+btb)/"|";
-
-  function cb = lambda (Parser.HTML p, mapping attr, string data) {
-    return  ({ "\n" + hash_block(p->current()) + "\n" });
-  };
-
-  Parser.HTML p = Parser.HTML();
-
-  foreach (tags, string tag)
-    p->add_container(tag, cb);
-
-  return p->feed(t)->finish()->read();
+  if (!REGEX("^&#?\w+;")->match2(excerpt->text)) {
+    return ([
+      "markup" : "&amp;",
+      "extent" : 1
+    ]);
+  }
 }
 
-//!
-//!
-protected string hash_part(string t, void|string boundary)
+protected mapping identify_strikethrough(mapping excerpt)
 {
-  boundary = boundary || "X";
-  string k = sprintf("%s\x1A%d%[0]s", boundary, sizeof(html_hashes));
-  html_hashes[k] = unhash(t);
-  return k;
+  string text = excerpt->text;
+
+  if (!text || sizeof(text) < 2) {
+    return 0;
+  }
+
+  R re = REGEX("~~(?=\\S)(.+?)(?<=\\S)~~");
+  array(string) m;
+
+  if (text[0] == '~' && (m = re->match2(text))) {
+    return ([
+      "extent" : sizeof(m[0]),
+      "element" : ([
+        "name" : "del",
+        "text" : m[1],
+        "handler" : "line"
+      ])
+    ]);
+  }
 }
+
+protected mapping identify_image(mapping excerpt)
+{
+  string text = excerpt->text;
+
+  if (!text || sizeof(text) < 2 || text[1] != '[') {
+    return 0;
+  }
+
+  excerpt->text = text[1..];
+
+  mapping span = identify_link(excerpt);
+
+  if (!span) {
+    return 0;
+  }
+
+  span->extent += 1;
+
+  span->element = ([
+    "name" : "img",
+    "attributes" : ([
+      "src" : span->element->attributes->href,
+      "alt" : span->element->text,
+      "title" : span->element->title
+    ])
+  ]);
+
+  return span;
+}
+
+protected mapping identify_link(mapping excerpt)
+{
+  mapping elem = ([
+    "name" : "a",
+    "handler" : "line",
+    "text" : 0,
+    "attributes" : ([ "href" : 0, "title" : 0 ])
+  ]);
+
+  int extent = 0;
+  string rem = excerpt->text;
+  array(string) m;
+
+
+
+  if ((m = REGEX("^\\[(" + nested_brackets_re + ")\\]", RXS)->match2(rem))) {
+    elem->text = m[1];
+    extent += sizeof(m[0]);
+    rem = rem[extent..];
+  }
+  else {
+    return 0;
+  }
+
+  string re = "^\\([ ]*([^ ]+?)(?:[ ]+(\".+?\"|'.+?'))?[ ]*\\)";
+
+  if ((m = REGEX(re)->match2(rem))) {
+    elem->attributes->href = m[1];
+    if (m[2]) {
+      elem->attributes->title = m[2][1..<1];
+    }
+
+    extent += sizeof(m[0]);
+  }
+  else {
+    string def;
+    if ((m = REGEX("^\\s*\\[(.*?)\\]")->match2(rem))) {
+      def = lower_case(m[1] ? m[1] : elem->text);
+      extent += sizeof(m[0]);
+    }
+    else {
+      def = lower_case(elem->text);
+    }
+
+    if (!definitions->Reference || !definitions->Reference[def]) {
+      return 0;
+    }
+
+    mapping def2 = definitions->Reference[def];
+    elem->attributes->href = def2->url;
+    elem->attributes->title = def2->title;
+  }
+
+  elem->attributes->href = replace(elem->attributes->href, ([ "&" : "&amp;",
+                                                              "<" : "&lt;" ]));
+  return ([
+    "extent"  : extent,
+    "element" : elem
+  ]);
+}
+
+//- Handlers
 
 //!
 //!
-protected string hash_block(string t)
+protected string build_li(array data)
 {
-  return hash_part(t, "B");
+  string ret = lines(data);
+  string trimmed_ret = TRIM(ret);
+
+  if (!has_value(data, "") && trimmed_ret[0..3] == "<p>") {
+    ret = trimmed_ret[3..];
+    int pos = search(ret, "</p>");
+
+    TRACE("Found </p> at %d\n", pos);
+
+    DIE;
+  }
+
+  return ret;
+}
+
+protected string span_marker_list = "!\"*_&[<>/`~\\";
+//!
+//!
+protected string build_line(string text)
+{
+  string markup = "";
+  string remainder = text;
+  string excerpt;
+  int markerpos;
+
+  outer: while (excerpt = strpbrk(remainder, span_marker_list)) {
+    int marker = excerpt[0];
+
+    markerpos += search(remainder, sprintf("%c", marker));
+
+    mapping m_excerpt = ([
+      "text" : excerpt,
+      "context" : text
+    ]);
+
+    foreach (span_types[marker], string spantype) {
+      if (function fun = type_funcs[spantype]) {
+        mapping span = fun(m_excerpt);
+
+        if (!span || (span->position && span->position > markerpos)) {
+          continue;
+        }
+
+        if (!span->position) {
+          span->position = markerpos;
+        }
+
+        string plaintext = text[0..span->position-1];
+
+        markup += read_plaintext(plaintext);
+        markup += span->markup || build_element(span->element);
+
+        //TRACE(">>>> %s\n", markup);
+
+        text = text[span->position + span->extent ..];
+        remainder = text;
+        markerpos = 0;
+
+        continue outer;
+      }
+    }
+
+    remainder = excerpt[1..];
+    markerpos += 1;
+  }
+
+  markup += read_plaintext(text);
+  return markup;
+}
+
+string read_plaintext(string text)
+{
+  if (search(text, "\n") < 0) {
+    return text;
+  }
+
+  if (breaks_enabled) {
+    text = REGEX("[ ]*\\n")->replace(text, "<br" + empty_elem_suffix + "\n");
+  }
+  else {
+    text = REGEX("(?:[ ][ ]+|[ ]*\\\\)\\n")
+            ->replace(text, "<br" + empty_elem_suffix + "\n");
+    text = replace(text, " \n", "\n");
+  }
+
+  return text;
+}
+
+protected int html_version = HTML5;
+protected int(0..1) breaks_enabled = 0;
+protected string empty_elem_suffix = ">";
+protected mapping(string:Re) re_cache = ([]);
+protected mapping(string:mixed) definitions;
+
+protected mapping(string:function) type_funcs = ([
+  "Atx"           : identify_atx,
+  "Rule"          : identify_rule,
+  "List"          : identify_list,
+  "Setext"        : identify_setext,
+  "Table"         : identify_table,
+  "Comment"       : identify_comment,
+  "Markup"        : identify_markup,
+  "Quote"         : identify_quote,
+  "FencedCode"    : identify_fenced_code,
+  "CodeBlock"     : identify_codeblock,
+  "InlineCode"    : identify_inline_code,
+  "Emphasis"      : identify_emphasis,
+  "Url"           : identify_url,
+  "Ampersand"     : identify_ampersand,
+  "Strikethrough" : identify_strikethrough,
+  "Link"          : identify_link,
+  "Reference"     : identify_reference,
+  "Image"         : identify_image
+]);
+
+protected mapping(string:function) addto_func = ([
+  "List"      : add_to_list,
+  "CodeBlock" : add_to_codeblock,
+  "Table"     : add_to_table,
+  "Quote"     : add_to_quote
+]);
+
+protected mapping(string:function) complete_func = ([
+]);
+
+protected mapping(string:function) handler_func = ([
+  "li"       : build_li,
+  "line"     : build_line,
+  "lines"    : lines,
+  "element"  : build_element,
+  "elements" : build_elements
+]);
+
+protected mapping(int:array(string)) block_types = ([
+  '#' : ({ "Atx" }),
+  '*' : ({ "Rule", "List" }),
+  '+' : ({ "List" }),
+  '-' : ({ "Setext", "Table", "Rule", "List" }),
+  '0' : ({ "List" }),
+  '1' : ({ "List" }),
+  '2' : ({ "List" }),
+  '3' : ({ "List" }),
+  '4' : ({ "List" }),
+  '5' : ({ "List" }),
+  '6' : ({ "List" }),
+  '7' : ({ "List" }),
+  '8' : ({ "List" }),
+  '9' : ({ "List" }),
+  ':' : ({ "Table" }),
+  '<' : ({ "Comment", "Markup" }),
+  '=' : ({ "Setext" }),
+  '>' : ({ "Quote" }),
+  '_' : ({ "Rule" }),
+  '`' : ({ "FencedCode" }),
+  '|' : ({ "Table" }),
+  '~' : ({ "FencedCode" }),
+]);
+
+protected mapping(int:array(string)) span_types = ([
+  '"'  : ({ "QuotationMark" }),
+  '!'  : ({ "Image" }),
+  '&'  : ({ "Ampersand" }),
+  '*'  : ({ "Emphasis" }),
+  '/'  : ({ "Url" }),
+  '<'  : ({ "UrlTag", "EmailTag", "Tag", "LessThan" }),
+  '>'  : ({ "GreaterThan" }),
+  '['  : ({ "Link" }),
+  '_'  : ({ "Emphasis" }),
+  '`'  : ({ "InlineCode" }),
+  '~'  : ({ "Strikethrough" }),
+  '\\' : ({ "EscapeSequence" })
+]);
+
+protected mapping(int:array(string)) definition_types = ([
+  '[' : ({ "Reference" })
+]);
+
+protected array(string) unmarked_block_types = ({ "CodeBlock" });
+
+protected multiset special_chars = (<
+  "\\", "`", "*", "_", "{", "}", "[", "]", "(", ")", ">", "#",
+  "+", "-", ".", "!" >);
+
+protected mapping(string:Widestring) strong_regex = ([
+  "*" : R("[*]{2}((?:\\\\\\*|[^*]|[*][^*]*[*])+?)[*]{2}(?![*])", RS),
+  "_" : R("^__((?:\\\\_|[^_]|_[^_]*_)+?)__(?!_)", RU|RS)
+]);
+
+protected mapping(string:Widestring) em_regex = ([
+  "*" : R("[*]((?:\\\\\\*|[^*]|[*][*][^*]+?[*][*])+?)[*](?![*])", RS),
+  "_" : R("^_((?:\\\\_|[^_]|__[^_]*__)+?)_(?!_)\b", RS|RU)
+]);
+
+protected multiset(string) void_elements = (<
+  "area", "base", "br", "col", "command", "embed", "hr", "img",
+  "input", "link", "meta", "param", "source" >);
+
+protected multiset(string) text_level_elements = (<
+  "a", "br", "bdo", "abbr", "blink", "nextid", "acronym", "basefont",
+  "b", "em", "big", "cite", "small", "spacer", "listing",
+  "i", "rp", "del", "code",          "strike", "marquee",
+  "q", "rt", "ins", "font",          "strong",
+  "s", "tt", "sub", "mark",
+  "u", "xm", "sup", "nobr",
+             "var", "ruby",
+             "wbr", "span",
+                    "time" >);
+
+protected string nested_brackets_re =
+        ("(?>[^\\[\\]]+|\\[" * 4) +
+        ("\\])*" * 4);
+
+protected string nested_url_parenthesis_re =
+        ("(?>[^()\\s]+|\\(" * 4) +
+        ("(?>\\)))*" * 4);
+
+protected string ltrim(string in, string|void char)
+{
+  if (char && sizeof(char)) {
+    if (has_value(char, "-"))
+      char = (char - "-") + "-";
+    if (has_value(char, "]"))
+      char = "]" + (char - "]");
+    if (char == "^") {
+      //  Special case for ^ since that can't be represented in the sscanf
+      //  set. We'll expand the set with a wide character that is illegal
+      //  Unicode and hence won't be found in regular strings.
+      char = "\xFFFFFFFF^";
+    }
+    sscanf(in, "%*[" + char + "]%s", in);
+  } else
+    sscanf(in, "%*[ \n\r\t\0]%s", in);
+  return in;
+}
+
+protected string rtrim(string in, string|void char)
+{
+  return reverse(ltrim(reverse(in), char));
+}
+
+protected string trim(string in, string|void char)
+{
+  return ltrim(rtrim(in, char), char);
+}
+
+protected string strpbrk(string s, string list)
+{
+  string a, b, c;
+  if (sscanf (s, "%s%[" + list + "]%s", a, b, c) == 3) {
+    if (sizeof(b))
+      return b+c;
+  }
+
+  return 0;
+}
+
+class Re
+{
+  inherit Widestring;
+
+  array(string) match2(string subject)
+  {
+    array(string) success;
+    this->matchall(subject, lambda (array(string) m) {
+      success = m;
+    });
+
+    return success;
+  }
 }

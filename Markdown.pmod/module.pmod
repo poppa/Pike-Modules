@@ -7,7 +7,7 @@
 */
 
 //! @ignore
-private .Parser p;
+private .Parser p = .Parser();
 //! @endignore
 
 //! Transform Markdown text @[t] to HTML
@@ -15,16 +15,7 @@ private .Parser p;
 //! @param t
 string transform(string text)
 {
-  if (!p) p = .Parser();
-  return p->transform(text);
-}
-
-//! Set tabwidth used in the source
-//!
-//! @param width
-void set_tab_width(int(2..) width)
-{
-  (p || (p = .Parser()))->set_tab_width(width);
+  return p->text(text);
 }
 
 //! Set the HTML version of the result.
@@ -34,7 +25,7 @@ void set_tab_width(int(2..) width)
 //!  and such will be closed with @tt{/>@}.
 void set_html_version(.Parser.HtmlVersion version)
 {
-  (p || (p = .Parser()))->set_html_version(version);
+  p->set_html_version(version);
 }
 
 //! @ignore
