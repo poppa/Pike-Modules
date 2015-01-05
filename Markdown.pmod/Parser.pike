@@ -7,12 +7,12 @@
   purpose granted as long as my name is still attached to it. More
   specifically, the GPL, LGPL and MPL licenses apply to this software.
 
-  This is a mixed port of the original Markdown in Perl by John Gruber  and
-  the PHP Markdown by Michel Fortin.
+  This is a port of Parsedown (https://github.com/erusev/parsedown) by
+  Emanuil Rusev.
 
   Original copyright:
-    (c) Emanuil Rusev
-    http://erusev.com
+  (c) Emanuil Rusev
+  http://erusev.com
 */
 
 //#define PARSERDOWN_DEBUG
@@ -347,7 +347,7 @@ protected mapping complete_codeblock(mapping block)
   return block;
 }
 
-protected mapping identify_atx(mapping line, void|mapping cur_block)
+protected mapping identify_header(mapping line, void|mapping cur_block)
 {
   string text = line->text;
 
@@ -1239,7 +1239,7 @@ protected mapping(string:Re) re_cache = ([]);
 protected mapping(string:mixed) definitions;
 
 protected mapping(string:function) type_funcs = ([
-  "Atx"            : identify_atx,
+  "Header"         : identify_header,
   "Rule"           : identify_rule,
   "List"           : identify_list,
   "Setext"         : identify_setext,
@@ -1290,7 +1290,7 @@ protected mapping(string:function) handler_func = ([
 ]);
 
 protected mapping(int:array(string)) block_types = ([
-  '#' : ({ "Atx" }),
+  '#' : ({ "Header" }),
   '*' : ({ "Rule", "List" }),
   '+' : ({ "List" }),
   '-' : ({ "Setext", "Table", "Rule", "List" }),
