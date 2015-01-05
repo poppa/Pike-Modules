@@ -1,3 +1,5 @@
+//! This class converts Markdown text to HTML.
+
 /*
   Author: Pontus Östlund <https://profiles.google.com/poppanator>
 
@@ -13,7 +15,7 @@
     http://erusev.com
 */
 
-#define PARSERDOWN_DEBUG
+//#define PARSERDOWN_DEBUG
 
 import Regexp.PCRE;
 
@@ -21,7 +23,7 @@ import Regexp.PCRE;
 #define DIE exit(0)
 
 #ifdef PARSERDOWN_DEBUG
-# define TRACE(X...) werror("Parserdown.pike:%d: %s\n", __LINE__,sprintf(X))
+# define TRACE(X...) werror("Parserdown.pike:%d: %s", __LINE__,sprintf(X))
 #else
 # define TRACE(X...) 0
 #endif
@@ -34,10 +36,6 @@ enum HtmlVersion {
 
 constant R = Re;
 
-#define REGEX(PATTERN, ARGS...) \
-  (re_cache[PATTERN + #ARGS] || \
-  (re_cache[PATTERN + #ARGS] = R(PATTERN, ARGS)))
-
 // Shortened regexp options
 constant RM   = OPTION.MULTILINE;
 constant RX   = OPTION.EXTENDED;
@@ -49,7 +47,14 @@ constant RXS  = RX|RS;
 constant RMS  = RM|RS;
 constant RMXS = RMX|RS;
 
+#define REGEX(PATTERN, ARGS...) \
+  (re_cache[PATTERN + #ARGS] || \
+  (re_cache[PATTERN + #ARGS] = R(PATTERN, ARGS)))
+
 //! Convert Markdown text @[t] to HTML
+//!
+//! @seealso
+//!  Markdown.transform
 //!
 //! @param t
 public string text(string t)
@@ -69,15 +74,45 @@ public string text(string t)
   return t;
 }
 
+//! If set to @tt{1@} all single linebreaks will be replaced with a @tt{<br>@}
+//! tag. Default is @tt{0@}.
+//!
+//! @param enabled
 public void set_breaks_enabled(int(0..1) enabled)
 {
   breaks_enabled = enabled;
 }
 
+//! Determines how empty element tags, e.g. @tt{br, hr, img@}, are closed.
+//! The default behaviour is HTML/HTML5 style, i.e @tt{<br>, <hr>@} and so on.
+//! If @[Parser.XHTML@] is used empty element tags will be closed in @tt{XML@}
+//! style, i.e @tt{<br />, <hr />@} and so on.
+//!
+//! @param v
 public void set_html_version(HtmlVersion v)
 {
   html_version = v;
   empty_elem_suffix = v == XHTML ? "/>" : ">";
+}
+
+//! If set to @tt{1@} all HTML markup in the MD file will be escaped and not
+//! treated as HTML. Default is @tt{0@}
+//!
+//! @param escaped
+public void set_markup_escaped(int(0..1) escaped)
+{
+  markup_escaped = escaped;
+}
+
+//! Set how newlines between generated tags should be handled. The default
+//! behaviour is to add newlines between tags but if you wan't the result
+//! on one line set this to @tt{0@}.
+//!
+//! @param nl
+public void set_newline(int(0..1) nl)
+{
+  trim_newline = nl;
+  newline = nl ? "\n" : "";
 }
 
 //!
@@ -175,12 +210,13 @@ protected string lines(array(string) lines)
     }
 
     if (cur_block && !cur_block->type && !cur_block->interupted) {
-      //! @note
-      //!  There's a newline here in the original implementation
+      //! @note There's a newline here in the original implementation
       cur_block->element->text += " " + text;
     }
     else {
-      elements += ({ cur_block && cur_block->element });
+      if (cur_block && cur_block->element)
+        elements += ({ cur_block->element });
+
       cur_block = build_paragraph(m_line);
       cur_block->identified = 1;
     }
@@ -205,10 +241,10 @@ protected string build_elements(array elems)
 
   foreach (elems, mapping elem) {
     if (!elem) continue;
-    ret += "\n" + build_element(elem);
+    ret += newline + build_element(elem);
   }
 
-  return ret + "\n";
+  return ret + newline;
 }
 
 protected string build_element(mapping elem)
@@ -237,7 +273,6 @@ protected string build_element(mapping elem)
   if (elem->text) {
     if (elem->handler) {
       if (function fun = handler_func[elem->handler]) {
-        //TRACE("handler: %s: %O\n", elem->handler, elem);
         ret += fun(elem->text);
       }
       else {
@@ -304,6 +339,14 @@ protected mapping add_to_codeblock(mapping line, void|mapping cblock)
   }
 }
 
+protected mapping complete_codeblock(mapping block)
+{
+  string text = block->element->text->text;
+  text = .text_quote(text);
+  block->element->text->text = text;
+  return block;
+}
+
 protected mapping identify_atx(mapping line, void|mapping cur_block)
 {
   string text = line->text;
@@ -334,7 +377,7 @@ protected mapping identify_rule(mapping line, void|mapping cur_block)
   }
 }
 
-protected mapping identify_list(mapping line, void|mapping cur_block)
+protected mapping identify_list(mapping line, void|mapping cblock)
 {
   [string name, string pattern] =
     line->text[0] <= '-' ? ({ "ul", "[*+-]" }) : ({ "ol", "[0-9]+[.]" });
@@ -352,27 +395,30 @@ protected mapping identify_list(mapping line, void|mapping cur_block)
       "element" : ([
         "name"    : name,
         "handler" : "elements"
-      ]),
-      "li" : ([
-        "name"    : "li",
-        "handler" : "li",
-        "text"    : ({ m[2] })
       ])
+    ]);
+
+    block->li = ([
+      "name"    : "li",
+      "handler" : "li",
+      "text"    : ({ m[2] })
     ]);
 
     block->element->text = ({ block->li });
   }
 
+  //TRACE("Block: %O\n", block);
+
   return block;
 }
 
-protected mapping add_to_list(mapping line, mapping cur_block)
+protected mapping add_to_list(mapping line, mapping block)
 {
-  mapping block = copy_value(cur_block);
+  //mapping block = copy_value(cur_block);
   R re = REGEX(block->pattern);
   array(string) m;
 
-  if (re && line->indent == block->indent && (m = re->match2(line->text))) {
+  if (re && (line->indent == block->indent) && (m = re->match2(line->text))) {
     if (block->interupted) {
       block->li->text += ({ "" });
       m_delete(block, "interupted");
@@ -399,7 +445,7 @@ protected mapping add_to_list(mapping line, mapping cur_block)
     return block;
   }
 
-  if (block->indent > 0) {
+  if (line->indent > 0) {
     block->li->text += ({ "" });
 
     re = REGEX("^[ ]{0,4}");
@@ -536,16 +582,158 @@ protected mapping add_to_table(mapping line, void|mapping cblock)
   }
 }
 
-protected mapping identify_comment(mapping line, void|mapping cur_block)
+protected mapping identify_comment(mapping line, void|mapping cblock)
 {
-  werror("Identify comment: %O\n", line);
-  exit(0);
+  if (markup_escaped) {
+    return 0;
+  }
+
+  string text = line->text;
+
+  if (text && sizeof(text) > 3 && text[0..3] == "<!--") {
+    mapping block = ([ "element" : ([ "text" : line->body ]) ]);
+
+    if (REGEX("-->$")->match2(text)) {
+      block->closed = 1;
+    }
+
+    return block;
+  }
+}
+
+protected mapping add_to_comment(mapping line, void|mapping cblock)
+{
+  if (cblock->closed) {
+    return 0;
+  }
+
+  cblock->element->text += "\n" + line->body;
+
+  if (REGEX("-->$")->match2(line->text)) {
+    cblock->closed = 1;
+  }
+
+  return cblock;
 }
 
 protected mapping identify_markup(mapping line, void|mapping cur_block)
 {
-  werror("Identify markup: %O\n", line);
-  exit(0);
+  if (markup_escaped) {
+    return 0;
+  }
+
+  string sre_attr_name = "[a-zA-Z_:][\\w:.-]*";
+  string sre_attr_value = "(?:[^\"'=<>`\\s]+|\".*?\"|'.*?')";
+  string sre = "^<(\\w[\\d\\w]*)((?:\\s" + sre_attr_name +
+               "(?:\\s*=\\s*" + sre_attr_value + ")?)*)\\s*(/?)>";
+
+  array(string) m;
+  m = REGEX(sre)->match2(line->text);
+
+  if (!m || sizeof(m) < 2 || text_level_elements[m[1]]) {
+    return 0;
+  }
+
+  mapping block = ([
+    "depth" : 0,
+    "element" : ([
+      "name" : m[1],
+      "text" : 0
+    ])
+  ]);
+
+  string rem = line->text[sizeof(m[0]) .. ];
+
+  if (!sizeof(TRIM(rem))) {
+    if (has_index(m, 3) && sizeof(m[3]) || void_elements[m[1]]) {
+      block->closed = 1;
+    }
+  }
+  else {
+    if (has_index(m, 3) || void_elements[m[1]]) {
+      return 0;
+    }
+
+    R re = REGEX("(.*)</" + m[1] + ">\\s*$", RI);
+    array(string) nested_m = re->match2(rem);
+
+    if (nested_m) {
+      block->closed = 1;
+      block->element->text = nested_m[1];
+    }
+    else {
+      block->element->text = rem;
+    }
+  }
+
+  if (!has_index(m, 2) || !sizeof(m[2])) {
+    return block;
+  }
+
+  string sre2 = "\\s("+sre_attr_name+")(?:\\s*=\\s*("+sre_attr_value+"))?";
+
+  REGEX(sre2)->matchall(m[2], lambda (array(string) mm) {
+    if (!block->element->attributes) {
+      block->element->attributes = ([]);
+    }
+
+    if (!mm[2]) {
+      block->element->attributes[mm[1]] = "";
+    }
+    else if (mm[2][0] == '"' || mm[2][0] == '\'') {
+      block->element->attributes[mm[1]] = mm[2][1..<1];
+    }
+    else {
+      block->element->attributes[mm[1]] = mm[2];
+    }
+  });
+
+  return block;
+}
+
+protected mapping add_to_markup(mapping line, void|mapping cblock)
+{
+  //TRACE("Add to markup: %O\n", line);
+
+  if (cblock->closed) {
+    return 0;
+  }
+
+  string sre = "^<" + cblock->element->name + "(?:\\s.*['\"])?\\s*>";
+  R re = REGEX(sre, RI);
+
+  if (re->match2(line->text)) {
+    cblock->depth += 1;
+  }
+
+  array(string) m;
+  sre = "(.*?)</" + cblock->element->name + ">\\s*$";
+
+  if (!cblock->element->text)
+    cblock->element->text = "";
+
+  if (m = REGEX(sre, RI)->match2(line->text)) {
+    if (cblock->depth > 0) {
+      cblock->depth -= 1;
+    }
+    else {
+      cblock->element->text += "\n";
+      cblock->closed = 1;
+    }
+
+    cblock->element->text += m[1];
+  }
+
+  if (cblock->interupted) {
+    cblock->element->text += "\n";
+    m_delete(cblock, "interupted");
+  }
+
+  if (!cblock->closed) {
+    cblock->element->text += "\n" + line->body;
+  }
+
+  return cblock;
 }
 
 protected mapping identify_quote(mapping line, void|mapping cur_block)
@@ -588,8 +776,53 @@ protected mapping add_to_quote(mapping line, void|mapping cblock)
 
 protected mapping identify_fenced_code(mapping line, void|mapping cur_block)
 {
-  werror("Identify fenced code: %O\n", line);
-  exit(0);
+  string sre = "^([" + line->text[0..0] + "]{3,})[ ]*([\\w-]+)?[ ]*$";
+
+  if (array(string) m = REGEX(sre)->match2(line->text)) {
+    mapping elem = ([ "name" : "code", "text" : "" ]);
+
+    if (m[2] && sizeof(m[2])) {
+      elem->attributes = ([ "class" : "language-" + m[2] ]);
+    }
+
+    return ([
+      "char" : line->text[0..0],
+      "element" : ([
+        "name" : "pre",
+        "handler" : "element",
+        "text" : elem
+      ])
+    ]);
+  }
+}
+
+protected mapping add_to_fenced_code(mapping line, mapping block)
+{
+  if (block->complete) {
+    return 0;
+  }
+
+  if (block->interupted) {
+    block->element->text->text += "\n";
+    m_delete(block, "interupted");
+  }
+
+  if (REGEX("^" + block->char + "{3,}[ ]*$")->match(line->text)) {
+    block->element->text->text = block->element->text->text[1..];
+    block->complete = 1;
+
+    return block;
+  }
+
+  block->element->text->text += "\n" + line->body;
+
+  return block;
+}
+
+protected mapping complete_fenced_code(mapping block)
+{
+  block->element->text->text = .text_quote(block->element->text->text);
+  return block;
 }
 
 protected mapping identify_reference(mapping line, void|mapping block)
@@ -633,8 +866,6 @@ protected mapping identify_inline_code(mapping excerpt)
       ])
     ]);
   }
-
-  return 0;
 }
 
 protected mapping identify_emphasis(mapping excerpt)
@@ -774,8 +1005,6 @@ protected mapping identify_link(mapping excerpt)
   string rem = excerpt->text;
   array(string) m;
 
-
-
   if ((m = REGEX("^\\[(" + nested_brackets_re + ")\\]", RXS)->match2(rem))) {
     elem->text = m[1];
     extent += sizeof(m[0]);
@@ -822,6 +1051,93 @@ protected mapping identify_link(mapping excerpt)
   ]);
 }
 
+protected mapping identify_escape_sequence(mapping excerpt)
+{
+  if (excerpt->text && sizeof(excerpt->text) > 0 &&
+      special_chars[excerpt->text[1]])
+  {
+    return ([
+      "markup" : excerpt->text[1..1],
+      "extent" : 2
+    ]);
+  }
+}
+
+protected mapping identify_less_than(mapping excerpt)
+{
+  return ([ "markup" : "&lt;", "extent" : 1 ]);
+}
+
+protected mapping identify_greater_than(mapping excerpt)
+{
+  return ([ "markup" : "&gt;", "extent" : 1 ]);
+}
+
+protected mapping identify_quotation_mark(mapping excerpt)
+{
+  return ([ "markup" : "&quot;", "extent" : 1 ]);
+}
+
+protected mapping identify_url_tag(mapping excerpt)
+{
+  R re = REGEX("<(https?:[/]{2}[^\\s]+?)>", RI);
+  array(string) m;
+
+  if (search(excerpt->text, ">") > -1 && (m = re->match2(excerpt->text))) {
+    string url = .attr_quote(m[1]);
+    return ([
+      "extent" : sizeof(m[0]),
+      "element" : ([
+        "name" : "a",
+        "text" : url,
+        "attributes" : ([ "href" : url ])
+      ])
+    ]);
+  }
+}
+
+protected mapping identify_email_tag(mapping excerpt)
+{
+  R re = REGEX("<((mailto:)?\\S+?@\\S+?)>", RI);
+  array(string) m;
+
+  if (search(excerpt->text, ">") > -1 && (m = re->match2(excerpt->text))) {
+    string url = .attr_quote(m[1]);
+
+    if (!m[2]) {
+      url = "mailto:" + url;
+    }
+
+    [url, string text] = .encode_email(url);
+
+    return ([
+      "extent" : sizeof(m[0]),
+      "element" : ([
+        "name" : "a",
+        "text" : text,
+        "attributes" : ([ "href" : url ])
+      ])
+    ]);
+  }
+}
+
+protected mapping identify_tag(mapping excerpt)
+{
+  if (markup_escaped) {
+    return 0;
+  }
+
+  array(string) m;
+  R re = REGEX("^</?\\w.*?>", RS);
+
+  if (search(excerpt->text, ">") > -1 && (m = re->match2(excerpt->text))) {
+    return ([
+      "markup" : m[0],
+      "extent" : sizeof(m[0])
+    ]);
+  }
+}
+
 //- Handlers
 
 //!
@@ -831,13 +1147,10 @@ protected string build_li(array data)
   string ret = lines(data);
   string trimmed_ret = TRIM(ret);
 
-  if (!has_value(data, "") && trimmed_ret[0..3] == "<p>") {
+  if (!has_value(data, 0) && trimmed_ret[0..2] == "<p>") {
     ret = trimmed_ret[3..];
     int pos = search(ret, "</p>");
-
-    TRACE("Found </p> at %d\n", pos);
-
-    DIE;
+    ret = ret[0..pos-1] + ret[pos+4..];
   }
 
   return ret;
@@ -917,40 +1230,55 @@ string read_plaintext(string text)
 }
 
 protected int html_version = HTML5;
+protected int(0..1) trim_newline = 0;
 protected int(0..1) breaks_enabled = 0;
+protected int(0..1) markup_escaped = 0;
 protected string empty_elem_suffix = ">";
+protected string newline = "\n";
 protected mapping(string:Re) re_cache = ([]);
 protected mapping(string:mixed) definitions;
 
 protected mapping(string:function) type_funcs = ([
-  "Atx"           : identify_atx,
-  "Rule"          : identify_rule,
-  "List"          : identify_list,
-  "Setext"        : identify_setext,
-  "Table"         : identify_table,
-  "Comment"       : identify_comment,
-  "Markup"        : identify_markup,
-  "Quote"         : identify_quote,
-  "FencedCode"    : identify_fenced_code,
-  "CodeBlock"     : identify_codeblock,
-  "InlineCode"    : identify_inline_code,
-  "Emphasis"      : identify_emphasis,
-  "Url"           : identify_url,
-  "Ampersand"     : identify_ampersand,
-  "Strikethrough" : identify_strikethrough,
-  "Link"          : identify_link,
-  "Reference"     : identify_reference,
-  "Image"         : identify_image
+  "Atx"            : identify_atx,
+  "Rule"           : identify_rule,
+  "List"           : identify_list,
+  "Setext"         : identify_setext,
+  "Table"          : identify_table,
+  "Comment"        : identify_comment,
+  "Markup"         : identify_markup,
+  "Quote"          : identify_quote,
+  "FencedCode"     : identify_fenced_code,
+  "CodeBlock"      : identify_codeblock,
+  "InlineCode"     : identify_inline_code,
+  "Emphasis"       : identify_emphasis,
+  "Url"            : identify_url,
+  "UrlTag"         : identify_url_tag,
+  "EmailTag"       : identify_email_tag,
+  "Ampersand"      : identify_ampersand,
+  "Strikethrough"  : identify_strikethrough,
+  "Link"           : identify_link,
+  "Reference"      : identify_reference,
+  "Image"          : identify_image,
+  "EscapeSequence" : identify_escape_sequence,
+  "LessThan"       : identify_less_than,
+  "GreaterThan"    : identify_greater_than,
+  "QuotationMark"  : identify_quotation_mark,
+  "Tag"            : identify_tag
 ]);
 
 protected mapping(string:function) addto_func = ([
-  "List"      : add_to_list,
-  "CodeBlock" : add_to_codeblock,
-  "Table"     : add_to_table,
-  "Quote"     : add_to_quote
+  "List"       : add_to_list,
+  "CodeBlock"  : add_to_codeblock,
+  "Table"      : add_to_table,
+  "Quote"      : add_to_quote,
+  "Comment"    : add_to_comment,
+  "Markup"     : add_to_markup,
+  "FencedCode" : add_to_fenced_code
 ]);
 
 protected mapping(string:function) complete_func = ([
+  "CodeBlock"  : complete_codeblock,
+  "FencedCode" : complete_fenced_code
 ]);
 
 protected mapping(string:function) handler_func = ([
@@ -1007,9 +1335,9 @@ protected mapping(int:array(string)) definition_types = ([
 
 protected array(string) unmarked_block_types = ({ "CodeBlock" });
 
-protected multiset special_chars = (<
-  "\\", "`", "*", "_", "{", "}", "[", "]", "(", ")", ">", "#",
-  "+", "-", ".", "!" >);
+protected multiset(int) special_chars = (<
+  '\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '>', '#',
+  '+', '-', '.', '!' >);
 
 protected mapping(string:Widestring) strong_regex = ([
   "*" : R("[*]{2}((?:\\\\\\*|[^*]|[*][^*]*[*])+?)[*]{2}(?![*])", RS),
