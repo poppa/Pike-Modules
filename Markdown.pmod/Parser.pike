@@ -59,7 +59,7 @@ constant RMXS = RMX|RS;
 //! @param t
 public string text(string t)
 {
-  if (!t || ! sizeof(t))
+  if (!t || !sizeof(t))
     return t;
 
   definitions = ([]);
@@ -571,9 +571,9 @@ protected mapping add_to_table(mapping line, void|mapping cblock)
     }
 
     mapping element = ([
-      "name" : "tr",
+      "name"    : "tr",
       "handler" : "elements",
-      "text" : elements
+      "text"    : elements
     ]);
 
     cblock->element->text[1]->text += ({ element });
