@@ -1346,7 +1346,7 @@ protected mapping(string:Widestring) strong_regex = ([
 
 protected mapping(string:Widestring) em_regex = ([
   "*" : R("[*]((?:\\\\\\*|[^*]|[*][*][^*]+?[*][*])+?)[*](?![*])", RS),
-  "_" : R("^_((?:\\\\_|[^_]|__[^_]*__)+?)_(?!_)\b", RS|RU)
+  "_" : R("^_((?:\\\\_|[^_]|__[^_]*__)+?)_(?!_)\\b", RS|RU)
 ]);
 
 protected multiset(string) void_elements = (<
