@@ -15,7 +15,7 @@
   http://erusev.com
 */
 
-//#define PARSERDOWN_DEBUG
+// #define PARSERDOWN_DEBUG
 
 import Regexp.PCRE;
 
