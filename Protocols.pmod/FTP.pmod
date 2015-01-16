@@ -135,18 +135,14 @@ class BaseClient
     return last_read = ([ "code" : 226, "text" : collection ]);
   }
 
-  protected mapping read_file(void|Stdio.FILE fd)
+  //! Read a file from a secondary fd
+  protected mapping read_file(Stdio.FILE fd)
   {
     TRACE("<<< Read file: %O\n", fd);
 
     mapping m = low_read(0);
 
-    function rfunc = fd ? fd->gets : sock::gets;
-    string tmp, ret = "";
-
-    while (tmp = rfunc()) {
-      ret += tmp;
-    }
+    string ret = fd->read();
 
     read_empty();
 
