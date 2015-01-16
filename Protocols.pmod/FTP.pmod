@@ -114,6 +114,8 @@ class BaseClient
   //!
   protected mapping read_list(void|Stdio.FILE fd)
   {
+    low_read(0);
+
     function my_gets = fd ? fd->gets : sock::gets;
     array(string) collection = ({});
     string tmp;
@@ -133,10 +135,33 @@ class BaseClient
     return last_read = ([ "code" : 226, "text" : collection ]);
   }
 
+  protected mapping read_file(void|Stdio.FILE fd)
+  {
+    TRACE("<<< Read file: %O\n", fd);
+
+    low_read(0);
+
+    function rfunc = fd ? fd->gets : sock::gets;
+    string tmp, ret = "";
+
+    while (tmp = rfunc()) {
+      ret += tmp;
+    }
+
+    read_empty();
+
+    TRACE("[%O]\n", ret);
+
+    return last_read = ([ "code" : 226, "text" : ret ]);
+  }
+
   protected void read_empty()
   {
     while (string tmp = sock::gets()) {
       sscanf(tmp, "%d%c%s", int code, int c, string rest);
+
+      TRACE("<-> read_empty(%d, %c, %s)\n", code, c, trim(rest||""));
+
       if (code == 226) {
         TRACE("Done empty reading:%O\n", code);
         break;
@@ -151,10 +176,23 @@ class BaseClient
   //! @param fd
   protected mapping read(void|Stdio.FILE fd)
   {
-    if ((< "MLST", "NLST", "MLSD", "LIST" >)[upper_case(last_cmd)]) {
+    string _cmd = upper_case((last_cmd/" ")[0]);
+
+    if ((< "MLST", "NLST", "MLSD", "LIST" >)[_cmd]) {
       return read_list(fd);
     }
+    else if ((< "RETR" >)[_cmd]) {
+      return read_file(fd);
+    }
 
+    return low_read(fd);
+  }
+
+  //! Read from connection
+  //!
+  //! @param fd
+  protected mapping low_read(void|Stdio.FILE fd)
+  {
     mapping ret = ([ "code" : 0, "text" : "" ]);
     int code, space;
     string s;
@@ -206,7 +244,7 @@ class BaseClient
 
     switch (ret->code)
     {
-      case 200..399:
+      case 100..399:
         break;
 
       default:
@@ -331,6 +369,8 @@ class Client
   {
     string s = cmd("PWD")->text;
     sscanf (s, "%s %*s", s);
+    if (s[0] == '"') s = s[1..];
+    if (s[-1] == '"') s = s[..<1];
     return s;
   }
 
@@ -351,6 +391,34 @@ class Client
   {
     path = path || "";
     mapping r = cmd2("LIST " + path);
+    return r->text;
+  }
+
+  //! Retrieve a remote file
+  //!
+  //! @param remote_path
+  //!  The file to retrieve
+  //! @param local_path
+  //!  If a directory the file will be written here with the same name
+  //!  as the file in @[remote_path]. If it's not a directory a file with
+  //!  this path/name will be written with the contents of @[remote_path].
+  //!
+  //! @returns
+  //!  The file contents of @[remote_path]
+  string retr(string remote_path, void|string local_path)
+  {
+    mapping r = cmd2("RETR " + remote_path);
+
+    if (local_path && Stdio.exist(local_path)) {
+      string local_name = local_path;
+
+      if (Stdio.is_dir(local_path)) {
+        local_name = combine_path(local_path, basename(remote_path));
+      }
+
+      Stdio.write_file(local_name, r->text);
+    }
+
     return r->text;
   }
 
