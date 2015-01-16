@@ -139,7 +139,7 @@ class BaseClient
   {
     TRACE("<<< Read file: %O\n", fd);
 
-    low_read(0);
+    mapping m = low_read(0);
 
     function rfunc = fd ? fd->gets : sock::gets;
     string tmp, ret = "";
@@ -150,7 +150,8 @@ class BaseClient
 
     read_empty();
 
-    TRACE("[%O]\n", ret);
+    if (search(m->text, "ASCII") > -1)
+      ret = replace(ret, "\r", "\n");
 
     return last_read = ([ "code" : 226, "text" : ret ]);
   }
