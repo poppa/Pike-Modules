@@ -101,9 +101,6 @@ class BaseClient
   {
     last_cmd = trim(what);
     function wfun = s ? s->write : sock::write;
-
-    TRACE(">>> write: %s to %O\n", last_cmd, wfun);
-
     int w = wfun(last_cmd + "\r\n");
 
     if (w != sizeof(last_cmd+"\r\n")) {
@@ -138,10 +135,7 @@ class BaseClient
   //! Read a file from a secondary fd
   protected mapping read_file(Stdio.FILE fd)
   {
-    TRACE("<<< Read file: %O\n", fd);
-
     mapping m = low_read(0);
-
     string ret = fd->read();
 
     read_empty();
@@ -157,15 +151,11 @@ class BaseClient
     while (string tmp = sock::gets()) {
       sscanf(tmp, "%d%c%s", int code, int c, string rest);
 
-      TRACE("<-> read_empty(%d, %c, %s)\n", code, c, trim(rest||""));
-
       if (code == 226) {
         TRACE("Done empty reading:%O\n", code);
         break;
       }
     }
-
-    TRACE("End read_empty()\n");
   }
 
   //! Read server reply
@@ -198,23 +188,17 @@ class BaseClient
 
     space = '-';
 
-    TRACE("<<< start read: %s from %O\n", last_cmd, rfunc);
-
     while (space == '-') {
       space = ' ';
       string tmp = rfunc();
 
       if (!tmp) {
-        TRACE("<<<! Nothing was read\n");
         break;
       }
 
       if (sscanf(tmp, "%d%c%s", code, space, s) != 3) {
         collection += ({ trim(tmp) });
       }
-
-      TRACE("  <<< code: %d, space: %c:%[1]d, text: [%s], raw[%s]\n",
-            code, space, trim(s||""), trim(tmp||""));
 
       // System status or feat or alike
       if (code == 211) {
@@ -251,8 +235,6 @@ class BaseClient
 
     if (ret->code == 227)
       create_fd2(ret);
-
-    TRACE("<<< read done: %O\n", ret);
 
     return last_read = ret;
   }
@@ -305,7 +287,7 @@ class BaseClient
 
 class Client
 {
-  inherit BaseClient;
+  inherit BaseClient : sock;
 
   //! Create a FTP client
   //!
@@ -493,7 +475,6 @@ class Client
   mapping cmd2(string c)
   {
     if (_use_passive_mode) {
-      TRACE(">>> passive mode: last_cmd(%O)\n", last_cmd);
       if (!has_prefix(upper_case(last_cmd), "PASV") &&
           !has_prefix(upper_case(last_cmd), "PORT"))
       {
@@ -508,5 +489,55 @@ class Client
 
     low_write(c);
     return read(fd2);
+  }
+}
+
+class AsyncClient
+{
+  inherit Client : client;
+  inherit Protocols.NNTP.asyncprotocol : async;
+
+  void create()
+  {
+
+  }
+
+  int async_connect(string host, int port, function cb, mixed ... extra)
+  {
+    if (!host) {
+      error("argument \"host\" can not be null! ");
+    }
+
+    if (!port) {
+      port = 21;
+    }
+
+    return async::async_connect(host, port, lambda (int success) {
+                          if (success) {
+                            set_nonblocking(read_cb, write_cb, close_cb);
+                            //client::read();
+                            return cb(success, @extra);
+                          }
+                          error("Connection error!\n");
+                        });
+  }
+
+  int read_cb(mixed id, string data)
+  {
+    TRACE("Read callback: %O: %O\n", id, data);
+    async::read_cb(id, data);
+    return 0;
+  }
+
+  int write_cb(mixed id)
+  {
+    TRACE("Write callback: %O\n", id);
+    return 0;
+  }
+
+  int close_cb(mixed id)
+  {
+    TRACE("Close callback: %O\n", id);
+    return 0;
   }
 }
