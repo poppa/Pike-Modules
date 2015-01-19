@@ -273,7 +273,7 @@ class BaseClient
         break;
 
       default:
-        error("FTP error %d: %s\n", ret->code, ret->text);
+        error("FTP error %d: %s\n", ret->code||0, ret->text||"(unknown)");
         break;
     }
 
@@ -494,6 +494,11 @@ class Client
     return cwd(path);
   }
 
+  string help(void|string command)
+  {
+
+  }
+
   //! Change working directory
   //!
   //! @param path
@@ -682,7 +687,7 @@ class Client
   array(string) list(void|string path)
   {
     path = path || "";
-    mapping r = cmd2("LIST " + path);
+    mapping r = passive_cmd("LIST " + path);
     return r->text;
   }
 
@@ -699,7 +704,7 @@ class Client
   //!  The file contents of @[remote_path]
   string retr(string remote_path, void|string local_path)
   {
-    mapping r = cmd2("RETR " + remote_path);
+    mapping r = passive_cmd("RETR " + remote_path);
 
     if (local_path && Stdio.exist(local_path)) {
       string local_name = local_path;
@@ -721,7 +726,7 @@ class Client
   array(mapping) nlst(void|string path)
   {
     path = path || "";
-    mapping r = cmd2("NLST " + path);
+    mapping r = passive_cmd("NLST " + path);
     return r->text;
   }
 
@@ -731,7 +736,7 @@ class Client
   array(mapping) mlsd(void|string path)
   {
     path = path || "";
-    mapping r = cmd2("MLSD " + path);
+    mapping r = passive_cmd("MLSD " + path);
     return parse_mlist(r->text);
   }
 
@@ -783,9 +788,9 @@ class Client
   //! automatically.
   //!
   //! @param c
-  mapping cmd2(string c)
+  mapping passive_cmd(string c)
   {
-    TRACE("cmd2(%s)\n", c);
+    TRACE("passive_cmd(%s)\n", c);
     if (_use_passive_mode) {
       if (!has_prefix(upper_case(last_cmd), "PASV") &&
           !has_prefix(upper_case(last_cmd), "PORT"))
