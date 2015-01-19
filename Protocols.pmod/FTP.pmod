@@ -6,9 +6,28 @@
   specifically, the GPL, LGPL and MPL licenses apply to this software.
 */
 
-//! @note WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
-//!       WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
-//!       WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
+//! FTP client
+//!
+//! @code
+//!  Protocols.FTP.Client cli = Protocols.FTP.Client("hostname");
+//!
+//!  if (!cli->login("username", "password")) {
+//!    werror("Unable to login to remote server\n");
+//!    return 0;
+//!  }
+//!
+//!  cli->binary_mode();
+//!  cli->cd("/my/dir");
+//!  array(mapping) dir = cli->ls();
+//!
+//!  foreach (dir, mapping f) {
+//!    write("%s: %s\n", f->type, f->path);
+//!  }
+//!
+//!  f->put("my-local.file");
+//!
+//!  f->quit();
+//! @endcode
 
 #ifdef FTP_CLIENT_DEBUG
 # define TRACE(X...) werror("%s:%-4d: %s",basename(__FILE__),__LINE__,sprintf(X))
@@ -99,9 +118,12 @@ class BaseClient
   //!  If @tt{null@} the default connection is used
   protected void low_write(string what, void|Stdio.FILE s)
   {
+    TRACE("low_write(%O)\n", what);
     last_cmd = trim(what);
     function wfun = s ? s->write : sock::write;
     int w = wfun(last_cmd + "\r\n");
+
+    TRACE("wrote: %d\n", w);
 
     if (w != sizeof(last_cmd+"\r\n")) {
       error("Write command was truncated!\n");
@@ -111,6 +133,7 @@ class BaseClient
   //!
   protected mapping read_list(void|Stdio.FILE fd)
   {
+    TRACE("read_list(%O)\n", last_cmd);
     low_read(0);
 
     function my_gets = fd ? fd->gets : sock::gets;
@@ -129,12 +152,17 @@ class BaseClient
 
     read_empty();
 
-    return last_read = ([ "code" : 226, "text" : collection ]);
+    mapping r = last_read = ([ "code" : 226, "text" : collection ]);
+
+    TRACE("ret: %O\n", r);
+
+    return r;
   }
 
   //! Read a file from a secondary fd
   protected mapping read_file(Stdio.FILE fd)
   {
+    TRACE("read_file(%O)\n", last_cmd);
     mapping m = low_read(0);
     string ret = fd->read();
 
@@ -143,13 +171,22 @@ class BaseClient
     if (search(m->text, "ASCII") > -1)
       ret = replace(ret, "\r", "\n");
 
-    return last_read = ([ "code" : 226, "text" : ret ]);
+    mapping r = last_read = ([ "code" : 226, "text" : ret ]);
+
+    TRACE("ret: %O\n", r);
+
+    return r;
   }
 
+  //! Read result on the control connection after the data connection
+  //! has been used.
   protected void read_empty()
   {
+    TRACE("read_empty(%O)\n", last_cmd);
+
     while (string tmp = sock::gets()) {
       sscanf(tmp, "%d%c%s", int code, int c, string rest);
+      TRACE("empty: %d, %c, %s\n", code, c, rest);
 
       if (code == 226) {
         TRACE("Done empty reading:%O\n", code);
@@ -164,15 +201,19 @@ class BaseClient
   protected mapping read(void|Stdio.FILE fd)
   {
     string _cmd = upper_case((last_cmd/" ")[0]);
+    mapping r;
 
     if ((< "MLST", "NLST", "MLSD", "LIST" >)[_cmd]) {
-      return read_list(fd);
+      r = read_list(fd);
     }
     else if ((< "RETR" >)[_cmd]) {
-      return read_file(fd);
+      r = read_file(fd);
+    }
+    else {
+      r = low_read(fd);
     }
 
-    return low_read(fd);
+    return r;
   }
 
   //! Read from connection
@@ -180,6 +221,7 @@ class BaseClient
   //! @param fd
   protected mapping low_read(void|Stdio.FILE fd)
   {
+    TRACE("low_read(%O)\n", last_cmd);
     mapping ret = ([ "code" : 0, "text" : "" ]);
     int code, space;
     string s;
@@ -191,6 +233,8 @@ class BaseClient
     while (space == '-') {
       space = ' ';
       string tmp = rfunc();
+
+      TRACE("low_read(%O)\n", tmp);
 
       if (!tmp) {
         break;
@@ -235,6 +279,8 @@ class BaseClient
 
     if (ret->code == 227)
       create_fd2(ret);
+
+    TRACE("ret: %O\n", ret);
 
     return last_read = ret;
   }
@@ -330,6 +376,124 @@ class Client
     return r->code == 230;
   }
 
+  /* ALIASES */
+
+  //! Begins transmission of a file to the remote site. Alias of @[stor()]
+  //!
+  //! @param local_file
+  //! @param remote_path
+  //!  If @tt{null@} a file with the same basename as @[local_file] will be
+  //!  created in the current working directory
+  string put(string local_file, void|string remote_path)
+  {
+    return stor(local_file, remote_path);
+  }
+
+  //! Deletes the file @[path] on the remote host. Alias of @[dele()]
+  //!
+  //! @param path
+  int(0..1) rm(string path)
+  {
+    return dele(path);
+  }
+
+  //! Retrieve a remote file. Alias of @[retr()].
+  //!
+  //! @param remote_path
+  //!  The file to retrieve
+  //! @param local_path
+  //!  If a directory the file will be written here with the same name
+  //!  as the file in @[remote_path]. If it's not a directory a file with
+  //!  this path/name will be written with the contents of @[remote_path].
+  //!
+  //! @returns
+  //!  The file contents of @[remote_path]
+  string get(string path)
+  {
+    return retr(path);
+  }
+
+  //! Creates the directory @[path] on the remote host. Alias of @[mkd()]
+  //!
+  //! @param path
+  //! @returns
+  //!  The path to the created directory on the remote host
+  string mkdir(string path)
+  {
+    return mkd(path);
+  }
+
+  //! Directory listing. Alias of @[mlsd()].
+  //!
+  //! @param path
+  array(mapping) ls(void|string path)
+  {
+    return mlsd(path);
+  }
+
+  //! Deletes the directory @[path] on the remote host. Alias of @[rmd()].
+  //!
+  //! @param path
+  int(0..1) rmdir(string path)
+  {
+    return rmd(path);
+  }
+
+  //! Rename @[from] to @[to]
+  //!
+  //! @param from
+  //! @param to
+  //! @returns
+  //!  The new remote path
+  string mv(string from, string to)
+  {
+    cmd("RNFR " + from);
+    mapping r = cmd("RNTO " + to);
+
+    if (r->code == 250) {
+      if (dele(from)) {
+        sscanf (r->text, "%*s %*s /%s", string p);
+
+        if (p[-1] == '.')
+          p = p[..<1];
+
+        return "/" + p;
+      }
+    }
+  }
+
+  //! Copy @[from] to @[to].
+  //!
+  //! @param from
+  //! @param to
+  //! @returns
+  //!  The new remote path
+  string cp(string from, string to)
+  {
+    cmd("RNFR " + from);
+    mapping r = cmd("RNTO " + to);
+
+    if (r->code == 250) {
+      sscanf (r->text, "%*s %*s /%s", string p);
+
+      if (p[-1] == '.')
+        p = p[..<1];
+
+      return "/" + p;
+    }
+  }
+
+  //! Change working directory. Alias of @[cwd()].
+  //!
+  //! @param path
+  //!
+  //! @returns
+  //!  The new directory path
+  string cd(string path)
+  {
+    return cwd(path);
+  }
+
   //! Change working directory
   //!
   //! @param path
@@ -351,6 +515,155 @@ class Client
     if (s[0] == '"') s = s[1..];
     if (s[-1] == '"') s = s[..<1];
     return s;
+  }
+
+  //! Deletes the file @[path] on the remote host.
+  //!
+  //! @param path
+  int(0..1) dele(string path)
+  {
+    mapping r = cmd("DELE " + path);
+    return r->code == 250;
+  }
+
+  //! If invoked without parameters, returns general status information about
+  //! the FTP server process. If a parameter is given, acts like the LIST
+  //! command, except that data is sent over the control connection (no PORT or
+  //! PASV command is required).
+  //!
+  //! @param spec
+  string stat(void|string spec)
+  {
+    mixed r = cmd("STAT " + (spec||""));
+    return r->text;
+  }
+
+  //! Begins transmission of a file to the remote site.
+  //!
+  //! @param local_file
+  //! @param remote_path
+  //!  If @tt{null@} a file with the same basename as @[local_file] will be
+  //!  created in the current working directory
+  string stor(string local_file, void|string remote_path)
+  {
+    if (!remote_path)
+      remote_path = basename(local_file);
+
+    pasv();
+
+    cmd("STOR " + remote_path);
+
+    fd2->write(Stdio.read_file(local_file));
+
+    close_fd2();
+
+    read_empty();
+
+    TRACE("Wrote file %O!\n", remote_path);
+
+    return remote_path;
+  }
+
+  //! Append data to the end of a file on the remote host. If the file does not
+  //! already exist, it is created.
+  //!
+  //! @param local_file
+  //! @param remote_path
+  //!  If @tt{null@} a file with the same basename as @[local_file] will be
+  //!  used, or created, in the current working directory
+  string appe(string local_file, void|string remote_path)
+  {
+    if (!remote_path)
+      remote_path = basename(local_file);
+
+    pasv();
+
+    cmd("APPE " + remote_path);
+
+    fd2->write(Stdio.read_file(local_file));
+
+    close_fd2();
+
+    read_empty();
+
+    TRACE("Wrote file %O!\n", remote_path);
+
+    return remote_path;
+  }
+
+  //! Sets the transfer mode to one of:
+  //!
+  //!   S - Stream
+  //!   B - Block
+  //!   C - Compressed
+  //!
+  //! The default mode is Stream.
+  //!
+  //! @param which
+  //!  @tt{S, B or C@}
+  int(0..1) mode(string which)
+  {
+    which = upper_case(which);
+    if (!(< "S", "B", "C" >)[which]) {
+      error("Unknown mode %O. Expected S, B or C!\n", which);
+    }
+
+    mapping r = cmd("MODE " + which);
+    return 1;
+  }
+
+  //! Creates the directory @[path] on the remote host.
+  //!
+  //! @param path
+  //! @returns
+  //!  The path to the created directory on the remote host
+  string mkd(string path)
+  {
+    mapping r = cmd("MKD " + path);
+
+    if (r->code == 257) {
+      sscanf (r->text, "\"%s\"", path);
+      return path;
+    }
+
+    return 0;
+  }
+
+  //! Returns the last modified time of @[path]
+  //!
+  //! @param path
+  Calendar.Second mdtm(string path)
+  {
+    mapping r = cmd("MDTM " + path);
+    array tt = allocate(6);
+    sscanf (r->text, "%4s%2s%2s%2s%2s%2s",
+            tt[0], tt[1], tt[2], tt[3], tt[4], tt[5]);
+    return Calendar.parse("%Y %M %D %h %m %s", tt * " ");
+  }
+
+  //! Makes the parent of the current directory be the current directory.
+  //!
+  //! @returns
+  //!  The path of the parent directory
+  string cdup()
+  {
+    mapping r = cmd("CDUP");
+    sscanf (r->text, "%*s /%s", string p);
+
+    if (has_suffix(p, ".")) {
+      p = p[..<1];
+    }
+
+    return "/" + p;
+  }
+
+  //! Deletes the directory @[path] on the remote host.
+  //!
+  //! @param path
+  int(0..1) rmd(string path)
+  {
+    mapping r = cmd("RMD " + path);
+    return r->code == 250;
   }
 
   //! Enter passive mode
@@ -408,11 +721,8 @@ class Client
   array(mapping) nlst(void|string path)
   {
     path = path || "";
-    mapping r = cmd2("NLST" + path);
-
-    array(mapping) ret = ({});
-
-    return ret;
+    mapping r = cmd2("NLST " + path);
+    return r->text;
   }
 
   //! Directory listing
@@ -462,6 +772,7 @@ class Client
   //!  @endmapping
   mapping cmd(string c)
   {
+    TRACE("cmd(%s)\n", c);
     low_write(c);
     return read();
   }
@@ -474,6 +785,7 @@ class Client
   //! @param c
   mapping cmd2(string c)
   {
+    TRACE("cmd2(%s)\n", c);
     if (_use_passive_mode) {
       if (!has_prefix(upper_case(last_cmd), "PASV") &&
           !has_prefix(upper_case(last_cmd), "PORT"))
@@ -492,6 +804,7 @@ class Client
   }
 }
 
+#if 0
 class AsyncClient
 {
   inherit Client : client;
@@ -541,3 +854,4 @@ class AsyncClient
     return 0;
   }
 }
+#endif
