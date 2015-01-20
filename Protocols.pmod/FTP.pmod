@@ -24,9 +24,8 @@
 //!    write("%s: %s\n", f->type, f->path);
 //!  }
 //!
-//!  f->put("my-local.file");
-//!
-//!  f->quit();
+//!  cli->put("my-local.file");
+//!  cli->quit();
 //! @endcode
 
 #ifdef FTP_CLIENT_DEBUG
