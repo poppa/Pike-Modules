@@ -338,9 +338,13 @@ class BaseClient
         if (has_prefix(k, "UNIX.")) {
           k = k[5..];
         }
+        else if (k == "type") {
+          v = lower_case(v);
+        }
 
-        if ((< "modify", "size", "mode" >)[k])
+        if ((< "modify", "size", "mode" >)[k]) {
           v = (int) v;
+        }
 
         t[k] = v;
       }
@@ -449,6 +453,78 @@ class Client
   string get(string path, void|string local_path)
   {
     return retr(path, local_path);
+  }
+
+  //! Get a remote directory recursively.
+  //!
+  //! @param remote_dir
+  //!  If @tt{null@} the current working directory will be fetched
+  //! @param local_dir
+  //!  The destination of the downloaded files. A directory with the same name
+  //!  as the dirname of @[remote_dir] will be created here.
+  //!  If @tt{null@} the current working directory will be used.
+  //! @param recurse
+  //!  If @tt{0@} no recursion will be done. Default is @tt{1@}.
+  void get_dir(void|string remote_dir, void|string local_dir,
+               void|int(0..1) recurse)
+  {
+    if (!remote_dir) {
+      remote_dir = pwd();
+    }
+    else {
+      if (remote_dir[0] != '/') {
+        remote_dir = combine_path(pwd(), remote_dir);
+      }
+    }
+
+    if (local_dir) {
+      if (!Stdio.exist(local_dir)) {
+        error("Local directory \"%s\" doesn't exist!\n", local_dir);
+      }
+    }
+    else {
+      local_dir = getcwd();
+    }
+
+    string remote_dir2;
+    remote_dir2 = has_prefix(remote_dir, "/") ? remote_dir[1..] : remote_dir;
+    local_dir = combine_path(local_dir, dirname(remote_dir2));
+
+    if (!Stdio.exist(local_dir)) {
+      if (!predef::mkdir(local_dir)) {
+        error("Unable to create local directory \"%s\"!\n", local_dir);
+      }
+    }
+
+    if (zero_type(recurse))
+      recurse = 1;
+
+    function low_get_dir;
+
+    low_get_dir = lambda (string r, string l) {
+      array(mapping) files = ls(r);
+
+      foreach (files, mapping m) {
+        if (recurse && m->type == "dir") {
+          string nrp = combine_path_unix(r, m->path);
+          string nlp = combine_path(l, m->path);
+
+          predef::mkdir(nlp);
+
+          low_get_dir(nrp, nlp);
+        }
+        else if (m->type == "file") {
+          string rp = combine_path_unix(r, m->path);
+
+          if (mixed e = catch(get(rp, l))) {
+            werror("%s:%d: Unable to download \"%s\". %s\n",
+                   basename(__FILE__), __LINE__, rp, describe_error(e));
+          }
+        }
+      }
+    };
+
+    low_get_dir(remote_dir, local_dir);
   }
 
   //! Creates the directory @[path] on the remote host. Alias of @[mkd()]
@@ -770,7 +846,7 @@ class Client
   {
     mapping r = cmd("RETR " + remote_path);
 
-    if (local_path && Stdio.exist(local_path)) {
+    if (local_path) {
       string local_name = local_path;
 
       if (Stdio.is_dir(local_path)) {
