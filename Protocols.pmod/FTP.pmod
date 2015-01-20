@@ -44,7 +44,7 @@ class BaseClient
   protected Stdio.FILE fd2;
   protected string last_cmd = "[NONE]";
   protected mapping last_read;
-  protected int(0..1) _use_passive_mode = 1;
+  protected int(0..1) _use_passive_mode = 1, _is_guest = 1;
 
   //! Use passive mode as default or not. The default value is @tt{1@}.
   //! When in default passive mode @[pasv()] will be called i automatically
@@ -57,6 +57,12 @@ class BaseClient
   void passive_mode(int(0..1) passive_mode)
   {
     _use_passive_mode = passive_mode;
+  }
+
+  //! Is the user logged in as guest or a proper user
+  int(0..1) is_guest()
+  {
+    return _is_guest;
   }
 
   //! Returns the result from the last command
@@ -223,8 +229,8 @@ class BaseClient
   {
     TRACE("low_read(%O)\n", last_cmd);
     mapping ret = ([ "code" : 0, "text" : "" ]);
-    int code, space;
-    string s;
+    int old_code, space;
+    string s, first_line, last_line;
     function rfunc = fd ? fd->gets : sock::gets;
     array(string) collection = ({});
 
@@ -240,12 +246,29 @@ class BaseClient
         break;
       }
 
+      int code;
+
       if (sscanf(tmp, "%d%c%s", code, space, s) != 3) {
         collection += ({ trim(tmp) });
       }
 
+      if (!first_line) {
+        first_line = s;
+      }
+
+      if (old_code && !code) {
+        space = '-';
+      }
+      else if (old_code && old_code == code) {
+        last_line = s;
+      }
+
+      if (!old_code) {
+        old_code = code;
+      }
+
       // System status or feat or alike
-      if (code == 211) {
+      if (old_code == 211) {
         if (s == "END\r") {
           break;
         }
@@ -262,6 +285,14 @@ class BaseClient
 
     if (sizeof(collection)) {
       ret->text = collection;
+
+      if (first_line) {
+        ret->text = ({ trim(first_line) }) + ret->text;
+      }
+
+      if (last_line) {
+        ret->text += ({ trim(last_line) });
+      }
     }
     else if (sizeof(ret->text) && ret->text[-1] == '\n') {
       ret->text = ret->text[..<1];
@@ -339,7 +370,6 @@ class Client
   //!
   //! @param host
   //! @param port
-  //!
   //! @throws
   //!  An error if the connection fails
   void create(string host, void|int(0..) port)
@@ -373,6 +403,8 @@ class Client
       r = cmd("PASS " + pass);
     }
 
+    _is_guest = has_prefix(lower_case(r->text), "guest");
+
     return r->code == 230;
   }
 
@@ -405,12 +437,11 @@ class Client
   //!  If a directory the file will be written here with the same name
   //!  as the file in @[remote_path]. If it's not a directory a file with
   //!  this path/name will be written with the contents of @[remote_path].
-  //!
   //! @returns
   //!  The file contents of @[remote_path]
-  string get(string path)
+  string get(string path, void|string local_path)
   {
-    return retr(path);
+    return retr(path, local_path);
   }
 
   //! Creates the directory @[path] on the remote host. Alias of @[mkd()]
@@ -486,7 +517,6 @@ class Client
   //! Change working directory. Alias of @[cwd()].
   //!
   //! @param path
-  //!
   //! @returns
   //!  The new directory path
   string cd(string path)
@@ -494,9 +524,36 @@ class Client
     return cwd(path);
   }
 
+  //! If a @[command] is given, returns help on that command; otherwise,
+  //! returns general help for the FTP server (usually a list of supported
+  //! commands).
+  //!
+  //! @param command
   string help(void|string command)
   {
+    mapping res = cmd("HELP " + (command||""));
 
+    if (arrayp(res->text)) {
+      array(string) out = ({}), parts;
+      string tmpl;
+
+      foreach (res->text, string ln) {
+        if (search(ln, "   ") > -1) {
+          parts = map(ln/"   ", lambda (string s) {
+                                  return trim(s);
+                                });
+          tmpl = "%-8s" * sizeof(parts);
+          out += ({ "  " + sprintf(tmpl, @parts) });
+        }
+        else {
+          out += ({ ln });
+        }
+      }
+
+      return out * "\n";
+    }
+
+    return res->text;
   }
 
   //! Change working directory
@@ -687,7 +744,7 @@ class Client
   array(string) list(void|string path)
   {
     path = path || "";
-    mapping r = passive_cmd("LIST " + path);
+    mapping r = cmd("LIST " + path);
     return r->text;
   }
 
@@ -704,7 +761,7 @@ class Client
   //!  The file contents of @[remote_path]
   string retr(string remote_path, void|string local_path)
   {
-    mapping r = passive_cmd("RETR " + remote_path);
+    mapping r = cmd("RETR " + remote_path);
 
     if (local_path && Stdio.exist(local_path)) {
       string local_name = local_path;
@@ -726,7 +783,7 @@ class Client
   array(mapping) nlst(void|string path)
   {
     path = path || "";
-    mapping r = passive_cmd("NLST " + path);
+    mapping r = cmd("NLST " + path);
     return r->text;
   }
 
@@ -736,7 +793,7 @@ class Client
   array(mapping) mlsd(void|string path)
   {
     path = path || "";
-    mapping r = passive_cmd("MLSD " + path);
+    mapping r = cmd("MLSD " + path);
     return parse_mlist(r->text);
   }
 
@@ -778,34 +835,29 @@ class Client
   mapping cmd(string c)
   {
     TRACE("cmd(%s)\n", c);
-    low_write(c);
-    return read();
-  }
 
-  //! Same as @[cmd()] except this uses a different connection if in
-  //! passive mode. If the command @[c] needs passive mode and neither
-  //! @[pasv()] nor @[port()] was called before @[pasv()] will be called
-  //! automatically.
-  //!
-  //! @param c
-  mapping passive_cmd(string c)
-  {
-    TRACE("passive_cmd(%s)\n", c);
+    Stdio.FILE fd;
+
+    string prev_c = upper_case((last_cmd/" ")[0]);
+    string this_c = upper_case((c/" ")[0]);
+
     if (_use_passive_mode) {
-      if (!has_prefix(upper_case(last_cmd), "PASV") &&
-          !has_prefix(upper_case(last_cmd), "PORT"))
-      {
-        pasv();
-      }
+      if ((< "LIST","MLSD","RETR","REST","STOR","APPE","NLST" >)[this_c]) {
+        if (!(< "PASV", "PORT" >)[prev_c]) {
+          pasv();
+        }
 
-      if (!fd2 || !fd2->is_open()) {
-        error("Trying to write to file 2 but that's not open. Have you called " +
-              "%O::pasv()?\n", object_program(this));
+        if (!fd2 || !fd2->is_open()) {
+          error("Trying to write to a data connection but none is open. "
+                "Have you called %O::pasv()?\n", object_program(this));
+        }
+
+        fd = fd2;
       }
     }
 
     low_write(c);
-    return read(fd2);
+    return read(fd);
   }
 }
 
