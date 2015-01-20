@@ -45,9 +45,9 @@ class BaseClient
   protected mapping last_read;
   protected int(0..1) _use_passive_mode = 1, _is_guest = 1;
 
-  //! Use passive mode as default or not. The default value is @tt{1@}.
-  //! When in default passive mode @[pasv()] will be called i automatically
-  //! if certain commands demands it, like @[list()] and @[mlst()] for
+  //! Set default passive/active mode. The default value is @tt{1@}.
+  //! When in default passive mode @[pasv()] will be called automatically
+  //! if certain commands demands it, like @[ls()], @[get()] and @[put()] for
   //! example. If this is @tt{0@} and the client is behind a firewall for
   //! instance you have to call @[pasv()] your self prior to any command that
   //! will require passive mode.
@@ -135,7 +135,10 @@ class BaseClient
     }
   }
 
+  //! Read a list result from something like @tt{MLSD@} or @tt{LIST@}
+  //! for instance.
   //!
+  //! @param fd
   protected mapping read_list(void|Stdio.FILE fd)
   {
     TRACE("read_list(%O)\n", last_cmd);
@@ -147,13 +150,14 @@ class BaseClient
 
     while (tmp = my_gets()) {
       sscanf(tmp, "%d%c%s", int code, int s, string rest);
-
       if (code) {
         break;
       }
 
       collection += ({ trim(tmp) });
     }
+
+    close_fd2();
 
     read_empty();
 
@@ -164,7 +168,9 @@ class BaseClient
     return r;
   }
 
-  //! Read a file from a secondary fd
+  //! Read a file from @[fd]
+  //!
+  //! @param fd
   protected mapping read_file(Stdio.FILE fd)
   {
     TRACE("read_file(%O)\n", last_cmd);
@@ -207,6 +213,8 @@ class BaseClient
   {
     string _cmd = upper_case((last_cmd/" ")[0]);
     mapping r;
+
+    TRACE("_cmd: [%s]\n", _cmd);
 
     if ((< "MLST", "NLST", "MLSD", "LIST" >)[_cmd]) {
       r = read_list(fd);
@@ -781,8 +789,7 @@ class Client
   //!  If not given the current workign directory will be listed
   array(mapping) nlst(void|string path)
   {
-    path = path || "";
-    mapping r = cmd("NLST " + path);
+    mapping r = cmd("NLST " + (path||""));
     return r->text;
   }
 
@@ -791,9 +798,15 @@ class Client
   //! @param path
   array(mapping) mlsd(void|string path)
   {
-    path = path || "";
-    mapping r = cmd("MLSD " + path);
+    mapping r = cmd("MLSD " + (path||""));
     return parse_mlist(r->text);
+  }
+
+  //! Returns the size of the remote @[file] as a decimal number.
+  int size(string file)
+  {
+    mapping r = cmd("SIZE " + (file||""));
+    return (int) r->text;
   }
 
   //! Get the feature list implemented by the server.
@@ -841,14 +854,17 @@ class Client
     string this_c = upper_case((c/" ")[0]);
 
     if (_use_passive_mode) {
-      if ((< "LIST","MLSD","RETR","REST","STOR","APPE","NLST" >)[this_c]) {
+      multiset passive_cmd = (< "LIST","MLSD","RETR","REST","STOR","APPE",
+                                "NLST","MLST" >);
+
+      if (passive_cmd[this_c]) {
         if (!(< "PASV", "PORT" >)[prev_c]) {
           pasv();
         }
 
         if (!fd2 || !fd2->is_open()) {
-          error("Trying to write to a data connection but none is open. "
-                "Have you called %O::pasv()?\n", object_program(this));
+          error("No data connection is available. Have you called %O::pasv()? ",
+                object_program(this));
         }
 
         fd = fd2;
