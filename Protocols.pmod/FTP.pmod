@@ -491,7 +491,7 @@ class Client
     local_dir = combine_path(local_dir, dirname(remote_dir2));
 
     if (!Stdio.exist(local_dir)) {
-      if (!predef::mkdir(local_dir)) {
+      if (!Stdio.mkdirhier(local_dir)) {
         error("Unable to create local directory \"%s\"!\n", local_dir);
       }
     }
