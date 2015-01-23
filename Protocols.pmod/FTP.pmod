@@ -389,11 +389,7 @@ class Client
       error("argument \"host\" can not be null! ");
     }
 
-    if (!port) {
-      port = 21;
-    }
-
-    if (!connect(host, port)) {
+    if (!connect(host, port || 21)) {
       error("Unable to connect to %O! %s\n", host, strerror(sock::errno()));
     }
 
