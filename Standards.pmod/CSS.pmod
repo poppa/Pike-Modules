@@ -42,14 +42,26 @@ class Minifier
       int c = css[i];
       switch (c)
       {
+        case '\'':
+        case '"':
+          add(css[i..i]);
+          i += 1;
+          while (1) {
+            add(css[i..i]);
+            if (css[i] == c)
+              continue outer;
+            i += 1;
+          }
+          break;
+
         case '@':
           if (next == 'i') {
             in_import = 1;
-            add (" ");
+            add(" ");
           }
           else if (next == 'm') {
             in_media = 1;
-            add (" ");
+            add(" ");
           }
           break;
 

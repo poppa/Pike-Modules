@@ -210,7 +210,7 @@ protected string lines(array(string) lines)
     }
 
     if (cur_block && !cur_block->type && !cur_block->interupted) {
-      //! @note There's a newline here in the original implementation
+      // NOTE: There's a newline here in the original implementation
       cur_block->element->text += " " + text;
     }
     else {

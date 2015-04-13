@@ -8,7 +8,7 @@
 
 //! JavaScript stuff
 
-//! Minifies JavaScript
+//! Minifies JavaScript using Douglas Crockford's algorithm
 //!
 //! @throws
 //!  An error if the parsing fails
@@ -17,6 +17,12 @@
 string minify(Stdio.File|string data)
 {
   return JSMin(data)->minify();
+}
+
+//! Minfies JavaScript slightly harder than @[minify()]
+string minify2(Stdio.File|string data)
+{
+  return JSMin2()->minify(data);
 }
 
 //| Using the jsmin algorithm originally by Douglas Crockford
@@ -250,3 +256,385 @@ class JSMin
     }
   }
 }
+
+#ifdef prev
+# define old_prev prev;
+# undef prev
+#endif
+
+#ifdef next
+# define old_next next;
+# undef next
+#endif
+
+#ifdef curr
+# define old_curr curr;
+# undef curr
+#endif
+
+#define prev  input[pos-1]
+#define next  input[pos+1]
+#define curr  input[pos]
+#define scurr input[pos..pos]
+
+class JSMin2
+{
+  enum TokenType {
+    TOK_ANY = 1,
+    TOK_DELIMITER,
+    TOK_REGEXP,
+    TOK_COMMENT,
+    TOK_STRING,
+    TOK_OPERATOR,
+    TOK_NEWLINE
+  }
+
+  private string input;
+  private String.Buffer output;
+  private function push;
+
+  void create()
+  {
+    output = String.Buffer();
+    push = output->add;
+  }
+
+  string minify(string|Stdio.File file)
+  {
+    if (objectp(file)) {
+      file->seek(0);
+      input = file->read();
+    }
+
+    parse();
+
+    string ret = output->get();
+    output = 0;
+    return ret;
+  }
+
+  private void parse()
+  {
+    array tokens = tokenize();
+
+    //werror("Tokens: %O\n", tokens);
+
+    if (sizeof(tokens)) {
+      tokens = ({ 0 }) + tokens + ({ 0, 0 });
+      int p = 1;
+      mapping ptok, tok, ntok;
+      string val, nval, pval;
+      int type, ntype, ptype;
+      ADT.Stack func_stack = ADT.Stack();
+
+      while (1) {
+        tok = tokens[p];
+
+        if (!tok) {
+          return;
+        }
+
+        ptok = tokens[p-1];
+        ntok = tokens[p+1];
+
+        type  = tok->type;
+        ntype = ntok && ntok->type;
+        ptype = ptok && ptok->type;
+
+        val  = tok->value;
+        pval = ptok && ptok->value;
+        nval = ntok && ntok->value;
+
+        if (type != TOK_NEWLINE) {
+          if (type == TOK_COMMENT && ptok)
+            push("\n");
+          push(tok->value);
+        }
+
+        if (type == TOK_COMMENT && ntok) {
+          push("\n");
+        }
+        else if (type == TOK_ANY) {
+          if (ntype == TOK_ANY) {
+            push(" ");
+          }
+          else if (ntype == TOK_NEWLINE) {
+            mapping x = tokens[p+2];
+
+            if (x) {
+              if (x->type == TOK_ANY)
+                push(";");
+            }
+          }
+          if (val == "function" && pval && pval == "=")
+            func_stack->push("function");
+        }
+        else if (val == "{") {
+          func_stack->push(1);
+        }
+        else if (val == "}") {
+          if (sizeof(func_stack)) {
+            func_stack->pop();
+            if (sizeof(func_stack)) {
+              if (func_stack->top() == "function") {
+                func_stack->pop();
+
+                if (nval && nval != ";") {
+                  mapping nntok = tokens[p+2];
+
+                  if (nntok && nntok->value != "}")
+                    push(";");
+                }
+              }
+              else {
+                if (ntype == TOK_NEWLINE) {
+                  mapping x = tokens[p+2];
+                  if (x->type == TOK_ANY)
+                    push(";");
+                }
+              }
+            }
+            else {
+              if (ntype == TOK_NEWLINE) {
+                mapping x = tokens[p+2];
+                if (x && x->type == TOK_ANY)
+                  push(";");
+              }
+            }
+          }
+        }
+
+        p += 1;
+      }
+    }
+  }
+
+  #define READ_LINE() do { \
+    while (1) { \
+      if (curr == '\n' || curr == '\0') \
+        break; \
+      pos += 1; \
+    } \
+  } while (0)
+
+  #define READ_TO_NEXT() do { \
+    pos += 1; \
+    while (1) { \
+      if (curr == c && prev != '\\') { \
+        break; \
+      } \
+      pos += 1; \
+    } \
+  } while (0)
+
+  private array(mapping(string:string|int)) tokenize()
+  {
+    int start, pos, prev_char, tok_type;
+
+    array(mapping(string:string|int)) ret = ({});
+
+    multiset regex_prev = (<
+      '(',',','=',':','[','!','&','|','?','{','}',';','\n' >);
+
+    multiset delimiters = (<
+      '=','!',':',';','.','-','+','*','/','&','|','?','%','<','>','^',
+      '(',')',
+      '{','}',
+      '[',']',
+      '\n','\t',' ','\f','\r'
+      >);
+
+    input += "\0\0";
+
+    ow: while (1) {
+      tok_type = TOK_ANY;
+      start = pos;
+      int c = curr;
+      switch (c) {
+        case '\0': return ret;
+
+        case ' ':
+        case '\r':
+        case '\f':
+        case '\t':
+        case '\b':
+          pos += 1;
+          continue;
+
+        case '\n':
+          if (!prev_char) {
+            pos += 1;
+            continue;
+          }
+
+          if (next == '\r' || next == '\n') {
+            pos += 1;
+
+            while (1) {
+              c = curr;
+
+              if (!c) {
+                break;
+              }
+
+              if (c == '\n') {
+                pos += 1;
+                continue;
+              }
+              else if (c == '\r') {
+                pos += 1;
+
+                if (next == '\n')
+                  pos += 1;
+
+                continue;
+              }
+
+              pos -= 1;
+
+              break;
+            }
+          }
+
+          pos += 1;
+
+          ret += ({ ([ "value" : "\n", "type" : TOK_NEWLINE ]) });
+          continue;
+
+        case '/':
+          int n = next;
+
+          if (n == '/') {
+            READ_LINE();
+            pos += 1;
+            continue;
+          }
+          else if (n != '*') {
+            if (regex_prev[prev_char]) {
+              READ_TO_NEXT();
+              tok_type = TOK_REGEXP;
+            }
+            else {
+              if (next == '=') {
+                tok_type = TOK_OPERATOR;
+                pos += 1;
+              }
+            }
+          }
+          else {
+            pos += 2;
+            int(0..1) keep_comment = curr == '!';
+            while (1) {
+              if (curr == '*' && next == '/') {
+                pos += 1;
+                if (!keep_comment) {
+                  pos += 1;
+                  continue ow;
+                }
+
+                break;
+              }
+              pos += 1;
+            }
+            tok_type = TOK_COMMENT;
+          }
+          break;
+
+        case '"':
+        case '\'':
+          READ_TO_NEXT();
+          tok_type = TOK_STRING;
+          break;
+
+        case '=':
+          if (next == '=') {
+            pos += 1;
+            if (next == '=')
+              pos += 1;
+          }
+          tok_type = TOK_OPERATOR;
+          break;
+
+        case '.':
+        case ',':
+        case ':':
+        case ';':
+        case '[': case ']':
+        case '{': case '}':
+        case '(': case ')':
+          tok_type = TOK_DELIMITER;
+          break;
+
+        case '!':
+          if (next == '!') {
+            pos += 1;
+          }
+          else if (next == '=') {
+            pos += 1;
+            if (next == '=')
+              pos += 1;
+          }
+          tok_type = TOK_OPERATOR;
+          break;
+
+        case '<':
+        case '>':
+        case '*':
+        case '-':
+        case '+':
+          if ((< '=', '+', '-' >)[next])
+            pos += 1;
+
+            tok_type = TOK_OPERATOR;
+          break;
+
+        case '&':
+          if (next == '&') {
+            pos += 1;
+          }
+          tok_type = TOK_OPERATOR;
+          break;
+
+        case '|':
+          if ((< '|', '=' >)[next]) {
+            pos += 1;
+          }
+
+          tok_type = TOK_OPERATOR;
+          break;
+
+        default:
+          if (!delimiters[c]) {
+            while (!delimiters[c]) {
+              c = input[++pos];
+            }
+            pos--;
+          }
+          break;
+      }
+
+      prev_char = curr;
+      ret += ({ ([ "value" : input[start..pos], "type" : tok_type ]) });
+
+      pos += 1;
+    }
+
+
+    return ret;
+  }
+}
+
+#ifdef old_prev
+# undef prev
+# define prev old_prev
+#endif
+
+#ifdef old_next
+# undef next
+# define next old_next
+#endif
+
+#ifdef old_curr
+# undef curr
+# define curr old_curr
+#endif
