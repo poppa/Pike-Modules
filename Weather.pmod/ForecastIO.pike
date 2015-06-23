@@ -36,7 +36,6 @@
 //!   }
 //! @}
 
-
 //! Default URI to the Forecast.io web service
 public string apiuri = "https://api.forecast.io/forecast/";
 
@@ -61,8 +60,6 @@ protected multiset valid_units = (< "auto", "us", "si", "ca", "uk" >);
 //! Valid exclusion blocks
 protected multiset valid_excl = (< "currently", "minutely", "hourly",
                                    "daily", "alerts", "flags" >);
-
-protected mapping last_response_headers;
 
 //! Create a new instance
 //!
@@ -151,12 +148,10 @@ Result forecast(float lat, float lon, void|string|int timestamp)
   Protocols.HTTP.Query q;
   q = Protocols.HTTP.get_url(uri, params);
 
-  last_response_headers = q->headers;
-
   if (q->status != 200)
     error("Bad status (%d) in HTTP response! ", q->status);
 
-  return Result(q->data());
+  return Result(q->data(), q->headers);
 }
 
 #define GET(X) (data && data[#X])
@@ -194,18 +189,27 @@ class Result
 {
   inherit base;
 
+  private mapping headers;
+
+  //! @ignore
+  void create(string data, mapping _headers)
+  {
+    ::create(data);
+    headers = _headers;
+  }
+  //! @endignore
+
   //! Returns the numer of API calls today.
   //! Should be called after @[forecast()]
   int `api_calls()
   {
-    return last_response_headers &&
-           (int) last_response_headers["x-forecast-api-calls"];
+    return headers["x-forecast-api-calls"];
   }
 
   //! Response time of last call
   string `response_time()
   {
-    return last_response_headers && last_response_headers["x-response-time"];
+    return headers["x-response-time"];
   }
 
   //! Getter for the latitude
