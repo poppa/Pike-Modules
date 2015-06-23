@@ -62,6 +62,8 @@ protected multiset valid_units = (< "auto", "us", "si", "ca", "uk" >);
 protected multiset valid_excl = (< "currently", "minutely", "hourly",
                                    "daily", "alerts", "flags" >);
 
+protected mapping last_response_headers;
+
 //! Create a new instance
 //!
 //! @param api_key
@@ -123,6 +125,20 @@ void `exclusions=(string excl)
   _excl = excl;
 }
 
+//! Returns the numer of API calls today.
+//! Should be called after @[forecast()]
+int `api_calls()
+{
+  return last_response_headers &&
+         (int) last_response_headers["x-forecast-api-calls"];
+}
+
+//! Response time of last call
+string `response_time()
+{
+  return last_response_headers && last_response_headers["x-response-time"];
+}
+
 //! Query for a forecast
 //!
 //! @param lat
@@ -148,6 +164,10 @@ Result forecast(float lat, float lon, void|string|int timestamp)
 
   Protocols.HTTP.Query q;
   q = Protocols.HTTP.get_url(uri, params);
+
+  werror("%O\n", q->headers);
+
+  last_response_headers = q->headers;
 
   if (q->status != 200)
     error("Bad status (%d) in HTTP response! ", q->status);
