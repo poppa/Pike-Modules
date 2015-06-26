@@ -159,7 +159,9 @@ Result forecast(float lat, float lon, void|string|int timestamp)
 //! Base class for results
 protected class base
 {
+  //! @ignore
   protected mapping data;
+  protected array(string) _export_exclude = ({ "create", "cast", "get_data" });
 
   void create(string|mapping _data)
   {
@@ -168,13 +170,57 @@ protected class base
     else
       data = _data;
   }
+  //! @endignore
 
+  //! Returns the orgiginal, untouched, mapping
+  mapping get_data()
+  {
+    return data;
+  }
+
+  //! Cast method. Only supports casting to mapping.
+  //!
+  //! @param how
   mixed cast(string how)
   {
     switch (how)
     {
       case "mapping":
-        return data;
+        array(string) methods = indices(this) - _export_exclude;
+        mapping m = ([]);
+
+        foreach (methods, string method) {
+          if (functionp(this[method]))
+            m[method] = this[method]();
+          else
+            m[method] = this[method];
+
+          if (objectp(m[method])) {
+            object x = object_program(m[method]);
+
+            if (x == Condition || x == DailyCondition) {
+              m[method] = (mapping) m[method];
+            }
+            else if (x == Calendar.ISO.cSecond) {
+              m[method] = m[method]->format_time();
+            }
+          }
+          else if (arrayp(m[method])) {
+            if (sizeof(m[method])) {
+              mixed first = m[method][0];
+
+              if (objectp(first)) {
+                object x = object_program(first);
+
+                if (x == Condition || x == DailyCondition) {
+                  m[method] = m[method]->cast("mapping");
+                }
+              }
+            }
+          }
+        }
+
+        return m;
         break;
 
       default:
@@ -203,13 +249,13 @@ class Result
   //! Should be called after @[forecast()]
   int `api_calls()
   {
-    return headers["x-forecast-api-calls"];
+    return headers && headers["x-forecast-api-calls"];
   }
 
   //! Response time of last call
   string `response_time()
   {
-    return headers["x-response-time"];
+    return headers && headers["x-response-time"];
   }
 
   //! Getter for the latitude
@@ -234,7 +280,7 @@ class Result
   array(Condition) `daily_data()
   {
     mapping h = GET(daily) || ([]);
-    return map(h->data||({}), lambda (mapping m) { return Condition(m); });
+    return map(h->data||({}), lambda (mapping m) { return DailyCondition(m); });
   }
 
   //! Getter for the current day's icon
@@ -283,21 +329,6 @@ class Condition
     return GET(apparentTemperature);
   }
 
-  //! Getter for the the sun rises
-  Calendar.Second `sunrise()
-  {
-    return Calendar.Second("unix", GET(sunriseTime));
-  }
-
-  //! Getter for when the sun sets
-  Calendar.Second `sunset()
-  {
-    return Calendar.Second("unix", GET(sunsetTime));
-  }
-
-  //! Getter for the moon phase
-  float `moon_phase() { return GET(moonPhase); }
-
   //! Getter for the cloud cover
   float `cloud_cover() { return GET(cloudCover); }
 
@@ -316,17 +347,8 @@ class Condition
   //! Getter for the preciep intencity
   float `preciep_intencity() { return GET(preciepIntencity); }
 
-  //! Getter for the highest preciep intencity
-  float `max_preciep_intencity() { return GET(preciepIntencityMax); }
-
-  //! Getter for the lowest preciep intencity
-  float `min_preciep_intencity() { return GET(preciepIntencityMin); }
-
   //! Getter for the preciep probability
   float `preciep_probability() { return GET(preciepProbability); }
-
-  //! Getter for the preciep type
-  string `precip_type() { return GET(precipType); }
 
   //! Getter for the pressure
   float `pressure() { return GET(pressure); }
@@ -345,6 +367,41 @@ class Condition
 
   //! Getter for the timestamp as a calendar object
   Calendar.Second `time() { return Calendar.Second("unix", GET(time)); }
+}
+
+//! Class representing daily weather condtion. This has more members
+//! than hourly condition.
+class DailyCondition
+{
+  inherit Condition;
+
+  //! Getter for the the sun rises
+  Calendar.Second `sunrise()
+  {
+    return Calendar.Second("unix", GET(sunriseTime));
+  }
+
+  //! Getter for when the sun sets
+  Calendar.Second `sunset()
+  {
+    return Calendar.Second("unix", GET(sunsetTime));
+  }
+
+  //! Getter for the moon phase
+  float `moon_phase() { return GET(moonPhase); }
+
+  //! Getter for the highest preciep intencity
+  float `max_precip_intencity() { return GET(precipIntencityMax); }
+
+  //! Getter for the time of the highest preciep intencity
+  Calendar.Second `max_precip_intencity_time()
+  {
+    return data["precipIntencityMaxTime"] &&
+           Calendar.Second("unix", GET(precipIntencityMaxTime));
+  }
+
+  //! Getter for the preciep type
+  string `precip_type() { return GET(precipType); }
 
   //! Getter for the highest temperature
   float `max_temperature() { return GET(temperatureMax); }

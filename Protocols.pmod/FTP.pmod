@@ -41,7 +41,9 @@ class BaseClient
   inherit Stdio.FILE : sock;
 
   protected Stdio.FILE fd2;
+  protected string ftp_system;
   protected string last_cmd = "[NONE]";
+  protected int(-1..1) is_windows = -1;
   protected mapping last_read;
   protected int(0..1) _use_passive_mode = 1, _is_guest = 1;
 
@@ -150,7 +152,7 @@ class BaseClient
 
     while (tmp = my_gets()) {
       sscanf(tmp, "%d%c%s", int code, int s, string rest);
-      if (code) {
+      if (code && code > 99) {
         break;
       }
 
@@ -355,6 +357,59 @@ class BaseClient
     return ret;
   }
 
+  protected array(mapping) parse_list(array(string) lines)
+  {
+    array(mapping) out = ({});
+    foreach (lines, string line) {
+      mapping m;
+
+      if (is_windows) {
+        int nmatches;
+        nmatches = sscanf(line, "%2s-%2s-%2s%*[ ]%2s:%2s%*[ ]<%s>%*[ ]%s",
+                          string month, string date, string year, string hour,
+                          string min, string type, string name);
+
+        if (nmatches == 10) {
+          Calendar.Second s;
+          s = Calendar.parse("%y-%M-%D %h:%m:00",
+                             (({ year, month, date}) * "-") + " " +
+                             (({ hour, min }) * ":"));
+
+          m = ([
+            "path" : name,
+            "type" : "dir",
+            "modified" : s->unix_time()
+          ]);
+        }
+        else {
+          sscanf(line, "%2s-%2s-%2s%*[ ]%2s:%2s%*[ ]%d%*[ ]%s",
+                          month, date, year, hour,
+                          min, int size, name);
+
+          Calendar.Second s;
+          s = Calendar.parse("%y-%M-%D %h:%m",
+                             (({ year, month, date}) * "-") + " " +
+                             (({ hour, min }) * ":"));
+
+          if (!s) {
+            werror("Error parsing date: %s\n", line);
+          }
+
+          m = ([
+            "path" : name,
+            "type" : "file",
+            "size" : size,
+            "modified" : s && s->unix_time()
+          ]);
+        }
+      }
+
+      out += ({ m });
+    }
+
+    return out;
+  }
+
   //! @ignore
   void destroy()
   {
@@ -389,7 +444,11 @@ class Client
       error("argument \"host\" can not be null! ");
     }
 
-    if (!connect(host, port || 21)) {
+    if (!port) {
+      port = 21;
+    }
+
+    if (!connect(host, port)) {
       error("Unable to connect to %O! %s\n", host, strerror(sock::errno()));
     }
 
@@ -412,7 +471,18 @@ class Client
 
     _is_guest = has_prefix(lower_case(r->text), "guest");
 
-    return r->code == 230;
+    if (r->code == 230) {
+      ftp_system = syst();
+
+      if (search(lower_case(ftp_system), "windows") > -1)
+        is_windows = 1;
+      else
+        is_windows = 0;
+
+      return 1;
+    }
+
+    return 0;
   }
 
   /* ALIASES */
@@ -487,7 +557,7 @@ class Client
     local_dir = combine_path(local_dir, dirname(remote_dir2));
 
     if (!Stdio.exist(local_dir)) {
-      if (!Stdio.mkdirhier(local_dir)) {
+      if (!predef::mkdir(local_dir)) {
         error("Unable to create local directory \"%s\"!\n", local_dir);
       }
     }
@@ -533,12 +603,13 @@ class Client
     return mkd(path);
   }
 
-  //! Directory listing. Alias of @[mlsd()].
+  //! Directory listing. Alias of @[mlsd()].or @[list()] depending on the
+  //! system
   //!
   //! @param path
   array(mapping) ls(void|string path)
   {
-    return mlsd(path);
+    return is_windows == 1 ? list(path) : mlsd(path);
   }
 
   //! Deletes the directory @[path] on the remote host. Alias of @[rmd()].
@@ -652,9 +723,17 @@ class Client
   string pwd()
   {
     string s = cmd("PWD")->text;
-    sscanf (s, "%s %*s", s);
-    if (s[0] == '"') s = s[1..];
-    if (s[-1] == '"') s = s[..<1];
+
+    int m = sscanf(s, "%s %*s", s);
+
+    if (m == 0) {
+      sscanf(s, "\"%s\"", s);
+    }
+    else {
+      if (s[0] == '"') s = s[1..];
+      if (s[-1] == '"') s = s[..<1];
+    }
+
     return s;
   }
 
@@ -820,11 +899,12 @@ class Client
   //!
   //! @param path
   //!  Either a path or @tt{-R@} for recursive listing
-  array(string) list(void|string path)
+  array(mapping) list(void|string path)
   {
     path = path || "";
     mapping r = cmd("LIST " + path);
-    return r->text;
+    array(mapping) x = ::parse_list(r->text);
+    return x;
   }
 
   //! Retrieve a remote file
@@ -903,6 +983,13 @@ class Client
   mapping quit()
   {
     return cmd("QUIT");
+  }
+
+  //! System information;
+  string syst()
+  {
+    if (ftp_system) return ftp_system;
+    return ftp_system = cmd("SYST")->text;
   }
 
   //! Issue any command

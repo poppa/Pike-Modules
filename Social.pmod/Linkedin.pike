@@ -143,6 +143,7 @@ class Authorization
   //! of a random string
   protected constant STATE = 1;
 
+  //! Default scope to use if none is set explicitly
   protected constant DEFAULT_SCOPE = SCOPE_R_BASIC;
 
   enum Scopes {

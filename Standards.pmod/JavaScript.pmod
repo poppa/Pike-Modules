@@ -305,6 +305,8 @@ class JSMin2
       file->seek(0);
       input = file->read();
     }
+    else
+      input = file;
 
     parse();
 
@@ -316,8 +318,6 @@ class JSMin2
   private void parse()
   {
     array tokens = tokenize();
-
-    //werror("Tokens: %O\n", tokens);
 
     if (sizeof(tokens)) {
       tokens = ({ 0 }) + tokens + ({ 0, 0 });
@@ -409,22 +409,31 @@ class JSMin2
     }
   }
 
-  #define READ_LINE() do { \
-    while (1) { \
-      if (curr == '\n' || curr == '\0') \
-        break; \
-      pos += 1; \
-    } \
+  #define READ_LINE() do {                                          \
+    while (1) {                                                     \
+      if (curr == '\n' || curr == '\0')                             \
+        break;                                                      \
+      pos += 1;                                                     \
+    }                                                               \
   } while (0)
 
-  #define READ_TO_NEXT() do { \
-    pos += 1; \
-    while (1) { \
-      if (curr == c && prev != '\\') { \
-        break; \
-      } \
-      pos += 1; \
-    } \
+  #define READ_TO_NEXT() do {                                       \
+    pos += 1;                                                       \
+    while (1) {                                                     \
+      if (curr == c) {                                              \
+        if (prev == '\\') {                                         \
+          int t = pos;                                              \
+          int n = 0;                                                \
+          while (input[--t] == '\\')                                \
+            n++;                                                    \
+          if (n % 2 == 0) {                                         \
+            break;                                                  \
+          }                                                         \
+        }                                                           \
+        else break;                                                 \
+      }                                                             \
+      pos += 1;                                                     \
+    }                                                               \
   } while (0)
 
   private array(mapping(string:string|int)) tokenize()
@@ -437,7 +446,7 @@ class JSMin2
       '(',',','=',':','[','!','&','|','?','{','}',';','\n' >);
 
     multiset delimiters = (<
-      '=','!',':',';','.','-','+','*','/','&','|','?','%','<','>','^',
+      '=','!',':',',',';','.','-','+','*','/','&','|','?','%','<','>','^',
       '(',')',
       '{','}',
       '[',']',
@@ -450,6 +459,7 @@ class JSMin2
       tok_type = TOK_ANY;
       start = pos;
       int c = curr;
+
       switch (c) {
         case '\0': return ret;
 
@@ -607,6 +617,7 @@ class JSMin2
           if (!delimiters[c]) {
             while (!delimiters[c]) {
               c = input[++pos];
+              if (!c) break;
             }
             pos--;
           }

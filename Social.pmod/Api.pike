@@ -195,11 +195,11 @@ mixed call(string api_method, void|ParamsArg params,
                    }
                  },
                  lambda (Request r) {
-                   werror ("Data: %O\n", r);
+                   TRACE("async data: %O\n", r);
                    if (cb) cb(handle_response(r));
                  },
                  lambda (Request r) {
-                   werror("Fail: %O\n", r);
+                   TRACE("Async fail: %O\n", r);
                    if (cb) cb(0);
                  });
     return 0;
