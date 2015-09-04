@@ -95,21 +95,19 @@ Self add_mapping(mapping value)
 //!  A new @[Params] object
 Self `+(.Param|Self p)
 {
+  #if 0
   Self pp = object_program(this)(@params);
   pp += p;
 
   return pp;
-}
+  #endif
 
-//! Append @[p] to the @[Param]eters array of the current object
-//!
-//! @param p
-Self `+=(.Param|Self|mapping p)
-{
   if (mappingp(p)) {
-    Self pp = Self();
-    pp->add_mapping(p);
-    p = pp;
+    foreach (p; string k; string v) {
+      params += ({ .Param(k, v) });
+    }
+
+    return this;
   }
 
   if (INSTANCE_OF(p, this))
@@ -119,6 +117,33 @@ Self `+=(.Param|Self|mapping p)
 
   return this;
 }
+
+#if 0
+//! Append @[p] to the @[Param]eters array of the current object
+//!
+//! @param p
+Self `+=(.Param|Self|mapping p)
+{
+  if (mappingp(p)) {
+    //Self pp = Self();
+    //pp->add_mapping(p);
+    //p = pp;
+    foreach (p; string k; string v) {
+      params += ({ .Param(k, v) });
+    }
+    return this;
+  }
+
+  werror("Add params +=: %s\n", p);
+
+  if (INSTANCE_OF(p, this))
+    params += p->get_params();
+  else
+    params += ({ p });
+
+  return this;
+}
+#endif
 
 //! Remove @[p] from the @[Param]eters array of the current object.
 //!

@@ -273,7 +273,7 @@ class Authorization
       m = ([]);
       foreach (n->get_children(), Node cn) {
         if (cn->get_node_type() == XML_ELEMENT)
-                m[cn->get_tag_name()] = cn->value_of_node();
+          m[cn->get_tag_name()] = cn->value_of_node();
       }
     }
 

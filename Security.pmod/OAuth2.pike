@@ -44,7 +44,8 @@ enum GrantType {
   GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code",
   GRANT_TYPE_IMPLICIT           = "implicit",
   GRANT_TYPE_PASSWORD           = "password",
-  GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials"
+  GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials",
+  GRANT_TYPE_JWT                = "urn:ietf:params:oauth:grant-type:jwt-bearer"
 }
 
 //! Response types
@@ -125,6 +126,75 @@ string get_redirect_uri()
   return _redirect_uri;
 }
 
+//! Get an @code{access_token@} from a JWT.
+//! @link{http://jwt.io/@}
+//!
+//! @param jwt
+//!  JSON string
+//! @param token_endpoint
+//!  URI to the request access_token endpoint
+//! @param sub
+//!  Email/id of the requesting user
+mapping get_token_from_jwt(string jwt, string token_endpoint, string|void sub)
+{
+  mapping j = Standards.JSON.decode(jwt);
+  mapping header = ([ "alg" : "RS256", "typ" : "JWT" ]);
+
+  int now = time();
+  int exp = now + 3600;
+
+  mapping claim = ([
+    "iss"   : j->client_email,
+    "scope" : get_valid_scopes(_scope),
+    "aud"   : token_endpoint,
+    "exp"   : exp,
+    "iat"   : now
+  ]);
+
+  if (sub) {
+    claim->sub = sub;
+  }
+
+  string s = base64url_encode(Standards.JSON.encode(header));
+  s += "." + base64url_encode(Standards.JSON.encode(claim));
+
+  string key = Standards.PEM.simple_decode(j->private_key);
+  object x = [object(Standards.ASN1.Types.Sequence)]
+                Standards.ASN1.Decode.simple_der_decode(key);
+  Crypto.RSA.State state;
+  state = Standards.PKCS.RSA.parse_private_key(x->elements[-1]->value);
+
+  string ss = state->pkcs_sign(s, Crypto.SHA256);
+  s += "." + base64url_encode(ss);
+
+  string body = "grant_type=" + Protocols.HTTP.uri_encode(GRANT_TYPE_JWT)+"&"+
+                "assertion=" + Protocols.HTTP.uri_encode(s);
+
+  Protocols.HTTP.Query q;
+  q = Protocols.HTTP.do_method("POST", token_endpoint, 0, request_headers, 0,
+                               body);
+
+  if (q->status == 200) {
+    mapping res = Standards.JSON.decode(q->data());
+    if (!decode_access_token_response(q->data())) {
+      error("Bad result! Expected an access_token but none were being found!"
+            "\nData: %s.\n", q->data());
+    }
+
+    return gettable;
+  }
+
+  string ee = try_get_error(q->data());
+  error("Bad status (%d) in response: %s! ", q->status, ee||"Unknown error");
+}
+
+protected string base64url_encode(string s)
+{
+  s = MIME.encode_base64(s, 1);
+  s = replace(s, ([ "==" : "", "+" : "-", "-" : "_" ]));
+  return s;
+}
+
 //! Setter for the redirect uri
 //!
 //! @param uri
@@ -137,6 +207,12 @@ void set_redirect_uri(string uri)
 multiset list_valid_scopes()
 {
   return valid_scopes;
+}
+
+//! Set scopes
+void set_scope(string scope)
+{
+  _scope = scope;
 }
 
 //! Returns the scope/scopes set, if any.
@@ -302,6 +378,12 @@ int(0..1) is_expired()
   return gettable->expires ? time() > gettable->expires : 1;
 }
 
+//! Do we have a valid authentication
+int(0..1) is_authenticated()
+{
+  return !!gettable->access_token && !is_expired();
+}
+
 //! Cast method. If casted to @tt{string@} the @tt{access_token@} will be
 //! returned. If casted to @tt{int@} the @tt{expires@} timestamp will
 //! be returned.
@@ -394,6 +476,8 @@ protected mapping gettable = ([ "access_token"  : 0,
 
 protected string get_valid_scopes(string|array(string)|multiset(string) s)
 {
+  if (!s) return "";
+
   array r = ({});
 
   if (stringp(s))
@@ -402,7 +486,7 @@ protected string get_valid_scopes(string|array(string)|multiset(string) s)
   if (multisetp(s))
     s = (array) s;
 
-  if (!sizeof (valid_scopes))
+  if (!sizeof(valid_scopes))
     r = s;
 
   foreach (s, string x) {

@@ -47,10 +47,12 @@ class Api
   protected string get_uri(string s)
   {
     if (sizeof(API_URI)) {
-      if (has_suffix(API_URI, "/") && s[0] == '/')
-        s = s[1..];
-      else if (s[0] != '/')
-        s = "/" + s;
+      if (sizeof(s)) {
+        if (has_suffix(API_URI, "/") && s[0] == '/')
+          s = s[1..];
+        else if (s[0] != '/')
+          s = "/" + s;
+      } 
 
       return API_URI + s;
     }

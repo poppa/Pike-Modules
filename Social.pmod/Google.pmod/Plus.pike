@@ -51,7 +51,7 @@ class People
   //!  Callback for async request
   mapping get(void|string user_id, void|Callback cb)
   {
-    return _get (user_id||"me", 0, cb);
+    return _get(user_id||"me", 0, cb);
   }
 
   //! List all of the people in the specified @[collection].
