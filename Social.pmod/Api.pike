@@ -315,11 +315,14 @@ class Authorization
   //! Scope to set if none is set
   protected constant DEFAULT_SCOPE = 0;
 
+// todo: Resolve where PEM is located pre 8.0
+#if constant(Standards.PEM)
   //! Make an JWT (JSON Web Token) authentication
   mapping get_token_from_jwt(string jwt, void|string sub)
   {
     return ::get_token_from_jwt(jwt, OAUTH_TOKEN_URI, sub);
   }
+#endif
 
   //! Returns an authorization URI.
   //!

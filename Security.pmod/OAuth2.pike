@@ -127,6 +127,9 @@ string get_redirect_uri()
   return _redirect_uri;
 }
 
+// todo: Resolve where PEM is located pre 8.0
+#if constant(Standards.PEM)
+
 //! Get an @code{access_token@} from a JWT.
 //! @link{http://jwt.io/@}
 //!
@@ -188,6 +191,8 @@ mapping get_token_from_jwt(string jwt, string token_endpoint, string|void sub)
   string ee = try_get_error(q->data());
   error("Bad status (%d) in response: %s! ", q->status, ee||"Unknown error");
 }
+
+#endif /* Standards.PEM */
 
 protected string base64url_encode(string s)
 {
