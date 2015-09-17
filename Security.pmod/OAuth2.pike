@@ -45,7 +45,8 @@ enum GrantType {
   GRANT_TYPE_IMPLICIT           = "implicit",
   GRANT_TYPE_PASSWORD           = "password",
   GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials",
-  GRANT_TYPE_JWT                = "urn:ietf:params:oauth:grant-type:jwt-bearer"
+  GRANT_TYPE_JWT                = "urn:ietf:params:oauth:grant-type:jwt-bearer",
+  GRANT_TYPE_REFRESH_TOKEN      = "refresh_token"
 }
 
 //! Response types
@@ -81,7 +82,7 @@ void `access_token=(string value)
 //! Getter for @expr{refresh_token@}
 string `refresh_token()
 {
-  return gettable->access_token;
+  return gettable->refresh_token;
 }
 
 //! Getter for @expr{token_type@}
@@ -209,6 +210,21 @@ multiset list_valid_scopes()
   return valid_scopes;
 }
 
+//! Set access_type explicilty
+//!
+//! @param access_type
+//!  Like: offline
+void set_access_type(string access_type)
+{
+  _access_type = access_type;
+}
+
+//! Getter for the access type, if any
+string get_access_type()
+{
+  return _access_type;
+}
+
 //! Set scopes
 void set_scope(string scope)
 {
@@ -247,8 +263,13 @@ this_program set_from_cookie(string encoded_value)
 {
   mixed e = catch {
     gettable = decode_value(encoded_value);
+
     if (gettable->scope)
       _scope = gettable->scope;
+
+    if (gettable->access_type)
+      _access_type = gettable->access_type;
+
     return this;
   };
 
@@ -279,6 +300,13 @@ string get_auth_uri(string auth_uri, void|mapping args)
       _scope = sc;
       p += Param("scope", sc);
     }
+  }
+
+  if (args && args->access_type || _access_type) {
+    p += Param("access_type", args && args->access_type || _access_type);
+
+    if (!_access_type && args && args->access_type)
+      _access_type = args->access_type;
   }
 
   if (args) {
@@ -320,19 +348,49 @@ string get_auth_uri(string auth_uri, void|mapping args)
 //!  members.
 string request_access_token(string oauth_token_uri, string code)
 {
-  Params p = Params(Param("client_id",     _client_id),
-                    Param("redirect_uri",  _redirect_uri),
-                    Param("client_secret", _client_secret),
-                    Param("grant_type",    _grant_type),
-                    Param("code",          code));
+  TRACE("request_access_token: %O, %O\n", oauth_token_uri, code);
 
-  if (STATE)
-    p += Param("state", (string) Standards.UUID.make_version4());
+  Params p = get_default_params();
+  p += Param("code", code);
 
+  if (string s = do_query(oauth_token_uri, p))
+    return s;
+
+  error("Failed getting access token! ");
+}
+
+//! Refreshes the access token, if a refresh token exists in the object
+//!
+//! @param oauth_token_uri
+//!  Endpoint of the authentication service
+string refresh_access_token(string oauth_token_uri)
+{
+  TRACE("Refresh: %s @ %s\n", gettable->refresh_token, oauth_token_uri);
+
+  if (!gettable->refresh_token)
+    error("No refresh_token in object! ");
+
+  Params p = get_default_params(GRANT_TYPE_REFRESH_TOKEN);
+  p += Param("refresh_token", gettable->refresh_token);
+
+  if (string s = do_query(oauth_token_uri, p)) {
+    TRACE("Got result: %O\n", s);
+    return s;
+  }
+
+  error("Failed refreshing access token! ");
+}
+
+//! Send a request to @[oauth_token_uri] with params @[p]
+//!
+//! @param oauth_token_uri
+//! @param p
+protected string do_query(string oauth_token_uri, Params p)
+{
   int qpos = 0;
 
   if ((qpos = search(oauth_token_uri, "?")) > -1) {
-    string qs = oauth_token_uri[qpos..];
+    //string qs = oauth_token_uri[qpos..];
     oauth_token_uri = oauth_token_uri[..qpos];
   }
 
@@ -342,6 +400,8 @@ string request_access_token(string oauth_token_uri, string code)
   Protocols.HTTP.Session sess = Protocols.HTTP.Session();
   Protocols.HTTP.Session.Request q;
   q = sess->post_url(oauth_token_uri, p->to_mapping());
+
+  TRACE("Query OK: %O : %O : %s\n", q, q->status(), q->data());
 
   string c = q->data();
 
@@ -353,10 +413,26 @@ string request_access_token(string oauth_token_uri, string code)
     error(emsg);
   }
 
+  TRACE("Got data: %O\n", c);
+
   if (decode_access_token_response(c))
     return encode_value(gettable);
+}
 
-  error("Failed getting access token!");
+//! Returns a set of default parameters
+//!
+//! @param grant_type
+protected Params get_default_params(void|string grant_type)
+{
+  Params p = Params(Param("client_id",     _client_id),
+                    Param("redirect_uri",  _redirect_uri),
+                    Param("client_secret", _client_secret),
+                    Param("grant_type",    grant_type || _grant_type));
+  if (STATE) {
+    p += Param("state", (string)Standards.UUID.make_version4());
+  }
+
+  return p;
 }
 
 //! Checks if the authorization is renewable. This is true if the
@@ -365,7 +441,7 @@ string request_access_token(string oauth_token_uri, string code)
 //! but the session has expired.
 int(0..1) is_renewable()
 {
-  return !!gettable->created;
+  return !!gettable->refresh_token;
 }
 
 //! Checks if this authorization has expired
@@ -448,6 +524,9 @@ protected string _redirect_uri;
 //! The scope of the authorization. Limits the access
 protected string|array(string)|multiset(string) _scope;
 
+//! Access type of the request.
+protected string _access_type;
+
 //! @[GRANT_TYPE_AUTHORIZATION_CODE] for apps running on a web server
 //! @[GRANT_TYPE_IMPLICIT] for browser-based or mobile apps
 //! @[GRANT_TYPE_PASSWORD] for logging in with a username and password
@@ -474,6 +553,12 @@ protected mapping gettable = ([ "access_token"  : 0,
                                 "created"       : 0,
                                 "token_type"    : 0 ]);
 
+//! Returns a space separated list of all valid scopes in @[s].
+//! @[s] can be a comma or space separated string or an array or multiset of
+//! strings. Each element in @[s] will be matched against the valid scopes
+//! set in the module inheriting this class.
+//!
+//! @param s
 protected string get_valid_scopes(string|array(string)|multiset(string) s)
 {
   if (!s) return "";
@@ -497,6 +582,12 @@ protected string get_valid_scopes(string|array(string)|multiset(string) s)
   return r*" ";
 }
 
+//! Decode the response from an authentication call. If the response was ok
+//! the internal mapping @[gettable] will be populated with the
+//! members/variables in @[r].
+//!
+//! @param r
+//!  The response from @[do_query()]
 protected int(0..1) decode_access_token_response(string r)
 {
   if (!r) return 0;
@@ -527,6 +618,10 @@ protected int(0..1) decode_access_token_response(string r)
       gettable[key] = val;
   }
 
+  if (_access_type) {
+    gettable->access_type = _access_type;
+  }
+
   return 1;
 }
 
@@ -538,6 +633,7 @@ private mixed try_get_error(string data)
   };
 }
 
+#if 0
 //! Parses a signed request
 //!
 //! @throws
@@ -575,3 +671,4 @@ protected mapping parse_signed_request(string sign)
 
   return data;
 }
+#endif

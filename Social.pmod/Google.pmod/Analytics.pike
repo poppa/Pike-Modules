@@ -9,7 +9,7 @@
 //! Google Analytics API
 
 //! API base URI.
-protected constant API_URI = "https://www.googleapis.com/analytics/v3/data";
+protected constant API_URI = "https://www.googleapis.com/analytics/v3";
 
 inherit .Api : parent;
 
@@ -25,12 +25,18 @@ RealTime `realtime()
   return _realtime || (_realtime = RealTime());
 }
 
+//! Getter for the @[Management] API
+Management `management()
+{
+  return _management || (_management = Management());
+}
+
 //! Interface to the Google Analytics core API
 class Core
 {
   inherit Method;
 
-  protected constant METHOD_PATH = "/ga";
+  protected constant METHOD_PATH = "/data/ga";
 
   mixed get(mapping params, void|Callback cb)
   {
@@ -43,7 +49,7 @@ class RealTime
 {
   inherit Method;
 
-  protected constant METHOD_PATH = "/realtime";
+  protected constant METHOD_PATH = "/data/realtime";
 
   mixed get(mapping params, void|Callback cb)
   {
@@ -51,8 +57,22 @@ class RealTime
   }
 }
 
+//! Interface to the Google Analytics managment API
+class Management
+{
+  inherit Method;
+
+  protected constant METHOD_PATH = "/management";
+
+  mixed account_summaries(void|ParamsArg params, void|Callback cb)
+  {
+    return _get("/accountSummaries", params, cb);
+  }
+}
+
 protected Core _core;
 protected RealTime _realtime;
+protected Management _management;
 
 //! Authorization class.
 //!

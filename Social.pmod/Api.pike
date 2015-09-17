@@ -362,6 +362,12 @@ class Authorization
   {
     return ::request_access_token(OAUTH_TOKEN_URI, code);
   }
+
+  //! Refreshes the access token, if a refresh token exists in the object
+  string refresh_access_token()
+  {
+    return ::refresh_access_token(OAUTH_TOKEN_URI);
+  }
 }
 
 //! Internal class ment to be inherited by implementing Api's classes that
