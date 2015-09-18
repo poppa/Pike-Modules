@@ -597,6 +597,8 @@ protected int(0..1) decode_access_token_response(string r)
 {
   if (!r) return 0;
 
+  TRACE("Decode response: %s\n", r);
+
   mapping v = ([]);
 
   if (has_prefix(r, "access_token")) {
