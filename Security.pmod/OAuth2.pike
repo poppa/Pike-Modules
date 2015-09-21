@@ -127,8 +127,7 @@ string get_redirect_uri()
   return _redirect_uri;
 }
 
-// todo: Resolve where PEM is located pre 8.0
-#if constant(Standards.PEM)
+#if constant(Crypto.RSA.State) // Pike 8.0
 
 //! Get an @code{access_token@} from a JWT.
 //! @link{http://jwt.io/@}
@@ -162,13 +161,28 @@ mapping get_token_from_jwt(string jwt, string token_endpoint, string|void sub)
   string s = base64url_encode(Standards.JSON.encode(header));
   s += "." + base64url_encode(Standards.JSON.encode(claim));
 
-  string key = Standards.PEM.simple_decode(j->private_key);
+  string key =
+//#if constant(Standards.PEM)
+    Standards.PEM.simple_decode(j->private_key);
+//#else
+//    Tools.PEM.Msg(j->private_key)->parts["PRIVATE KEY"]->decoded_body();
+//#endif
+
   object x = [object(Standards.ASN1.Types.Sequence)]
                 Standards.ASN1.Decode.simple_der_decode(key);
+
+  string ss;
+
+//#if constant(Crypto.RSA.State)
   Crypto.RSA.State state;
   state = Standards.PKCS.RSA.parse_private_key(x->elements[-1]->value);
+  ss = state->pkcs_sign(s, Crypto.SHA256);
+//#else /* Pike 7.8 cludge */
+//  Crypto.RSA rsa = Standards.PKCS.RSA.parse_private_key(x->elements[-1]->value);
+//  Gmp.mpz sign = rsa->sign(s, Crypto.SHA256);
+//  ss = sign->digits(256);
+//#endif
 
-  string ss = state->pkcs_sign(s, Crypto.SHA256);
   s += "." + base64url_encode(ss);
 
   string body = "grant_type=" + Protocols.HTTP.uri_encode(GRANT_TYPE_JWT)+"&"+
@@ -191,8 +205,7 @@ mapping get_token_from_jwt(string jwt, string token_endpoint, string|void sub)
   string ee = try_get_error(q->data());
   error("Bad status (%d) in response: %s! ", q->status, ee||"Unknown error");
 }
-
-#endif /* Standards.PEM */
+#endif /* Crypto.RSA.State */
 
 protected string base64url_encode(string s)
 {
