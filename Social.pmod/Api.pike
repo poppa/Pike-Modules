@@ -315,7 +315,7 @@ class Authorization
   //! Scope to set if none is set
   protected constant DEFAULT_SCOPE = 0;
 
-#if constant(Security.OAuth2.get_token_from_jwt)
+#if constant(Crypto.RSA.State)
   //! Make an JWT (JSON Web Token) authentication
   mapping get_token_from_jwt(string jwt, void|string sub)
   {
