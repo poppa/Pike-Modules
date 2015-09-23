@@ -425,12 +425,18 @@ string refresh_access_token(string oauth_token_uri, void|function async_cb)
   Params p = get_default_params(GRANT_TYPE_REFRESH_TOKEN);
   p += Param("refresh_token", gettable->refresh_token);
 
-  if (string s = do_query(oauth_token_uri, p, async_cb)) {
-    TRACE("Got result: %O\n", s);
-    return s;
+  if (async_cb) {
+    do_query(oauth_token_uri, p, async_cb);
+    return 0;
   }
+  else {
+    if (string s = do_query(oauth_token_uri, p, async_cb)) {
+      TRACE("Got result: %O\n", s);
+      return s;
+    }
 
-  error("Failed refreshing access token! ");
+    error("Failed refreshing access token! ");
+  }
 }
 
 //! Send a request to @[oauth_token_uri] with params @[p]
