@@ -23,7 +23,7 @@ public function json_decode = lambda (string s) {
 //! Set JSON decoding function
 //!
 //! @param func
-void set_json_decode(function func)
+__deprecated__ void set_json_decode(function func)
 {
   json_decode = func;
 }

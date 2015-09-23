@@ -227,7 +227,7 @@ private mixed handle_response(Request req)
     if (has_value(d, "error")) {
       mapping e;
       mixed err = catch {
-        e = Social.json_decode(d);
+        e = Standards.JSON.decode(d);
       };
 
       if (e) {
@@ -243,7 +243,7 @@ private mixed handle_response(Request req)
     error("Bad status (%d) in HTTP response! ", req->status());
   }
 
-  return Social.json_decode(unescape_forward_slashes(req->data()));
+  return Standards.JSON.decode(unescape_forward_slashes(req->data()));
 }
 
 //! String format
@@ -317,7 +317,8 @@ class Authorization
 
 #if constant(Crypto.RSA.State)
   //! Make an JWT (JSON Web Token) authentication
-  mapping get_token_from_jwt(string jwt, void|string sub)
+  mapping get_token_from_jwt(string jwt, void|string sub,
+                             void|function async_cb)
   {
     return ::get_token_from_jwt(jwt, OAUTH_TOKEN_URI, sub);
   }
@@ -360,15 +361,15 @@ class Authorization
   //!
   //!  Depending on the authorization service it might also contain more
   //!  members.
-  string request_access_token(string code)
+  string request_access_token(string code, void|function async_cb)
   {
-    return ::request_access_token(OAUTH_TOKEN_URI, code);
+    return ::request_access_token(OAUTH_TOKEN_URI, code, async_cb);
   }
 
   //! Refreshes the access token, if a refresh token exists in the object
-  string refresh_access_token()
+  string refresh_access_token(void|function async_cb)
   {
-    return ::refresh_access_token(OAUTH_TOKEN_URI);
+    return ::refresh_access_token(OAUTH_TOKEN_URI, async_cb);
   }
 }
 

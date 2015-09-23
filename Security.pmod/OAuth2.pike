@@ -138,7 +138,8 @@ string get_redirect_uri()
 //!  URI to the request access_token endpoint
 //! @param sub
 //!  Email/id of the requesting user
-mapping get_token_from_jwt(string jwt, string token_endpoint, string|void sub)
+mapping get_token_from_jwt(string jwt, string token_endpoint, string|void sub,
+                           void|function async_cb)
 {
   mapping j = Standards.JSON.decode(jwt);
   mapping header = ([ "alg" : "RS256", "typ" : "JWT" ]);
@@ -188,22 +189,48 @@ mapping get_token_from_jwt(string jwt, string token_endpoint, string|void sub)
   string body = "grant_type=" + Protocols.HTTP.uri_encode(GRANT_TYPE_JWT)+"&"+
                 "assertion=" + Protocols.HTTP.uri_encode(s);
 
-  Protocols.HTTP.Query q;
-  q = Protocols.HTTP.do_method("POST", token_endpoint, 0, request_headers, 0,
-                               body);
+  if (async_cb) {
+    Protocols.HTTP.Query q = Protocols.HTTP.Query();
+    q->set_callbacks(
+      lambda (Protocols.HTTP.Query qq, mixed ... args) {
+        if (qq->status == 200) {
+          mapping res = Standards.JSON.decode(q->data());
+          if (!decode_access_token_response(q->data())) {
+            async_cb(false, sprintf("Bad result! Expected an access_token but "
+                                    "none were found!\nData: %s.\n",q->data()));
+            return;
+          }
 
-  if (q->status == 200) {
-    mapping res = Standards.JSON.decode(q->data());
-    if (!decode_access_token_response(q->data())) {
-      error("Bad result! Expected an access_token but none were being found!"
-            "\nData: %s.\n", q->data());
+          async_cb(true, gettable);
+        }
+      },
+      lambda (Protocols.HTTP.Query qq, mixed ... args) {
+        async_cb(false, "Connection failed!");
+      }
+    );
+
+    Protocols.HTTP.do_async_method("POST", token_endpoint, 0, request_headers,
+                                   q, body);
+    return 0;
+  }
+  else {
+    Protocols.HTTP.Query q;
+    q = Protocols.HTTP.do_method("POST", token_endpoint, 0, request_headers, 0,
+                                 body);
+
+    if (q->status == 200) {
+      mapping res = Standards.JSON.decode(q->data());
+      if (!decode_access_token_response(q->data())) {
+        error("Bad result! Expected an access_token but none were being found!"
+              "\nData: %s.\n", q->data());
+      }
+
+      return gettable;
     }
 
-    return gettable;
+    string ee = try_get_error(q->data());
+    error("Bad status (%d) in response: %s! ", q->status, ee||"Unknown error");
   }
-
-  string ee = try_get_error(q->data());
-  error("Bad status (%d) in response: %s! ", q->status, ee||"Unknown error");
 }
 #endif /* Crypto.RSA.State */
 
@@ -364,24 +391,31 @@ string get_auth_uri(string auth_uri, void|mapping args)
 //!
 //!  Depending on the authorization service it might also contain more
 //!  members.
-string request_access_token(string oauth_token_uri, string code)
+string request_access_token(string oauth_token_uri, string code,
+                            void|function async_cb)
 {
   TRACE("request_access_token: %O, %O\n", oauth_token_uri, code);
 
   Params p = get_default_params();
   p += Param("code", code);
 
-  if (string s = do_query(oauth_token_uri, p))
-    return s;
+  if (async_cb) {
+    do_query(oauth_token_uri, p, async_cb);
+    return 0;
+  }
+  else {
+    if (string s = do_query(oauth_token_uri, p))
+      return s;
 
-  error("Failed getting access token! ");
+    error("Failed getting access token! ");
+  }
 }
 
 //! Refreshes the access token, if a refresh token exists in the object
 //!
 //! @param oauth_token_uri
 //!  Endpoint of the authentication service
-string refresh_access_token(string oauth_token_uri)
+string refresh_access_token(string oauth_token_uri, void|function async_cb)
 {
   TRACE("Refresh: %s @ %s\n", gettable->refresh_token, oauth_token_uri);
 
@@ -391,7 +425,7 @@ string refresh_access_token(string oauth_token_uri)
   Params p = get_default_params(GRANT_TYPE_REFRESH_TOKEN);
   p += Param("refresh_token", gettable->refresh_token);
 
-  if (string s = do_query(oauth_token_uri, p)) {
+  if (string s = do_query(oauth_token_uri, p, async_cb)) {
     TRACE("Got result: %O\n", s);
     return s;
   }
@@ -403,7 +437,8 @@ string refresh_access_token(string oauth_token_uri)
 //!
 //! @param oauth_token_uri
 //! @param p
-protected string do_query(string oauth_token_uri, Params p)
+protected string do_query(string oauth_token_uri, Params p,
+                          void|function async_cb)
 {
   int qpos = 0;
 
@@ -415,26 +450,59 @@ protected string do_query(string oauth_token_uri, Params p)
   TRACE("params: %O\n", p);
   TRACE("request_access_token(%s?%s)\n", oauth_token_uri, (string) p);
 
-  Protocols.HTTP.Session sess = Protocols.HTTP.Session();
-  Protocols.HTTP.Session.Request q;
-  q = sess->post_url(oauth_token_uri, p->to_mapping());
+  if (async_cb) {
+    Protocols.HTTP.Query q = Protocols.HTTP.Query();
+    q->set_callbacks(
+      lambda (Protocols.HTTP.Query qq, mixed ... args) {
+        if (q->status != 200) {
+          string emsg = sprintf("Bad status (%d) in HTTP response! ",
+                                q->status);
+          if (mapping reason = try_get_error(q->data()))
+            emsg += sprintf("Reason: %O!\n", reason);
 
-  TRACE("Query OK: %O : %O : %s\n", q, q->status(), q->data());
+          async_cb(false, emsg);
+        }
+        else {
+          if (decode_access_token_response(q->data()))
+            async_cb(true, encode_value(gettable));
+          else
+            async_cb(false, "Failed decoding response!");
+        }
+      },
 
-  string c = q->data();
+      lambda (Protocols.HTTP.Query qq, mixed ... args) {
+        werror("Failed callback\n");
+        async_cb(false, "Connection failed!");
+      }
+    );
 
-  if (q->status() != 200) {
-    string emsg = sprintf("Bad status (%d) in HTTP response! ", q->status());
-    if (mapping reason = try_get_error(c))
-      emsg += sprintf("Reason: %O!\n", reason);
+    Protocols.HTTP.do_async_method("POST", oauth_token_uri, 0,
+                                   request_headers, q, p->to_query());
 
-    error(emsg);
+    return 0;
   }
+  else {
+    Protocols.HTTP.Session sess = Protocols.HTTP.Session();
+    Protocols.HTTP.Session.Request q;
+    q = sess->post_url(oauth_token_uri, p->to_mapping());
 
-  TRACE("Got data: %O\n", c);
+    TRACE("Query OK: %O : %O : %s\n", q, q->status(), q->data());
 
-  if (decode_access_token_response(c))
-    return encode_value(gettable);
+    string c = q->data();
+
+    if (q->status() != 200) {
+      string emsg = sprintf("Bad status (%d) in HTTP response! ", q->status());
+      if (mapping reason = try_get_error(c))
+        emsg += sprintf("Reason: %O!\n", reason);
+
+      error(emsg);
+    }
+
+    TRACE("Got data: %O\n", c);
+
+    if (decode_access_token_response(c))
+      return encode_value(gettable);
+  }
 }
 
 //! Returns a set of default parameters
