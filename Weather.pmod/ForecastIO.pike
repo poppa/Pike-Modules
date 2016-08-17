@@ -145,6 +145,17 @@ Result forecast(float lat, float lon, void|string|int timestamp)
   string uri = apiuri + apikey + "/" + lat + "," + lon;
   if (timestamp) uri += "," + timestamp;
 
+  // Available in Roxen
+#if constant(HTTPClient.sync_get)
+  HTTPClient.Arguments args = HTTPClient.Arguments(([ "variables" : params ]));
+  HTTPClient.Result res = HTTPClient.sync_get(uri, args);
+
+  if (res->ok && res->status == 200) {
+    return Result(res->data, res->headers);
+  }
+
+  error("Bad status (%d) in HTTP response! ", res->status);
+#else
   Protocols.HTTP.Query q;
   q = Protocols.HTTP.get_url(uri, params);
 
@@ -152,6 +163,7 @@ Result forecast(float lat, float lon, void|string|int timestamp)
     error("Bad status (%d) in HTTP response! ", q->status);
 
   return Result(q->data(), q->headers);
+#endif
 }
 
 #define GET(X) (data && data[#X])
@@ -161,18 +173,20 @@ protected class base
 {
   //! @ignore
   protected mapping data;
-  protected array(string) _export_exclude = ({ "create", "cast", "get_data" });
+  protected array(string) _export_exclude = ({ "cast", "get_data" });
 
-  void create(string|mapping _data)
+  protected void create(string|mapping _data)
   {
-    if (stringp(_data))
+    if (stringp(_data)) {
       data = Standards.JSON.decode(_data);
-    else
+    }
+    else {
       data = _data;
+    }
   }
   //! @endignore
 
-  //! Returns the orgiginal, untouched, mapping
+  //! Returns the original, untouched, mapping
   mapping get_data()
   {
     return data;
@@ -190,10 +204,12 @@ protected class base
         mapping m = ([]);
 
         foreach (methods, string method) {
-          if (functionp(this[method]))
+          if (functionp(this[method])) {
             m[method] = this[method]();
-          else
+          }
+          else {
             m[method] = this[method];
+          }
 
           if (objectp(m[method])) {
             object x = object_program(m[method]);
@@ -238,7 +254,7 @@ class Result
   private mapping headers;
 
   //! @ignore
-  void create(string data, mapping _headers)
+  protected void create(string data, mapping _headers)
   {
     ::create(data);
     headers = _headers;
